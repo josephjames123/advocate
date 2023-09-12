@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment</title>
+</head>
+<body>
+    <form action="{% url 'update_booking_status' %}" method="POST">
+        {% csrf_token %}
+        <script src="https://checkout.razorpay.com/v1/checkout.js" data-key="YOUR_RAZORPAY_KEY" data-amount="{{ amount }}" data-name="Booking Payment" data-description="Booking ID: {{ booking_id }}" data-image="YOUR_LOGO_URL" data-prefill.name="{{ user.first_name }} {{ user.last_name }}" data-prefill.email="{{ user.email }}" data-order_id="{{ order_id }}"></script>
+        <input type="hidden" custom="Hidden Element" name="hidden">
+    </form>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bookings.css' %}">
+ 
+    <title>Bookings</title>
+
+</head>
+<body>
+    
+    <div class="container py-5">
+
+        <h3>Welcome Aby,</h3>
+
+        <!-- top links start -->
+        <div class="row dashboard-top-buttons-row">
+            <div class="col mt-3 dashboard-top-buttons">
+                <a href="#" class="text-center" style="width: 100%;">
+                    <h6 style="padding: 0; margin: 0;">Confirmed Bookings</h6>
+                </a>
+            </div>
+
+            <div class="col mt-3 dashboard-top-buttons">
+                <a href="#" class="text-center" style="width: 100%;">
+                    <h6 style="padding: 0; margin: 0;">Rescheduled Bookings</h6>
+                </a>
+            </div>
+
+            <div class="col mt-3 dashboard-top-buttons">
+                <a href="#" class="text-center" style="width: 100%;">
+                    <h6 style="padding: 0; margin: 0;">Not Paid</h6>
+                </a>
+            </div>
+
+            <div class="col mt-3 dashboard-top-buttons">
+                <a href="#" class="text-center" style="width: 100%;">
+                    <h6 style="padding: 0; margin: 0;">Pending Bookings</h6>
+                </a>
+            </div>
+
+            <div class="col mt-3 dashboard-top-buttons">
+                <a href="#" class="text-center" style="width: 100%;">
+                    <h6 style="padding: 0; margin: 0;">Cancelled Bookings</h6>
+                </a>
+            </div>
+        </div>
+        <!-- top links end -->
+
+        <div class="row" style="background-color: #fff;">
+         
+            <!-- details card start -->
+            <div class="col-md-12 px-0 py-0 mt-3">
+               <article class="article">
+                    Confirmed
+
+                    <span class="show-more">
+                        <a href="#" style="color: #f2c64d;">show more</a>
+                    </span>
+               </article>
+            </div>
+            <!-- details card end -->
+
+        </div>
+    </div>
+<p><a href="{% url 'update_profile' %}">update Profile</a></p>
+</body>
+</html>

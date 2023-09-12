@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <style>
+      /* Your custom styles here */
+
+      /* Reuse the gradient style */
+      .gradient-custom-2 {
+        background: #fccb90;
+        background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+      } 
+
+      /* Additional styles specific to your page */
+      /* Customize these styles according to your needs */
+      .content-section {
+        padding: 20px;
+        background-color: #eee;
+      }
+    </style>
+</head>
+<body>
+    <section class="h-100 gradient-form">
+        <div class="container py-4 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-8">
+              <div class="card rounded-3 text-black">
+                <div class="row g-0">
+                  <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
+                    <div class="text-white px-3 py-4 p-md-5 mx-md-4">
+                      <div class="text-center">
+                        <img src="{% static '/img/icon.ico' %}" style="width: 130px;" alt="logo">
+                        <h4 class="mt-1 mb-2 pb-1">Advocate Assist </h4>
+                      </div>
+                      <h4 class="mb-4" style="font-size: 24px;">We Fight For Your Justice</h4>
+                      <p class="small mb-0" style="font-size: 18px;">"Empower your legal journey with our seasoned team of dedicated lawyers, ready to provide expert assistance and guidance every step of the way."</p>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="card-body p-md-4 mx-md-2">
+                      <hr>
+                      <div class="content-section">
+                        <h2>Add Lawyer</h2>
+                        <p></p>
+                        <form method="post" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="row mb-3">
+                              <div class="col-md-6">
+                                  <label for="{{ form.name.id_for_label }}">Name:</label>
+                                  {{ form.name }}
+                              </div>
+                              <div class="col-md-6">
+                                  <label for="{{ form.phone.id_for_label }}">Phone:</label>
+                                  {{ form.phone }}
+                              </div>
+                          </div>
+                          
+                          <div class="row mb-3">
+                              <div class="col-md-6">
+                                  <label for="{{ form.email.id_for_label }}">Email:</label>
+                                  {{ form.email }}
+                              </div>
+                              <div class="col-md-6">
+                                  <label for="{{ form.expertise.id_for_label }}">Expertise:</label>
+                                  {{ form.expertise }}
+                              </div>
+                          </div>
+                          
+                          <div class="row mb-3">
+                              
+                                  <label for="{{ form.qualification.id_for_label }}">Qualification:</label>
+                                  {{ form.qualification }}
+                                </div>
+                                  <div class="row mb-3">
+                                  <label for="{{ form.img1.id_for_label }}">Photo1:</label>
+                                  {{ form.img1 }}
+                              
+                          </div>
+                          
+                          <div class="mb-3">
+                              <label for="{{ form.address.id_for_label }}">Address:</label>
+                              {{ form.address }}
+                          </div>
+                          
+                          <div class="row mb-3">
+    
+                                  <label for="{{ form.state.id_for_label }}">State:</label>
+                                  {{ form.state }}
+                              </div>
+                              <div class="row mb-3"></div>
+                                  <label for="{{ form.zipcode.id_for_label }}">Zipcode:</label>
+                                  {{ form.zipcode }}
+                              </div>
+                          
+                          
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        /* Your JavaScript code here */
+      </script>
+</body>
+</html>

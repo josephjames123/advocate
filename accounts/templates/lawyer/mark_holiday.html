@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+
+    <title>Mark Holiday</title>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Mark Holiday</h1>
+        <div class="row">
+            <div class="col-12 add-user-col d-flex justify-content-center">
+                <form method="post" action="{% url 'mark_holiday' %}">
+                    {% csrf_token %}
+                    <div class="add-user-form">
+                        <div class="input-group">
+                            <label for="holiday_date">Select Date</label>
+                            <input type="date" name="holiday_date" id="holiday_date" required />
+                        </div>
+                        <div class="input-group">
+                            <button type="submit" class="btn btn-primary">Mark Holiday</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 add-user-col text-center mt-4">
+                <p>{% if messages %}
+                          
+                    {% for message in messages %}
+                    <p >{{ message }}</p>
+                    {% endfor %}
+                          
+                          {% endif %}
+                    <p>Go To<a href="{% url 'lawyer_dashboard' %}" class="text-success" style="font-weight: 600;">Dashboard</a></p>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+   
+        
+        
+            
+</body>
+
+</html>

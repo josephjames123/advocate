@@ -1,0 +1,59 @@
+.dashboard-top-buttons-row {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    background-color: #fff;
+}
+
+.dashboard-top-buttons {
+    width: calc(100% / 5);
+}
+
+a,
+a:active,
+a:focus {
+    color: #000;
+}
+
+a:hover {
+    color: #f2c64d;
+}
+
+.article {
+    width: 100%;
+    padding: 1em;
+    margin: 0;
+    border: 2px solid #f2c64d;
+    border-radius: 4px;
+}
+
+.article p {
+    width: 100%;
+    padding: 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.article p:hover {
+    background-color: #f2c64d14;
+}
+
+.show-more {
+    height: auto;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 14px;
+}
+
+@media screen and (max-width:771px) {
+    .dashboard-top-buttons-row {
+        flex-direction: column;
+    }
+
+    .dashboard-top-buttons {
+        min-height: 2.5em;
+        width: 100%;
+    }
+}

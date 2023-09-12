@@ -1,0 +1,158 @@
+
+  {% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ internship.name }} </title>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_lawyer.css' %}">
+
+    <!-- icons -->
+    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
+
+    <style>
+        .show-password-eye {
+            position: absolute;
+            right: -1.5em;
+            top: 2.5em;
+            cursor: pointer;
+        }
+
+        .details div {
+            margin: 1em 0;
+        }
+
+        figure {
+            width: 100%;
+            height: 100%;
+        }
+
+        figure img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="index.html">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-8">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a  href="{% url 'home' %}">home</a></li>
+                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                                        <li><a href="{% url 'practice' %}">Practice Area</a></li> 
+                                        <li><a class="active" href="#">Services<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                <li><a href="{% url 'lawyer_list' %}">Lawyer</a></li>
+                                                
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                                {% endif %}
+                                            </ul>
+                                            
+                                        </li>
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>                                                {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                        {% else %}
+                                        
+                                        <li><a href="{% url 'signup' %}">Signup</a></li>
+                                        <li><a href="{% url 'login' %}">Login</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- header-end -->
+
+    <div class="container py-5 px-3">
+        <h3 class="text-center my-5">{{ internship.name }}</h3>
+        <div class="row">
+            <!-- left section start -->
+            <div class="col-md-4 px-3">
+                <figure>
+                    <img src="{{ internship.image.url }}"
+                        alt="image">
+                </figure>
+            </div>
+            <!-- left section end -->
+
+            <!-- right section start -->
+            <div class="col-md-8">
+                <div class="details">
+                    <div>Lawyer: {{ internship.lawyer_profile.user.first_name }} {{ internship.lawyer_profile.user.last_name }}</div>
+                    <div>Start Date: {{ internship.start_date }}</div>
+                    <div>Duration: {{ internship.duration }}</div>
+                    <div class="d-flex">
+                        {{internship.roles}}
+                    </div>
+                </div>
+            </div>
+            <!-- right section end -->
+
+            <!-- description and apply button start -->
+            <div class="col-12 mt-3">
+                <p>Roles :{{ roles_html|safe }}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn bg-warning text-white my-4 float-right">Apply</button>
+                  </form>
+            </div>
+
+            {% if messages %}
+                          <ul class="messages">
+                              {% for message in messages %}
+                              <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+                              {% endfor %}
+                          </ul>
+                          {% endif %}
+            <!-- description and apply button end -->
+        </div>
+    </div>
+
+</body>
+
+</html>
+  

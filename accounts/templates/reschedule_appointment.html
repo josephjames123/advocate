@@ -1,0 +1,58 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+
+    <title>Reschedule Appointment</title>
+</head>
+
+<body>
+
+    <div class="container py-5">
+        <h1 class="text-center my-4">Reschedule Appointment</h1>
+        <div class="row">
+            <div class="col-12 add-user-col d-flex justify-content-center">
+                <form class="add-user-form" method="post">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label for="{{ form.details.id_for_label }}">Booking Details</label>
+                        {{ form.details }}
+                    </div>
+                    <div class="input-group">
+                        <label for="{{ form.booking_date.id_for_label }}">Booking Date</label>
+                        {{ form.booking_date }}
+                    </div>
+                    <div class="input-group">
+                        <label for="{{ form.time_slot.id_for_label }}">Time Slot</label>
+                        {{ form.time_slot }}
+                    </div>
+                    
+                    <div class="input-group">
+                        <button class="btn btn-warning">Reschedule</button>
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

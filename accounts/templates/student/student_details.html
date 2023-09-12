@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Please Fill Details To Continue</h1>
+    <form method="post" action="{% url 'student_save' %}">
+        {% csrf_token %}
+        
+        <label for="college">College:</label>
+        <input type="text" id="college" name="college" required><br><br>
+        
+        <label for="current_cgpa">Current CGPA:</label>
+        <input type="text" id="current_cgpa" name="current_cgpa" required><br>
+        
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>

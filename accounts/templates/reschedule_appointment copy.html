@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reschedule Appointment</title>
+    <!-- Add your CSS links and scripts here -->
+</head>
+<body>
+    <h1>Reschedule Appointment</h1>
+
+    <p>Appointment Details:</p>
+    <p>Booking Date: {{ booking.booking_date }}</p>
+    <p>Time Slot: {{ booking.time_slot }}</p>
+    <p>Details: {{ booking.details }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit">Reschedule</button>
+    </form>
+
+    <!-- Add any additional content, styling, or scripts here -->
+</body>
+</html>
