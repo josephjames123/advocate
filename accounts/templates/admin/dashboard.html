@@ -115,12 +115,12 @@
         <div class="row">
             <div class="col-sm-3 mt-3 dashboard-top-buttons">
                 <i class="fa-solid fa-advocate">{{ lawyer_count }}</i>
-                <h6 style="padding: 0; margin: 0;">No of Lawyers</h6>
+                <a href="{% url 'list_lawyers' %}"><h6 style="padding: 0; margin: 0;">No of Lawyers</h6></a>
             </div>
 
             <div class="col-sm-3 mt-3 dashboard-top-buttons">
                 <i class="fa-solid fa-null">{{ booking_count }}</i>
-                <h6 style="padding: 0; margin: 0;">Total Bookings</h6>
+                <a href="{% url 'all_bookings' %}"><h6 style="padding: 0; margin: 0;">Total Bookings</h6></a>
             </div>
             <div class="col-sm-3 mt-3 dashboard-top-buttons">
                 <i class="fa-solid fa-null">{{ students_count }}</i>
@@ -176,8 +176,13 @@
 <div class="col-md-6 mt-4 rounded position-relative contact-messages-bookings">
     <h4><i class="fa-solid fa-calendar-check mr-3"></i>Recent Bookings</h4>
     <br />
-    
-    <span class="show-more-link"><a href="#">show more</a></span>
+    <div class="list-of-messages">
+        {% for booking in recent_bookings %}
+        <p class="message-list rounded">
+            <a href="{% url 'booking_details' booking.id %}">{{ booking.user.email }}</a>
+        </p>
+        {% endfor %}
+    <span class="show-more-link"><a href="{% url 'all_bookings'  %}">show more</a></span>
 </div>
 <!-- no of bookings end -->
 

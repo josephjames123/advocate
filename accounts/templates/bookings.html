@@ -1,0 +1,138 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <title>Search</title>
+
+</head>
+
+<style>
+    *,
+    *:focus,
+    *:active {
+        outline: none;
+        outline-offset: 0;
+        outline-color: red;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    select {
+        border: 2px solid #f2c64d;
+        min-width: 5em;
+        border-radius: 3px;
+    }
+
+    .dataTables_filter label {
+        font-size: 17px;
+    }
+
+    div.dataTables_wrapper div.dataTables_filter input[type=search] {
+        height: 2.5em;
+        width: 25em;
+        border: 2px solid #f2c64d;
+        border-radius: 3px;
+        padding: 0 10px;
+        font-size: 14px;
+    }
+
+    .table.dataTable.table-striped>tbody>tr>* {
+        border: none;
+    }
+
+    .table.dataTable.table-striped>tbody>tr.odd>* {
+        box-shadow: none;
+        background-color: #f2c64d10;
+    }
+
+    .table.dataTable.table-striped>tbody>tr.odd:hover {
+        background-color: #f2c64d67;
+    }
+
+    a,
+    a:hover,
+    a:active,
+    a:focus {
+        text-decoration: none;
+        color: #000;
+        border-radius: 3px;
+        margin-left: 5px;
+    }
+
+    a.paginate_button.current {
+        background-color: #f2c64d;
+        padding: 5px 10px;
+        color: #fff;
+    }
+
+    a.paginate_button.previous.disabled,
+    a.paginate_button.next.disabled {
+        background-color: #f2c64d17;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    a.paginate_button {
+        border: 1px solid #f2c64d;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+</style>
+
+<body>
+
+    <div class="container py-5">
+        <h1 class="text-center">All Bookings</h1>
+        <div class="row">
+            <div class="col-12">
+                <table id="example" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Lawyer Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.lawyer.user.get_full_name }}</td>
+                            <td>{{ booking.details }}</td>
+                            <td>{{ booking.status }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                            <td>{{ booking.time_slot }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    
+                   
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new DataTable('#example');
+    </script>
+</body>
+
+</html>

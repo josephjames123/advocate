@@ -103,27 +103,50 @@
             </div>
         </div>
     </header>
-    <div class="container mt-5">
-        <h1>Booking Details</h1>
+    <div class="container py-5">
+        <h1 class="text-center my-5">Booking Details</h1>
         <div class="row">
             <div class="col-md-6">
-                <p><strong>User:</strong> {{ booking.user.email }}</p>
-                <p><strong>Lawyer:</strong> {{ booking.lawyer.user.get_full_name }}</p>
+                <div class="data-group">
+                    <p><i class="fa-solid fa-user mr-2"></i> User</p>
+                    <p>{{ booking.user.get_full_name }}</p>
+                </div>
+                <div class="data-group">
+                    <p><i class="fa-solid fa-phone mr-2"></i>Phone</p>
+                    <p>{{ booking.lawyer.user.phone }}</p>
+                </div>
+                <div class="data-group">
+                    <p><i class="fa-solid fa-gavel mr-2"></i>Lawyer</p>
+                    <p>{{ booking.lawyer.user.get_full_name }}</p>
+                </div>
+                <div class="data-group">
+                    <p><i class="fa-solid fa-align-left mr-2"></i>Details</p>
+                    <p>{{ booking.details }}</p>
+                </div>
+                <div class="data-group">
+                    <p><i class="fa-solid fa-align-left mr-2"></i>Time Slot</p>
+                    <p>{{ booking.time_slot }}</p>
+                </div>
+                <div class="data-group">
+                    <p><i class="fa-solid fa-align-left mr-2"></i>Date</p>
+                    <p>{{ booking.booking_date }}</p>
+                </div>
             </div>
+
             <div class="col-md-6">
-                <p><strong>Details:</strong> {{ booking.details }}</p>
-                <p><strong>Phone:</strong> {{ booking.lawyer.user.phone }}</p>
+                <h4 class="my-3">Update Booking Status</h4>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="update-status d-flex flex-column justify-content-center">
+                        <label for="status">Status</label>
+                        {{ form.status }}
+                        <button class="btn btn-warning mt-2 text-white" type="submit">Update</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
-    <h3>Update Booking Status</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Update Status</button>
-    </form>
-    
 <!-- JS here -->
 <script src="{% static 'js/vendor/modernizr-3.5.0.min.js' %}"></script>
 <script src="{% static 'js/vendor/jquery-1.12.4.min.js' %}"></script>

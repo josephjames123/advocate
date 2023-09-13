@@ -118,6 +118,9 @@ class LawyerProfile(models.Model):
     working_time_start = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_start_time')
     working_time_end = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_end_time')
     locations = TaggableManager()
+    budget = models.CharField(max_length=30,blank=False)
+    cases_won = models.IntegerField(null=True, blank=True)
+    cases_lost = models.IntegerField(null=True, blank=True)
 
     # working_time_start = models.TimeField(null=True, blank=True)
     # working_time_end = models.TimeField(null=True, blank=True)

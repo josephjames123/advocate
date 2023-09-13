@@ -75,11 +75,13 @@
                                         <li><a href="{% url 'practice' %}">Practice Area</a></li> 
                                         <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
-                                                
-                                                
                                                 {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
                                                 {% endif %}
+                                                {% if user.user_type == 'lawyer' %}
+                                                         <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                       
+                                                                  {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
                                             </ul>
                                             
                                         </li>

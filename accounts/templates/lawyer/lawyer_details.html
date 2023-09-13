@@ -165,7 +165,7 @@ address p {
     
               <p>
                 <i class="fa-solid fa-gavel mr-2"></i>
-                ADVKRC7821
+                {{ lawyer.license_no }}
               </p>
     
               <p>
@@ -185,6 +185,26 @@ address p {
                 <i class="fas fa-briefcase mr-2"></i>
                 {{ lawyer.specialization }}
               </p>
+              <p>
+                <i class="fas fa-briefcase mr-2"></i>
+                {{ lawyer.budget }}
+              </p>
+              <p>
+                <i class="fas fa-briefcase mr-2"></i>
+                {{ lawyer.cases_won }}
+              </p>
+              <p>
+                <i class="fas fa-briefcase mr-2"></i>
+                {{ lawyer.cases_lost }}
+              </p>
+              <p>
+                <i class="fas fa-map-marker-alt mr-2"></i>
+                {% for location in lawyer.locations.all %}
+                    {{ location }}
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+            
     
               <!-- <p>
                 <i class="fa-solid fa-location-dot mr-2"></i>

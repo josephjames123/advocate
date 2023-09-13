@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm
 from .models import Booking ,Internship ,LawyerProfile, TimeSlot ,CustomUser
-from datetime import timedelta
+from datetime import timedelta ,datetime
+
 
 class CustomPasswordResetForm(SetPasswordForm):
     new_password2 = forms.CharField(
@@ -34,15 +35,15 @@ class BookingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         if lawyer:
+            # Convert lawyer's working end time to datetime.datetime and subtract 1 hour
+            end_time = datetime.combine(datetime.today(), lawyer.working_time_end.start_time) - timedelta(hours=1)
+            
             available_time_slots = TimeSlot.objects.filter(
                 start_time__gte=lawyer.working_time_start.start_time,
-                # end_time__lte=lawyer.working_time_end.end_time
+                start_time__lt=end_time.time(),  # Convert back to datetime.time
             )
             self.fields['time_slot'].queryset = available_time_slots
-
-
-            
-            
+          
         
 class InternshipForm(forms.ModelForm):
     class Meta:
@@ -67,6 +68,7 @@ class BookingStatusForm(forms.ModelForm):
         ('confirmed', 'Confirmed'),
         ('canceled', 'Canceled'),
         ('reschedule', 'Reschedule'),
+        ('notpaid', 'NotPaid'),
         # Add more status options as needed
     ]
 
@@ -87,7 +89,12 @@ class CustomUserUpdateForm(forms.ModelForm):
 class LawyerProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = LawyerProfile
-        fields = [ 'profile_picture', 'working_days', 'working_time_start', 'working_time_end', 'locations']
+        fields = ['profile_picture', 'working_days', 'working_time_start', 'working_time_end', 'locations']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['profile_picture'].widget.attrs.update({'class': 'profile_picture'})
+
     
     
 
