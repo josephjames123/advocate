@@ -89,7 +89,7 @@ class CustomUserUpdateForm(forms.ModelForm):
 class LawyerProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = LawyerProfile
-        fields = ['profile_picture', 'working_days', 'working_time_start', 'working_time_end', 'locations']
+        fields = ['profile_picture', 'locations']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

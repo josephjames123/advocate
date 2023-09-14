@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Holiday Requests</title>
+</head>
+<body>
+    <h1>Admin - Holiday Requests</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Lawyer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in pending_requests %}
+                <tr>
+                    <td>{{ request.lawyer.user.first_name }} {{ request.lawyer.user.last_name }}</td>
+                    <td>{{ request.date }}</td>
+                    <td>{{ request.status }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'admin_approve_reject_holiday' request.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="approve">Approve</button>
+                            <button type="submit" name="action" value="reject">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No pending holiday requests available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+s

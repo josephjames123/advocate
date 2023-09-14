@@ -1,113 +1,336 @@
-<h2>Add User Details</h2>
-<form method="post" action="{% url 'lawyer_save' %}" enctype="multipart/form-data">
-    {% csrf_token %}
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Advocaate Assist</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <link rel="manifest" href="site.webmanifest"> -->
+    <!-- <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png"> -->
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+
+</head>
+
+<body>
+    <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+    <!-- header-start -->
+    <style>
+            
+            #navigation {
+                display: flex; /* Use flexbox to create a row layout */
+                align-items: center; /* Vertically center items */
+                list-style: none;
+                padding: 0;
+            }
+        
+            #navigation li {
+                margin: 0;
+                padding: 0;
+                margin-right: 0px; /* Add spacing between navigation items */
+            }
+        
+            #navigation li:last-child {
+                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
+            }
+        </style>
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="index.html">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-8">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a  href="{% url 'home' %}">home</a></li>
+                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                                         
+                                        {% if user.user_type == 'lawyer' %}
+                                        <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a>
+                                            {% endif %}
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>                                                {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                        {% else %}
+                                        
+                                        <li><a href="{% url 'signup' %}">Signup</a></li>
+                                        <li><a href="{% url 'login' %}">Login</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- header-end -->
+
     
 
-    <label for="specialization">Specialization</label>
-    <select name="specialization" required>
+    <div class="container py-5">
+        <h1 class="text-center">{{user.first_name}} Profile - Update</h1>
+
+        <div class="row">
+            <div class="col-12 add-user-col d-flex justify-content-center">
+                    <form method="post"  class="add-user-form" action="{% url 'lawyer_save' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                    <div class="input-group">
+                        <label for="specialization">Specialization</label>
+                        <select name="specialization" required>
         <option selected disabled>Choose Specialization</option>
         <option value="family">Family Lawyer</option>
         <option value="criminal">Criminal Lawyer</option>
         <option value="consumer">Consumer Lawyer</option>
     </select>
-    <br>
+                    </div>
 
-    <label for="start_date">Start Date:</label>
-    <input type="date" id="start_date" name="start_date" required><br><br>
+                    <!-- <div class="input-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" name="start_date" required />
+                    </div> -->
 
-    <label for="profile_picture">Profile Picture:</label>
-    <input type="file" id="profile_picture" name="profile_picture" accept="image/*" required><br><br>
+                    <!-- <div class="input-group">
+                        <label for="profile_picture">Profile Picture</label>
+                        <div class="profile-img-preview"></div>
+                        <input type="file" name="profile_picture" id="profile_picture" accept=".jpg, .jpeg, .png" required />
+                    </div> -->
 
-    <label for="address">Address:</label>
-    <textarea id="address" name="address" rows="4" required></textarea><br><br>
+                    <div class="input-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" name="dob" required />
+                    </div>
+                    <!-- <div class="input-group">
+                        <label for="budget">Budget</label>
+                        <input type="number" name="budget" required />
+                    </div> -->
 
-    <label for="dob">Date of Birth:</label>
-    <input type="date" id="dob" name="dob" required><br><br>
+                    <!-- <div class="input-group">
+                        <label for="cases_won">Cases Won</label>
+                        <input type="number" name="cases_won" required />
+                    </div>
 
-    <label for="pin">PIN Code:</label>
-    <input type="text" id="pin" name="pin" required><br><br>
+                    <div class="input-group">
+                        <label for="cases_lost">Cases Lost</label>
+                        <input type="number" name="cases_lost" required />
+                    </div> -->
+                    <div class="input-group">
+                        <label for="address">Address</label>
+                        <input type="text" name="address" required />
+                    </div>
 
-    <label for="state">State</label>
-    <select name="state" required>
-    <option value="" disabled selected>Choose State</option>
-    <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                                <option value="Assam">Assam</option>
-                                <option value="Bihar">Bihar</option>
-                                <option value="Chhattisgarh">Chhattisgarh</option>
-                                <option value="Goa">Goa</option>
-                                <option value="Gujarat">Gujarat</option>
-                                <option value="Haryana">Haryana</option>
-                                <option value="Himachal Pradesh">Himachal Pradesh</option>
-                                <option value="Jharkhand">Jharkhand</option>
-                                <option value="Karnataka">Karnataka</option>
-                                <option value="Kerala">Kerala</option>
-                                <option value="Madhya Pradesh">Madhya Pradesh</option>
-                                <option value="Maharashtra">Maharashtra</option>
-                                <option value="Manipur">Manipur</option>
-                                <option value="Meghalaya">Meghalaya</option>
-                                <option value="Mizoram">Mizoram</option>
-                                <option value="Nagaland">Nagaland</option>
-                                <option value="Odisha">Odisha</option>
-                                <option value="Punjab">Punjab</option>
-                                <option value="Rajasthan">Rajasthan</option>
-                                <option value="Sikkim">Sikkim</option>
-                                <option value="Tamil Nadu">Tamil Nadu</option>
-                                <option value="Telangana">Telangana</option>
-                                <option value="Tripura">Tripura</option>
-                                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                <option value="Uttarakhand">Uttarakhand</option>
-                                <option value="West Bengal">West Bengal</option>
-                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-                                <option value="Chandigarh">Chandigarh</option>
-                                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and
-                                    Daman and Diu
-                                </option>
-                                <option value="Lakshadweep">Lakshadweep</option>
-                                <option value="Delhi">Delhi</option>
-                                <option value="Puducherry">Puducherry</option>
-                            </select><br><br>
+                    <!-- <div class="input-group">
+                        <label for="pin_code">Pin Code</label>
+                        <input type="number" name="pin" required />
+                    </div>
 
-    <!-- <label for="phone">Phone:</label>
-    <input type="text" id="phone" name="phone" required><br><br> -->
+                    <div class="input-group">
+                        <label for="state">State</label>
+                        <select name="state" required>
+                            <option value="" disabled selected>Choose State</option>
+                            <option value="" disabled selected>Choose State</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and
+                                Daman and Diu
+                            </option>
+                            <option value="Lakshadweep">Lakshadweep</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Puducherry">Puducherry</option>
+                        </select>
+                    </div> -->
 
-    <label for="working_days">Working Days:</label><br>
-    <input type="checkbox" id="monday" name="working_days" value="1">
-    <label for="monday">Monday</label>
-    <input type="checkbox" id="tuesday" name="working_days" value="2">
-    <label for="tuesday">Tuesday</label>
-    <input type="checkbox" id="wednesday" name="working_days" value="3">
-    <label for="wednesday">Wednesday</label>
-    <input type="checkbox" id="thursday" name="working_days" value="4">
-    <label for="thursday">Thursday</label>
-    <input type="checkbox" id="friday" name="working_days" value="5">
-    <label for="friday">Friday</label>
-    <input type="checkbox" id="saturday" name="working_days" value="6">
-    <label for="saturday">Saturday</label>
-    <input type="checkbox" id="sunday" name="working_days" value="7">
-    <label for="sunday">Subday</label>
+                    <div class="input-group">
+                        <label for="phone_number">Experience</label>
+                        <input type="number" name="experience" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="total_cases_handeled">Total Cases Handeled</label>
+                        <input type="number" name="total_cases_handeled" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="currendly_handling">Currendly Handling</label>
+                        <input type="number" name="currendly_handling" required />
+                    </div>
 
-    
+                    <!-- <div class="input-group">
+                        <label for="working_time_start">Working Time Start:</label>
+                        <select id="working_time_start" name="working_time_start" required>
+                            <option value="" disabled selected>Select Start Time</option>
+                            {% for time_slot in available_time_slots %}
+                                <option value="{{ time_slot.id }}">{{ time_slot.start_time|time:"h A" }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-    <br><br>
+                    <div class="input-group">
+                        <label for="working_time_end">Working Time End:</label>
+                        <select id="working_time_end" name="working_time_end" required>
+                            <option value="" disabled selected>Select End Time</option>
+                            {% for time_slot in available_time_slots %}
+                                <option value="{{ time_slot.id }}">{{ time_slot.start_time|time:"h A" }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>                  -->
+                    <!-- <div class="input-group">
+                        <label for="locations">Court</label>
+                        <input type="text" name="locations" id="locations" data-role="tagsinput" />
+                    </div> -->
+                    
+                    <!-- <div class="input-group">
+                        <label for="working_days">Working Days</label>
 
-    <label for="working_time_start">Working Time Start:</label>
-    <select id="working_time_start" name="working_time_start" required>
-        <option value="" disabled selected>Select Start Time</option>
-        {% for time_slot in available_time_slots %}
-            <option value="{{ time_slot.id }}">{{ time_slot }}</option>
-        {% endfor %}
+                        <div class="working-days-group">
+                            <p>
+                                <input type="checkbox" id="monday" name="working_days" value="1">
+                                <span>Monday</span>
+                            </p>
+                            <p>
+                                <input type="checkbox" id="tuesday" name="working_days" value="2">
+                                <span>Tuesday</span>
+                            </p>
+                            <p>
+                                <input type="checkbox" id="wednesday" name="working_days" value="3">
+                                <span>Wednesday</span>
+                            </p>
+                            <p>
+                                <input type="checkbox" id="thursday" name="working_days" value="4">
+                                <span>Thursday</span>
+                            </p>
+                            <p>
+                                <input type="checkbox" id="friday" name="working_days" value="5">
+                                <span>Friday</span>
+                            </p>
+                            <p>
+                                <input type="checkbox" id="saturday" name="working_days" value="6">
+                                <span>Saturday</span>
+                            </p>
+                            <p>
+                                <input type="checkbox" id="sunday" name="working_days" value="7">
+                                <span>Sunday</span>
+                            </p>
+                        </div>
+                    </div> -->
+                    <div class="input-group">
+                        <label for="court">Specialization</label>
+                        <select name="court" required>
+        <option selected disabled>Choose Court</option>
+        <option value="jfcmcchangancherry">Judicial First Class Magistrate Court  Changancherry</option>
+        <option value="munsiff">Munsiff Court Changancherry</option>
+        <option value="jfcmcKanjirapally">Judicial First Class Magistrate Court  Kanjirapally</option>
+        <option value="munsifcourtkanjirapally">Munsiff Court Kanjirapally</option>
+        <option value="districtcourtkottayam">District Court Kottayam</option>
+        <option value="highcourtkochi">High Court Kochi</option>
     </select>
-    <br><br>
-    
-    <label for="working_time_end">Working Time End:</label>
-    <select id="working_time_end" name="working_time_end" required>
-        <option value="" disabled selected>Select End Time</option>
-        {% for time_slot in available_time_slots %}
-            <option value="{{ time_slot.id }}">{{ time_slot }}</option>
-        {% endfor %}
-    </select>
-    <br><br>
+                    </div>
 
-    <input type="submit" value="Create Profile">
-</form> 
+                    <div class="input-group">
+                        <button class="btn btn-warning" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.querySelector('#profile_picture').addEventListener('change', handleImageChange);
+
+        function handleImageChange(e) {
+            const fileInput = e.target;
+            const previewContainer = document.querySelector('.profile-img-preview');
+
+            // Clear previous preview, if any
+            while (previewContainer.firstChild) {
+                previewContainer.removeChild(previewContainer.firstChild);
+            }
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const img = document.createElement('img');
+                    img.setAttribute('src', event.target.result);
+                    img.setAttribute('alt', 'Selected Profile Picture');
+
+                    previewContainer.appendChild(img);
+                    
+                    let previewMsg = document.createElement('p');
+                    previewMsg.innerText = "Profile picture preview";
+                    previewMsg.setAttribute('class', 'preview-msg')
+
+                    previewContainer.appendChild(previewMsg);
+                };
+
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

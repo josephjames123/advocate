@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 import datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta ,time
 from taggit.managers import TaggableManager
 
 
@@ -93,6 +93,7 @@ class TimeSlot(models.Model):
         name = f"{formatted_start_time} - {formatted_end_time}"
 
         return name
+    
 
     
 class LawyerProfile(models.Model):
@@ -100,6 +101,18 @@ class LawyerProfile(models.Model):
         ('family', 'Family Lawyer'),
         ('criminal', 'Criminal Lawyer'),
         ('consumer', 'Consumer Lawyer'),
+        ('coperatelawyer', 'Coperate Lawyer'),
+        ('civilrightlawyer', 'Civil Right Lawyer'),
+        ('divorcelawyer', 'Divorce Lawyer'),
+        # Add more as needed
+    )
+    COURT = (
+        ('jfcmcchangancherry', 'Judicial First Class Magistrate Court  Changancherry'),
+        ('munsiff', 'Munsiff Court Changancherry'),
+        ('jfcmcKanjirapally', 'Judicial First Class Magistrate Court  Kanjirapally'),
+        ('munsifcourtkanjirapally', 'Munsiff Court Kanjirapally'),
+        ('districtcourtkottayam', 'District Court Kottayam'),
+        ('highcourtkochi', 'High Court Kochi'),
         # Add more as needed
     )
     id = models.AutoField(primary_key=True)
@@ -110,17 +123,30 @@ class LawyerProfile(models.Model):
     specialization = models.CharField(max_length=20, choices=SPECIALIZATIONS,blank=True)
     start_date = models.DateField(null=True)  # Date profession started
     experience = models.IntegerField(blank=True)  # Experience in years
-    profile_picture = models.ImageField(upload_to='uploads/', blank=True, null=True)
+    
+    # Define a default profile picture path
+    DEFAULT_PROFILE_PICTURE_PATH = 'uploads/default_profile_picture.png'
+    
+    profile_picture = models.ImageField(
+        upload_to='uploads/',
+        default=DEFAULT_PROFILE_PICTURE_PATH,  # Set the default profile picture path
+        blank=True,
+        null=True
+    )
     # bar_enrollment_number = models.CharField(max_length=50,blank=True)  # Bar enrollment number
     certificates = models.ManyToManyField('Certificate', blank=True)
     license_no = models.CharField(max_length=30,blank=False)
-    working_days = models.ManyToManyField('Day', blank=True)
-    working_time_start = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_start_time')
-    working_time_end = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_end_time')
+    # working_days = models.ManyToManyField('Day', blank=True)
+    # working_time_start = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_start_time')
+    # working_time_end = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_end_time')
     locations = TaggableManager()
-    budget = models.CharField(max_length=30,blank=False)
+    # budget = models.CharField(max_length=30,blank=False)
     cases_won = models.IntegerField(null=True, blank=True)
     cases_lost = models.IntegerField(null=True, blank=True)
+    total_cases_handeled = models.IntegerField(null=True, blank=True)
+    currendly_handling = models.IntegerField(null=True, blank=True)
+    experience = models.IntegerField(null=True, blank=True)
+    court = models.CharField(max_length=200, choices=COURT,blank=True)
 
     # working_time_start = models.TimeField(null=True, blank=True)
     # working_time_end = models.TimeField(null=True, blank=True)
@@ -139,15 +165,15 @@ class LawyerProfile(models.Model):
     #     experience = (today - self.start_date).days // 365
     #     return experience
     
-    def calculate_experience(self):
-        today = timezone.now().date()
+    # def calculate_experience(self):
+    #     today = timezone.now().date()
 
-        if self.start_date:
-            experience = (today - self.start_date).days // 365
-        else:
-            experience = 0
+    #     if self.start_date:
+    #         experience = (today - self.start_date).days // 365
+    #     else:
+    #         experience = 0
 
-        return experience
+    #     return experience
     
     def is_available(self,date , time_slot):
         bookings_for_date = Booking.objects.filter(
@@ -162,7 +188,7 @@ class LawyerProfile(models.Model):
         return f"{self.user.first_name} {self.user.last_name}"
 
     def save(self, *args, **kwargs):
-        self.experience = self.calculate_experience()
+        # self.experience = self.calculate_experience()
         super().save(*args, **kwargs)
     
 class Certificate(models.Model):
@@ -251,3 +277,18 @@ class LawyerDayOff(models.Model):
 
     def __str__(self):
         return f"{self.lawyer} - {self.date}"
+    
+    
+class HolidayRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    )
+
+    lawyer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f'{self.lawyer.username} - {self.date} ({self.status})'
