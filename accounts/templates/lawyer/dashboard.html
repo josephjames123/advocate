@@ -49,6 +49,28 @@
             #navigation li:last-child {
                 margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
             }
+
+            .properties-card {
+            width: 100%;
+            height: 16em;
+            background-color: rgb(58 58 58);
+            text-align: center;
+            color: #fff;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            row-gap: 1em;
+            margin-top: 10px;
+        }
+        .properties-card * {
+            color: #fff;
+        }
+
+        .properties-card i {
+            color: #f2c64d;
+            font-size: 4em;
+        }
         </style>
     <header>
         <div class="header-area ">
@@ -66,11 +88,11 @@
                             <div class="main-menu  d-none d-lg-block">
                                 <nav>
                                     <ul id="navigation">
-                                        <li><a class="active" href="{% url 'home' %}">home</a></li>
-                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li> 
-                                        <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
+                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
                                                 
                                                 
@@ -79,16 +101,16 @@
                                                 {% endif %}
                                             </ul>
                                             
-                                        </li>
+                                        </li> -->
                                         {% if user.is_authenticated %}
                                         <li>
                                             <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
                                                 {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                                                
                                                 {% endif %}
                                                 {% if user.user_type == 'lawyer' %}
-                                                         <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                       
+                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
                                                                   {% endif %}
                                                 <li><a href="{% url 'logout' %}">Logout</a></li>
                                             </ul>
@@ -108,66 +130,92 @@
         </div>
     </header>
 
-
-
     <div class="container-fluid p-5" style="background: whitesmoke; min-height: 90vh;">
         
-        <p class="mt-3" style="font-weight: 600; color: #ed5f3a;">{{user.user_type}} Dashboard</p>
+        <p class="mt-3" style="font-weight: 600; color: #ed5f3a;">Dashboard</p>
 
         <!-- dashboard top buttons start -->
         <div class="row">
-            <div class="col-4 mt-3 dashboard-top-buttons">
-                <i class="fa-solid fa-advocate">{{ booking_count }}</i>
-                <h6 style="padding: 0; margin: 0;">No of Bookings</h6>
+            <div class="col-md-6">
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+                    <a href="{% url 'lawyer_bookings' lawyer_id=request.user.lawyer_profile.id %}"><h6 style="padding: 0; margin: 0;">No of Bookings</h6></a>
+                </div>
+    
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+
+                    <a href="{% url 'update_lawyer_profile' user_id=user.pk %}"><h6 style="padding: 0; margin: 0;">update Profile</h6></a>
+                </div>
+    
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+                    <a href="{% url 'mark_holiday' %}"><h6 style="padding: 0; margin: 0;">Mark leave</h6></a>
+                </div>
+    
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+                    <button>
+                        <a href="{% url 'enter_client_email' %}">
+                            <h6 style="padding: 0; margin: 0;">Add Case</h6></a>                   
+                         </button>
+                </div>
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+                    <button>
+                        <a href="{% url 'list_cases' %}"><h6 style="padding: 0; margin: 0;">Cases</h6></a>                  
+                         </button>
+                </div>
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+                    <button>
+                        <a href="{% url 'current_cases' %}"><h6 style="padding: 0; margin: 0;">Current Cases</h6></a>
+                         </button>
+                </div>
+                <div class="mt-3 dashboard-top-buttons">
+                    <i class="fa-solid fa-gavel"></i>
+                    <button>
+                        <a href="{% url 'assign_working_hours' %}"><h6 style="padding: 0; margin: 0;">Assign Working Hours</h6></a>
+                         </button>
+                </div>
             </div>
-            
-            <div class="col-4 mt-3 dashboard-top-buttons">
-                <i class="fa-solid fa-user"></i>
-                <button>
-                    <h6 style="padding: 0; margin: 0;">Assign Works</h6>
-                </button>
-            </div>
-            <div class="col-4 mt-3 dashboard-top-buttons">
-                <i class="fa-solid fa-advocate"></i>
-                <a href="{% url 'update_lawyer_profile' user_id=user.pk %}">
-                    <h6 style="padding: 0; margin: 0;">update Profile</h6></a>
-            </div>
-            <div class="col-4 mt-3 dashboard-top-buttons">
-                <i class="fa-solid fa-advocate"></i>
-                <a href="{% url 'mark_holiday' %}">
-                    <h6 style="padding: 0; margin: 0;">Mark Holiday</h6></a>
+
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6 mt-1">
+                        <div class="properties-card">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <h4>Business Law</h4>
+                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-1">
+                        <div class="properties-card">
+                            <i class="fa-solid fa-building-columns"></i>
+                            <h4>Finance Law</h4>
+                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-1">
+                        <div class="properties-card">
+                            <i class="fa-solid fa-people-roof"></i>
+                            <h4>Family Law</h4>
+                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-1">
+                        <div class="properties-card">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <h4>Business Law</h4>
+                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- dashboard top buttons end -->
-        <div class="container mt-5">
-            <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Details</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for booking in bookings %}
-                    <tr>
-                      <td>{{ booking.user.email }}</td>
-                      <td>{{ booking.details }}</td>
-                      <td>
-                        <a href="{% url 'booking_details' booking.id %}" class="btn btn-primary">View Details</a>
-                      </td>
-                    </tr>
-                  {% empty %}
-                    <tr>
-                      <td colspan="3">No bookings available.</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        
-          
+    </div>
+
 </body>
 
 </html>

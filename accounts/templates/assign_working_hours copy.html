@@ -1,0 +1,27 @@
+<!-- assign_working_hours.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assign Working Hours</title>
+</head>
+<body>
+    <h1>Assign Your Working Hours</h1>
+    <form method="post" action="{% url 'assign_working_hours' %}">
+        {% csrf_token %}
+        <h2>Select Time Slots:</h2>
+        <ul>
+            {% for time_slot in all_time_slots %}
+                <li>
+                    <label>
+                        <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}">
+                        {{ time_slot }}
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+        <br><br>
+        <input type="submit" value="Assign Working Hours">
+    </form>
+</body>
+</html>

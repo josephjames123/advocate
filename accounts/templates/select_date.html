@@ -1,0 +1,51 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+
+    <title>Document</title>
+</head>
+<body>
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Select Date</li>
+        </ol>
+    </nav>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12 add-user-col d-flex justify-content-center">
+                <form class="add-user-form" method="post">
+                    {% csrf_token %}
+                    <h1 class="text-center">Select A Date To Book</h1>
+                    <div class="input-group">
+                        <label for="selected_date">Date</label>
+                        <input type="date" name="selected_date" required />
+                    </div>
+
+                    <div class="input-group">
+                        <button class="btn btn-warning" type="submit">Next</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <center><li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li></center>
+    {% endfor %}
+</ul>
+{% endif %}
+</body>
+</html>

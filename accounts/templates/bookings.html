@@ -105,7 +105,7 @@
                     <thead>
                         <tr>
                             <th>Lawyer Name</th>
-                            <th>Description</th>
+                            
                             <th>Status</th>
                             <th>Date</th>
                             <th>Time Slot</th>
@@ -116,9 +116,9 @@
                         {% for booking in bookings %}
                         <tr>
                             <td>{{ booking.lawyer.user.get_full_name }}</td>
-                            <td>{{ booking.details }}</td>
-                            <td>{{ booking.status }}</td>
-                            <td>{{ booking.booking_date }}</td>
+                            
+                            <td>{{ booking.client.get_full_name }}</td>
+                            <td>{{ booking.appointment_date }}</td>
                             <td>{{ booking.time_slot }}</td>
                         </tr>
                         {% endfor %}

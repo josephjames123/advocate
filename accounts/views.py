@@ -1,9 +1,10 @@
 # accounts/views.py
 from django.utils.http import urlsafe_base64_decode
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
-from .models import CustomUser, LawyerProfile  
+from .models import CustomUser, LawyerProfile , CurrentCase  
 from django.http import HttpResponseForbidden , HttpResponseNotFound , HttpResponse
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
@@ -16,7 +17,7 @@ from django.utils.http import urlsafe_base64_decode
 from .forms import CustomPasswordResetForm  
 from django.core.exceptions import ValidationError
 from datetime import datetime
-from .models import LawyerProfile , ContactEntry , Internship , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest
+from .models import LawyerProfile , ContactEntry , Internship , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment
 from .forms import ContactForm , BookingForm , InternshipForm , BookingStatusForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
 import markdown
 from django.contrib import messages
@@ -25,13 +26,20 @@ from django.contrib.auth.forms import AuthenticationForm  # Import Authenticatio
 from django.contrib import messages
 import re  
 import csv
+from django.db import models  # Import the models module from Django's database module
 import os
 from django.utils import timezone
 import pytz  # Import pytz module
 from django.db.models import Q
 from .forms import UserProfileUpdateForm  # Create a form for profile updates
 from django.core.paginator import Paginator
-
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from datetime import date, timedelta
+from pytz import timezone as pytz_timezone
+from .utils import validate_date, validate_time
+from django.http import HttpResponseServerError
+import traceback
 
 
 def login_view(request):
@@ -192,6 +200,7 @@ def admin_dashboard(request):
         booking_count = Booking.objects.count()
         internship_count = Internship.objects.count()
         students_count = Student.objects.count()
+        cases_count = Case.objects.count()
         
         
         # Retrieve the recent 5 bookings, ordered by pk in descending order (greatest to smallest)
@@ -205,7 +214,8 @@ def admin_dashboard(request):
             'booking_count':booking_count,
             'recent_queries': recent_queries,
             'internship_count': internship_count,
-            'students_count':students_count
+            'students_count':students_count,
+            'cases_count': cases_count,
             }
             
         
@@ -265,12 +275,13 @@ def lawyer_dashboard(request):
     
         # Get the current lawyer's profile
         lawyer_profile = LawyerProfile.objects.get(user=request.user)
-        bookings = Booking.objects.filter(lawyer=lawyer_profile).order_by('-pk')
+        bookings = Appointment.objects.filter(lawyer=lawyer_profile).order_by('-pk')
 
         # Count the number of bookings for this lawyer
         booking_count = Booking.objects.filter(lawyer=lawyer_profile).count()
+        case_count = Case.objects.filter(lawyer=lawyer_profile).count()
         
-        return render(request, 'lawyer/dashboard.html', {'user': request.user, 'booking_count': booking_count,'bookings': bookings})
+        return render(request, 'lawyer/dashboard.html', {'user': request.user, 'booking_count': booking_count,'bookings': bookings , 'case_count': case_count})
     else:
         return render(request, '404.html')
 
@@ -408,8 +419,8 @@ def home(request):
     for lawyer in lawyers:
         lawyer_info.append({
             'name': f"{lawyer.user.first_name} {lawyer.user.last_name}",
-            # 'specialization': lawyer.specialization,
-            # 'profile_picture': lawyer.profile_picture.url,
+            'specialization': lawyer.specialization,
+            'profile_picture': lawyer.profile_picture.url,
             'id': lawyer.id,  # Add lawyer's ID
         })
 
@@ -482,6 +493,9 @@ def error(request):
 def sorry(request):
     return render(request, '404.html')
 
+def update(request):
+    return render(request, 'updated.html')
+
 @login_required
 def mail(request):
     return render(request, 'mail.html')
@@ -493,64 +507,64 @@ def book(request):
     return render(request, 'book.html')
 
 @login_required
-def book_lawyer(request, lawyer_id):
-    lawyer = get_object_or_404(LawyerProfile, pk=lawyer_id)
-    user = request.user
+# def book_lawyer(request, lawyer_id):
+#     lawyer = get_object_or_404(LawyerProfile, pk=lawyer_id)
+#     user = request.user
 
-    if request.method == 'POST':
-        form = BookingForm(request.POST, lawyer=lawyer)
+#     if request.method == 'POST':
+#         form = BookingForm(request.POST, lawyer=lawyer)
 
-        if form.is_valid():
-            booking_date = form.cleaned_data['booking_date']
+#         if form.is_valid():
+#             booking_date = form.cleaned_data['booking_date']
             
-            # Check if the booking date is in the future
-            if booking_date <= timezone.localdate():
-                messages.error(request, 'You can only book for future dates.')
-            else:
-                selected_day = booking_date.weekday() + 1
+#             # Check if the booking date is in the future
+#             if booking_date <= timezone.localdate():
+#                 messages.error(request, 'You can only book for future dates.')
+#             else:
+#                 selected_day = booking_date.weekday() + 1
 
-                if not lawyer.working_days.filter(name=selected_day).exists():
-                    messages.error(request, 'This lawyer does not work on the selected day.')
-                else:
-                    # Check if the selected date is marked as a day off for the lawyer
-                    if LawyerDayOff.objects.filter(lawyer=lawyer, date=booking_date).exists():
-                        messages.error(request, 'This date is marked as a day off for the lawyer.')
-                    else:
-                        # Continue with booking logic
-                        booking = form.save(commit=False)
-                        booking.user = user
-                        booking.lawyer = lawyer
-                        booking.status = 'pending'
+#                 if not lawyer.working_days.filter(name=selected_day).exists():
+#                     messages.error(request, 'This lawyer does not work on the selected day.')
+#                 else:
+#                     # Check if the selected date is marked as a day off for the lawyer
+#                     if LawyerDayOff.objects.filter(lawyer=lawyer, date=booking_date).exists():
+#                         messages.error(request, 'This date is marked as a day off for the lawyer.')
+#                     else:
+#                         # Continue with booking logic
+#                         booking = form.save(commit=False)
+#                         booking.user = user
+#                         booking.lawyer = lawyer
+#                         booking.status = 'pending'
                         
-                        # Assign the selected TimeSlot instance to the booking
-                        selected_time_slot = form.cleaned_data['time_slot']
-                        booking.time_slot = selected_time_slot
+#                         # Assign the selected TimeSlot instance to the booking
+#                         selected_time_slot = form.cleaned_data['time_slot']
+#                         booking.time_slot = selected_time_slot
                         
-                        # Check for existing bookings and user's existing bookings (as previously implemented)
-                        existing_booking = Booking.objects.filter(
-                            lawyer=lawyer,
-                            booking_date=booking.booking_date,
-                            time_slot=selected_time_slot,
-                        ).exclude(status='canceled').first()
+#                         # Check for existing bookings and user's existing bookings (as previously implemented)
+#                         existing_booking = Booking.objects.filter(
+#                             lawyer=lawyer,
+#                             booking_date=booking.booking_date,
+#                             time_slot=selected_time_slot,
+#                         ).exclude(status='canceled').first()
 
-                        user_existing_booking = Booking.objects.filter(
-                            user=user,
-                            booking_date=booking.booking_date,
-                            time_slot=selected_time_slot,
-                        ).exclude(status='canceled').first()
+#                         user_existing_booking = Booking.objects.filter(
+#                             user=user,
+#                             booking_date=booking.booking_date,
+#                             time_slot=selected_time_slot,
+#                         ).exclude(status='canceled').first()
 
-                        if existing_booking:
-                            messages.error(request, 'This time slot is already booked by another user.')
-                        elif user_existing_booking:
-                            messages.error(request, 'You have already booked a lawyer at this time slot.')
-                        else:
-                            booking.save()
-                            # Redirect to a success page or display a success message
-                            return redirect('home')
-    else:
-        form = BookingForm(lawyer=lawyer)
+#                         if existing_booking:
+#                             messages.error(request, 'This time slot is already booked by another user.')
+#                         elif user_existing_booking:
+#                             messages.error(request, 'You have already booked a lawyer at this time slot.')
+#                         else:
+#                             booking.save()
+#                             # Redirect to a success page or display a success message
+#                             return redirect('home')
+#     else:
+#         form = BookingForm(lawyer=lawyer)
 
-    return render(request, 'book_lawyer.html', {'form': form, 'lawyer': lawyer})
+#     return render(request, 'book_lawyer.html', {'form': form, 'lawyer': lawyer})
 
 # def reschedule_appointment(request, booking_id):
 #     # Get the booking object for the provided booking_id
@@ -845,6 +859,44 @@ def student_save(request):
 #         return render(request, 'lawyer/user_details_form.html')
 
 
+from datetime import datetime
+
+def calculate_experience(experience_str):
+    parts = experience_str.split()
+    
+    years = 0
+    months = 0
+    days = 0
+
+    for i, part in enumerate(parts):
+        if part == 'years' or part == 'year':
+            years = int(parts[i - 1])
+        elif part == 'months' or part == 'month':
+            months = int(parts[i - 1])
+        elif part == 'days' or part == 'day':
+            days = int(parts[i - 1])
+
+    total_days = years * 365 + months * 30 + days
+    return total_days
+
+def calculate_experience(experience_str):
+    parts = experience_str.split()
+    
+    years = 0
+    months = 0
+    days = 0
+
+    for i, part in enumerate(parts):
+        if part == 'years' or part == 'year':
+            years = int(parts[i - 1])
+        elif part == 'months' or part == 'month':
+            months = int(parts[i - 1])
+        elif part == 'days' or part == 'day':
+            days = int(parts[i - 1])
+
+    total_days = years * 365 + months * 30 + days
+    return total_days
+
 def lawyer_save(request):
     if request.user.user_type != 'lawyer':
         return render(request, '404.html')
@@ -852,27 +904,24 @@ def lawyer_save(request):
     available_time_slots = TimeSlot.objects.all()
 
     if request.method == 'POST':
-        specialization = request.POST['specialization']
-        dob = request.POST['dob']
+        specialization = request.POST.get('specialization')
+        dob = request.POST.get('dob')
         dob_date = datetime.strptime(dob, '%Y-%m-%d').date()
         today = datetime.now().date()
         age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
 
         if age < 25:
-            
             LawyerProfile.objects.filter(user=request.user).delete()
             return render(request, 'sorry.html')
          
-      
-        address = request.POST['address']
-        total_cases_handeled = request.POST['total_cases_handeled']
-        currendly_handling = request.POST['currendly_handling']
-        experience = request.POST['experience']
-        court = request.POST['court']
-     
+        address = request.POST.get('address')
+        total_cases_handeled = request.POST.get('total_cases_handeled')
+        currendly_handling = request.POST.get('currendly_handling')
+        experience_str = request.POST.get('experience')
+        court = request.POST.get('court')
 
-        # if not all([specialization,  address, dob,total_cases_handeled,currendly_handling,experience,court]):
-        #     return HttpResponse("Please fill in all fields.")
+        # Calculate the total number of days of experience
+        total_experience_days = calculate_experience(experience_str)
 
         # Create or update the user's details
         user = request.user
@@ -882,22 +931,23 @@ def lawyer_save(request):
         user.save()
         print("User saved")
 
-     
         lawyer_profile, created = LawyerProfile.objects.get_or_create(user=user)
         lawyer_profile.specialization = specialization
-       
-        lawyer_profile.total_cases_handeled=total_cases_handeled
-        lawyer_profile.currendly_handling=currendly_handling
-        lawyer_profile.experience=experience
+        lawyer_profile.total_cases_handeled = total_cases_handeled
+        lawyer_profile.currendly_handling = currendly_handling
+        lawyer_profile.experience = total_experience_days
         lawyer_profile.court = court
 
         lawyer_profile.save()
-        print("lawyer saved")
+        print("Lawyer saved")
 
-        return render(request,'lawyer/dashboard.html')
+        return render(request, 'lawyer/dashboard.html')
      
     else:
         return render(request, 'lawyer/user_details_form.html', {'available_time_slots': available_time_slots})
+    
+
+
     
 
 # def lawyer_save(request):
@@ -1014,24 +1064,37 @@ def lawyer_save(request):
 #     return render(request, 'lawyer/mark_holiday.html')
 
 def mark_holiday(request):
-    if request.method == 'POST':
-        holiday_date = request.POST.get('holiday_date')
-        user = request.user  # Get the current user
+    user = request.user  # Get the current user
 
-        if user.user_type == 'lawyer':
-            lawyer = user.lawyer_profile  # Access the associated lawyer profile (use 'lawyer_profile' here)
+    # Check if the user is a lawyer
+    if user.is_authenticated and user.user_type == 'lawyer':
+        lawyer_profile = LawyerProfile.objects.get(user=user)  # Get the associated lawyer profile
+
+        if request.method == 'POST':
+            holiday_date = request.POST.get('holiday_date')
+
             # Check if the date is not already marked as a holiday
-            if not LawyerDayOff.objects.filter(lawyer=lawyer, date=holiday_date).exists():
+            if not HolidayRequest.objects.filter(lawyer=user, date=holiday_date).exists():
                 # Create a holiday request
                 holiday_request = HolidayRequest(lawyer=user, date=holiday_date)
                 holiday_request.save()
                 messages.success(request, 'Holiday request sent for review.')
             else:
                 messages.warning(request, 'This date is already marked as a holiday.')
-        else:
-            messages.error(request, 'Only lawyers can request holidays.')
 
-    return render(request, 'lawyer/mark_holiday.html')
+        # Retrieve holiday requests and their statuses for the logged-in lawyer
+        holiday_requests = HolidayRequest.objects.filter(lawyer=user)
+
+        context = {
+            'holiday_requests': holiday_requests,
+        }
+        return render(request, 'lawyer/mark_holiday.html', context)
+
+    else:
+        messages.error(request, 'Only lawyers can request holidays.')
+        return redirect('home')  # Redirect non-lawyers or unauthenticated users to the home page
+
+    
 
 
 def update_profile(request):
@@ -1131,13 +1194,23 @@ def update_lawyer_profile(request, user_id):
     return render(request, 'lawyer/update_lawyer_profile.html', context)
 
 
-def all_bookings(request):
-    # Fetch all bookings from the database
-    bookings = Booking.objects.all()
+def all_bookings(request, lawyer_id=None, client_id=None):
+    # Define a base queryset with all bookings
+    queryset = Appointment.objects.all()
 
-    # Pass the bookings to the template
+    # Filter bookings by lawyer if lawyer_id is provided
+    if lawyer_id is not None:
+        lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+        queryset = queryset.filter(lawyer=lawyer)
+
+    # Filter bookings by client if client_id is provided
+    if client_id is not None:
+        client = get_object_or_404(CustomUser, id=client_id)
+        queryset = queryset.filter(client=client)
+
+    # Pass the filtered bookings to the template
     context = {
-        'bookings': bookings,
+        'bookings': queryset,
     }
 
     # Render the template
@@ -1199,6 +1272,8 @@ def admin_approve_reject_holiday(request, request_id):
 
             # Create a LawyerDayOff instance for the approved holiday
             LawyerDayOff.objects.create(lawyer=lawyer_profile, date=holiday_request.date)
+            print("Request ID:", request_id)
+
 
             messages.success(request, 'Holiday request approved successfully.')
 
@@ -1210,3 +1285,419 @@ def admin_approve_reject_holiday(request, request_id):
 
     # Redirect back to the admin dashboard or any other appropriate view
     return redirect('admin_dashboard')  # Update this to the appropriate view name
+
+
+@login_required
+def enter_client_email(request):
+    if request.user.user_type != 'lawyer':
+        return render(request, 'sorry.html')
+    
+    lawyer = request.user.lawyer_profile  # Access the associated lawyer profile
+
+    if request.method == 'POST':
+        client_email = request.POST.get('client_email')
+        if client_email:
+            try:
+                # Assuming CustomUser model is used for clients
+                client = CustomUser.objects.get(email=client_email, user_type='client')
+                # Redirect to the case details form with the client's details
+                return redirect('enter_case_details', client_id=client.id, lawyer_id=lawyer.id)
+            except CustomUser.DoesNotExist:
+                messages.error(request, 'Client with the provided email not found.')
+        else:
+            messages.error(request, 'Please enter a valid client email.')
+
+    return render(request, 'lawyer/enter_client_email.html', {'lawyer': lawyer})
+
+@login_required
+def enter_case_details(request, client_id, lawyer_id):
+    # Ensure that only lawyers can access this view
+    if request.user.user_type != 'lawyer':
+        return render(request, 'sorry.html')
+
+    client = get_object_or_404(CustomUser, id=client_id, user_type='client')
+    lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+
+    # Check if the case has already been submitted
+    if request.session.get('case_submitted'):
+        return render(request, 'case_already_submitted.html')
+
+    if request.method == 'POST':
+        incident_place = request.POST.get('incident_place')
+        incident_date = request.POST.get('incident_date')
+        incident_time = request.POST.get('incident_time')
+        witness_name = request.POST.get('witness_name')
+        witness_details = request.POST.get('witness_details')
+        incident_description = request.POST.get('incident_description')
+        client_adhar = request.POST.get('client_adhar')
+        client_adhar_photo = request.FILES.get('client_adhar_photo')
+
+        # Validate incident date and time in IST (Indian Standard Time)
+        current_datetime = timezone.now()
+        ist = pytz.timezone('Asia/Kolkata')  # Get the IST time zone
+        current_datetime_ist = current_datetime.astimezone(ist)
+        incident_datetime = timezone.datetime.combine(
+            timezone.datetime.strptime(incident_date, '%Y-%m-%d').date(),
+            timezone.datetime.strptime(incident_time, '%H:%M').time(),
+            ist
+        )
+
+        if incident_datetime > current_datetime_ist:
+            messages.error(request, 'Incident date and time cannot be in the future.')
+        elif not all([incident_place, witness_name]):
+            messages.error(request, 'Incident place and witness name are required fields.')
+        elif not witness_name.replace(" ", "").isalpha():
+            messages.error(request, 'Witness name should contain only letters without any numbers or special characters.')
+        elif not client_adhar.isdigit() or len(client_adhar) != 12:
+            messages.error(request, 'Client Aadhar should contain 12 numeric digits.')
+        else:
+            # Generate a unique case number
+            case_number = generate_unique_case_number()
+
+            # Create a new Case instance and save it
+            case = Case.objects.create(
+                case_number=case_number,
+                client=client,
+                client_name=client.get_full_name(),
+                client_email=client.email,
+                client_phone=client.phone,
+                incident_place=incident_place,
+                incident_date=incident_date,
+                incident_time=incident_time,
+                witness_name=witness_name,
+                witness_details=witness_details,
+                incident_description=incident_description,
+                client_adhar=client_adhar,
+                client_adhar_photo=client_adhar_photo,
+                lawyer=lawyer,  # Assign the lawyer to the case
+            )
+
+            # Handle saving the Aadhar card photo file
+            if client_adhar_photo:
+                file_name = f'aadhar_photos/{case.id}_{client_adhar_photo.name}'
+                default_storage.save(file_name, ContentFile(client_adhar_photo.read()))
+
+            # Set the session variable to indicate case submission
+            request.session['case_submitted'] = True
+
+            messages.success(request, 'Case saved successfully.')
+            return redirect('case_saved')
+
+    return render(request, 'lawyer/enter_case_details.html', {'client': client})
+
+def case_saved(request):
+    return render(request, 'case_saved.html')
+
+
+def case_detail(request, case_id):
+    # Retrieve the case object by its ID or return a 404 error if not found
+    case = get_object_or_404(Case, pk=case_id)
+
+    # Render the 'case_detail.html' template with the case object
+    return render(request, 'lawyer/case_detail.html', {'case': case})
+
+# def case_saved(request):
+#     return render(request, 'case_saved.html')
+
+
+
+# def case_saved(request):
+#     # Check if the session variable indicating case submission exists
+#     if request.session.get('case_submitted'):
+#         # Case has already been submitted, show a message or redirect to a different page
+#         return render(request, 'case_already_submitted.html')
+    
+#     return render(request, 'case_saved.html')
+
+def generate_unique_case_number():
+    # Generate a unique case number like 1001, 1002, ...
+    last_case = Case.objects.order_by('-case_number').first()
+    if last_case:
+        last_case_number = int(last_case.case_number)
+        return str(last_case_number + 1)
+    else:
+        return '1001'
+    
+    
+def is_valid_date(date_str):
+    try:
+        datetime.strptime(date_str, '%Y-%m-%d')
+        return True
+    except ValueError:
+        return False
+
+def current_cases(request):
+    # Ensure that only lawyers can access this view
+    if request.user.user_type != 'lawyer':
+        return render(request, 'sorry.html')
+
+    lawyer = request.user.lawyer_profile
+    current_case_count = lawyer.current_cases.count()
+    max_current_cases = lawyer.currendly_handling
+
+    if request.method == 'POST':
+        case_number = request.POST.get('case_number')
+        client_name = request.POST.get('client_name')
+        incident_description = request.POST.get('incident_description')
+        incident_place = request.POST.get('incident_place')
+        incident_date = request.POST.get('incident_date')
+        incident_time = request.POST.get('incident_time')
+        witness_name = request.POST.get('witness_name')
+        witness_details = request.POST.get('witness_details')
+
+        # Validate incident date and time
+        if not validate_date(incident_date):
+            messages.error(request, 'Incident date cannot be in the future.')
+        elif not validate_time(incident_time):
+            messages.error(request, 'Incident time cannot be in the future.')
+        elif not client_name.replace(" ", "").isalpha():
+            messages.error(request, 'Client name should contain only letters.')
+        elif not witness_name.replace(" ", "").isalpha():
+            messages.error(request, 'Witness name should contain only letters.')
+        elif current_case_count >= max_current_cases:
+            messages.warning(request, 'You have reached the maximum number of current cases.')
+        else:
+            try:
+                CurrentCase.objects.get(case_number=case_number)  # Check if case number is unique
+                messages.error(request, 'A case with this number already exists.')
+            except ObjectDoesNotExist:
+                CurrentCase.objects.create(
+                    lawyer=lawyer,
+                    case_number=case_number,
+                    client_name=client_name,
+                    incident_description=incident_description,
+                    incident_place=incident_place,
+                    incident_date=incident_date,
+                    incident_time=incident_time,
+                    witness_name=witness_name,
+                    witness_details=witness_details,
+                )
+                messages.success(request, 'Current case added successfully.')
+                return redirect('current_cases')
+
+    current_cases = lawyer.current_cases.all()
+
+    context = {
+        'lawyer': lawyer,
+        'current_cases': current_cases,
+        'current_case_count': current_case_count,
+        'max_current_cases': max_current_cases
+    }
+    
+    return render(request, 'lawyer/current_cases.html', context)
+
+def list_cases(request):
+    user_type = request.user.user_type  # Assuming you have 'user_type' set in your CustomUser model
+    
+    if user_type == 'lawyer':
+        cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
+    elif user_type == 'client':
+        cases = Case.objects.filter(client=request.user)
+    elif user_type == 'admin':
+        cases = Case.objects.all()
+    else:
+        cases = None
+
+    return render(request, 'case_list.html', {'cases': cases})
+
+
+def search_lawyers(request):
+    # Get the search query from the form
+    query = request.GET.get('query')
+
+    # Filter lawyers based on the search query (you can modify the filter condition)
+    lawyers = LawyerProfile.objects.filter(
+        models.Q(user__first_name__icontains=query) |  # Search by first name
+        models.Q(user__last_name__icontains=query) |   # Search by last name
+        models.Q(specialization__icontains=query)      # Search by specialization
+    )
+
+    # Pass the search results to the template
+    return render(request, 'search.html', {'lawyers': lawyers, 'query': query})
+
+
+# def assign_working_hours(request):
+#     lawyer = request.user.lawyer_profile
+
+#     if request.method == 'POST':
+#         selected_time_slots = request.POST.getlist('selected_time_slots')
+        
+#         # Clear existing working slots for the lawyer
+#         lawyer.working_slots.clear()
+
+#         # Add selected time slots to the lawyer's working hours
+#         for time_slot_id in selected_time_slots:
+#             time_slot = TimeSlot.objects.get(pk=time_slot_id)
+#             lawyer.working_slots.add(time_slot)
+
+#         return redirect('home')  # Redirect to a success page
+
+#     all_time_slots = TimeSlot.objects.all()
+#     return render(request, 'assign_working_hours.html', {'all_time_slots': all_time_slots})
+
+
+def assign_working_hours(request):
+    if request.method == 'POST':
+        print("Received a POST request")  # Debugging: Check if the request is received
+
+        selected_time_slot_ids = request.POST.getlist('selected_time_slots')
+        selected_time_slots = TimeSlot.objects.filter(id__in=selected_time_slot_ids)
+
+        try:
+            if request.user.is_authenticated and hasattr(request.user, 'lawyer_profile'):
+                lawyer = request.user.lawyer_profile
+
+                print(f"User {request.user.username} is authenticated and has a lawyer profile")  # Debugging: Check user profile
+
+                # Clear existing working slots for the lawyer
+                lawyer.working_slots.clear()
+
+                # Add the selected time slots to the lawyer's working slots
+                lawyer.working_slots.set(selected_time_slots)
+
+                print("Working slots assigned successfully")  # Debugging: Check if slots are assigned successfully
+                print("Selected slot IDs:", [slot.id for slot in selected_time_slots])  # Debugging: Check selected slot IDs
+
+                # Redirect to the dashboard or another page
+                return redirect('update')
+        except Exception as e:
+            # Log the error
+            traceback.print_exc()
+            return HttpResponseServerError("An error occurred while saving data.")
+
+    # Retrieve all available time slots to display in the form
+    all_time_slots = TimeSlot.objects.all()
+    breadcrumbs = [
+        ("Home", reverse("home")),
+        ("lawyer_dashboard", reverse("lawyer_dashboard")),
+        ("assign_working_hours", None),  # Current page (no link)
+    ]
+
+    return render(request, 'assign_working_hours.html', {'all_time_slots': all_time_slots ,'breadcrumbs': breadcrumbs})
+    
+
+# def book_lawyer(request, lawyer_id):
+#     lawyer = LawyerProfile.objects.get(pk=lawyer_id)
+#     user = request.user
+
+#     if request.method == 'POST':
+#         appointment_date = request.POST.get('appointment_date')
+#         time_slot_id = request.POST.get('time_slot')
+#         time_slot = TimeSlot.objects.get(pk=time_slot_id)
+
+#         # Check if the selected time slot is available for booking
+#         if not Appointment.objects.filter(
+#             Q(time_slot=time_slot, appointment_date=appointment_date, lawyer=lawyer) |
+#             Q(time_slot=time_slot, appointment_date=appointment_date, client=user)
+#         ).exists():
+#             appointment = Appointment(
+#                 lawyer=lawyer,
+#                 client=user,
+#                 time_slot=time_slot,
+#                 appointment_date=appointment_date
+#             )
+#             appointment.save()
+#             return redirect('home')  # Redirect to a success page or appointment list
+
+#     # Get available time slots based on lawyer's working hours for the current date
+#     today = datetime.today().date()
+#     available_time_slots = TimeSlot.objects.filter(
+#         Q(lawyers=lawyer) & Q(day=today.strftime("%A"))
+#     )
+
+#     return render(request, 'book_appointment.html', {'lawyer': lawyer, 'available_time_slots': available_time_slots})
+
+
+def select_date(request, lawyer_id):
+    # Retrieve the lawyer using the lawyer_id parameter
+    lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+    
+    if request.method == 'POST':
+        selected_date = request.POST.get('selected_date')
+        
+        # Check if it's a holiday for the lawyer
+        if LawyerDayOff.objects.filter(lawyer=lawyer, date=selected_date).exists():
+            messages.error(request, 'Booking is not possible on a day marked as a holiday for the lawyer.')
+        else:
+            return redirect('book_lawyer', lawyer_id=lawyer_id, selected_date=selected_date)
+    
+    return render(request, 'select_date.html', {'lawyer': lawyer})
+
+def parse_time(time_str):
+    try:
+        # Parse the time string in the format "08:00 AM"
+        parsed_time = datetime.strptime(time_str, '%I:%M %p').strftime('%H:%M:%S')
+        return parsed_time
+    except ValueError:
+        return None
+
+def book_lawyer(request, lawyer_id, selected_date):
+    try:
+        # Convert selected_date to a Python date object
+        selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        
+        # Get the current date
+        current_date = timezone.now().date()
+
+        # Check if the selected_date is in the past
+        if selected_date < current_date:
+            messages.error(request, 'Booking is not possible for past dates.')
+            
+
+        # Get the lawyer object
+        lawyer = LawyerProfile.objects.get(id=lawyer_id)
+        
+        
+        
+
+        # Retrieve the lawyer's working time slots for the selected date
+        working_time_slots = TimeSlot.objects.filter(lawyers=lawyer, day=selected_date.strftime('%A')).order_by('start_time')
+
+        # Initialize a list to store available appointment slots
+        appointment_slots = []
+
+        # Iterate through the working time slots and generate appointment slots
+        for time_slot in working_time_slots:
+            start_time = datetime.combine(selected_date, time_slot.start_time)
+            end_time = datetime.combine(selected_date, time_slot.end_time)
+
+            current_time = start_time
+            while current_time <= end_time:
+                appointment_slots.append(current_time.strftime('%I:%M %p'))
+                current_time += timedelta(minutes=15)
+
+        if request.method == 'POST':
+            # Handle the form submission when the client books an appointment
+            selected_slot = request.POST.get('selected_slot')
+
+            # Check if the selected slot is still available
+            if selected_slot and selected_slot in appointment_slots:
+                # Check if the selected slot is available for booking
+                if lawyer.is_available(selected_date, selected_slot):
+                    try:
+                        # Check if the selected slot is in the correct time format
+                        selected_time = datetime.strptime(selected_slot, '%I:%M %p').time()
+                    except ValueError:
+                        messages.error(request, 'Invalid time format. Please choose a valid time from the list (e.g., 08:45 AM).')
+                        return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
+
+                    # Create an Appointment record
+                    appointment = Appointment(
+                        lawyer=lawyer,
+                        client=request.user,
+                        appointment_date=selected_date,
+                        time_slot=selected_time  # Use the selected_time instead of selected_slot
+                    )
+                    appointment.save()
+
+                    messages.success(request, 'Appointment booked successfully!')
+                    return redirect('home')  # Redirect to a success page
+                else:
+                    messages.error(request, 'Selected slot is not available. Please choose another slot.')
+            else:
+                messages.error(request, 'Invalid selected slot format. Please choose a valid slot from the list.')
+
+        return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
+    except LawyerProfile.DoesNotExist:
+        messages.error(request, 'Lawyer not found.')
+        return redirect('home')

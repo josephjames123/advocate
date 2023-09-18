@@ -21,12 +21,14 @@ urlpatterns = [
     path('set/<uidb64>/<token>/', views.custom_password_set_confirm, name='password_reset_confirm'),
     path('lawyer/<int:lawyer_id>/', views.lawyer_details, name='lawyer_details'),
     path('mail/', views.mail, name='mail'),
+    path('update/', views.update, name='update'),
     path('add_internship/', views.add_internship, name='add_internship'),
     # path('approve_student/<int:student_id>/', views.approve_student, name='approve_student'),
     path('approve_students/', views.approve_students, name='approve_students'),
     path('student/save/', views.student_save, name='student_save'),
     path('lawyer/save/', views.lawyer_save, name='lawyer_save'),
     path('update_profile/', views.update_profile, name='update_profile'),
+    path('case_saved/', views.case_saved, name='case_saved'),
     path('update_lawyer_profile/<int:user_id>/', views.update_lawyer_profile, name='update_lawyer_profile'),
     
 ]

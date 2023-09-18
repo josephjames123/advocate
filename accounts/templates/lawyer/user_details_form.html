@@ -109,7 +109,7 @@
 
         <div class="row">
             <div class="col-12 add-user-col d-flex justify-content-center">
-                    <form method="post"  class="add-user-form" action="{% url 'lawyer_save' %}" enctype="multipart/form-data">
+                    <form method="post"  class="add-user-form" action="{% url 'lawyer_save' %}" enctype="multipart/form-data" onsubmit="return confirmSubmit();">
                         {% csrf_token %}
                     <div class="input-group">
                         <label for="specialization">Specialization</label>
@@ -136,9 +136,15 @@
                     
 
                     <div class="input-group">
-                        <label for="phone_number">Experience</label>
-                        <input type="number" name="experience" required />
+                        <label for="experience">Experience (e.g., '5 years 3 months 2 days')</label>
+                        <input type="text" name="experience" required />
                     </div>
+                    
+                    
+                    
+                    
+                    
+                    
                     <div class="input-group">
                         <label for="total_cases_handeled">Total Cases Handeled</label>
                         <input type="number" name="total_cases_handeled" required />
@@ -165,6 +171,7 @@
                     <div class="input-group">
                         <button class="btn btn-warning" type="submit">Submit</button>
                     </div>
+                   
                 </form>
             </div>
         </div>
@@ -203,6 +210,14 @@
                 reader.readAsDataURL(fileInput.files[0]);
             }
         }
+
+        function confirmSubmit() {
+        // Display a confirmation dialog
+        var confirmation = confirm("Are you sure you want to submit this form?");
+        
+        // If the user clicks "OK," the form will be submitted
+        return confirmation;
+    }
     </script>
 
 </body>

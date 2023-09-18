@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment</title>
+</head>
+<body>
+    <h1>Book Appointment with {{ lawyer.user.username }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="appointment_date">Select Appointment Date:</label>
+        <input type="date" name="appointment_date" id="appointment_date" required>
+        <br>
+        <label for="time_slot">Select Time Slot:</label>
+        <select name="time_slot" id="time_slot" required>
+            {% for time_slot in available_time_slots %}
+                <option value="{{ time_slot.id }}">{{ time_slot }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <input type="submit" value="Book Appointment">
+    </form>
+</body>
+</html>

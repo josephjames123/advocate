@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of Cases</title>
+</head>
+<body>
+    <h1>List of Cases</h1>
+    <ul>
+        {% for case in cases %}
+            <li>
+                <strong>Case Number:</strong> {{ case.case_number }}<br>
+                <strong>Client:</strong> {{ case.client_name }}<br>
+                <strong>Status:</strong> {{ case.status }}<br>
+                <!-- Add more case details as needed -->
+            </li>
+        {% empty %}
+            <li>No cases available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

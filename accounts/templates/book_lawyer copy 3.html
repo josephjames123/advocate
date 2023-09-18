@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Lawyer</title>
+</head>
+<body>
+    <h1>Book a Lawyer Appointment</h1>
+    <p>Selected Date: {{ selected_date }}</p>
+    
+    {% if appointment_slots %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="selected_slot">Select a Time Slot:</label>
+        <select name="selected_slot" id="selected_slot">
+            {% for slot in appointment_slots %}
+                <option value="{{ slot }}">{{ slot }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <input type="submit" value="Book Appointment">
+    </form>
+    {% else %}
+    <p>No available time slots.</p>
+    {% endif %}
+
+    {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+</body>
+</html>

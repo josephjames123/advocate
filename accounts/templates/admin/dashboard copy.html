@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+
+    <!-- icons -->
+    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+    <!-- header-start -->
+    <style>
+            
+            #navigation {
+                display: flex; /* Use flexbox to create a row layout */
+                align-items: center; /* Vertically center items */
+                list-style: none;
+                padding: 0;
+            }
+        
+            #navigation li {
+                margin: 0;
+                padding: 0;
+                margin-right: 0px; /* Add spacing between navigation items */
+            }
+        
+            #navigation li:last-child {
+                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
+            }
+        </style>
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="index.html">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-8">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a class="active" href="{% url 'home' %}">home</a></li>
+                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                                        <li><a href="{% url 'practice' %}">Practice Area</a></li> 
+                                        <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                
+                                                
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                                {% endif %}
+                                            </ul>
+                                            
+                                        </li>
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                                                {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                        {% else %}
+                                        
+                                        <li><a href="{% url 'signup' %}">Signup</a></li>
+                                        <li><a href="{% url 'login' %}">Login</a></li>
+                                        {% endif %}
+                                    </ul>
+                                    <nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+    <div class="container-fluid p-5" style="background: whitesmoke; min-height: 90vh;">
+        
+        <p class="mt-3" style="font-weight: 600; color: #ed5f3a;">{{user.user_type}} Dashboard</p>
+
+        <!-- dashboard top buttons start -->
+        <div class="row">
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-advocate">{{ lawyer_count }}</i>
+                <a href="{% url 'list_lawyers' %}"><h6 style="padding: 0; margin: 0;">No of Lawyers</h6></a>
+            </div>
+
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-null">{{ booking_count }}</i>
+                <a href="{% url 'all_bookings' %}"><h6 style="padding: 0; margin: 0;">Total Bookings</h6></a>
+            </div>
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-null">{{ students_count }}</i>
+                <h6 style="padding: 0; margin: 0;">No of Students</h6>
+            </div>
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-null">{{ internship_count }}</i>
+                <h6 style="padding: 0; margin: 0;">No of Internships</h6>
+            </div>
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <a href="{% url 'admin_view_holiday_requests' %}"><h6 style="padding: 0; margin: 0;">Holiday Requests</h6></a>
+                
+            </div>
+
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-user"></i>
+                <button>
+                    <a href="{% url 'approve_students' %}"><h6 style="padding: 0; margin: 0;">Approve Student</h6></a>
+                </button>
+            </div>
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-user"></i>
+                <button>
+                    <a href="{% url 'add_internship' %}"><h6 style="padding: 0; margin: 0;">Add Internships</h6></a>
+                </button>
+            </div>
+
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa-plus"></i>
+                <button>
+                    <a href="{% url 'add_lawyer' %}"><h6 style="padding: 0; margin: 0;">Add Lawyer</h6></a>
+                </button>
+            </div>
+            <div class="col-sm-3 mt-3 dashboard-top-buttons">
+                <i class="fa-solid fa hammer-">{{cases_count}}</i>
+                <button>
+                    <a href="{% url 'list_cases' %}"><h6 style="padding: 0; margin: 0;">Cases</h6></a>
+                </button>
+            </div>
+        </div>
+        <!-- dashboard top buttons end -->
+
+        <!-- dashboard messaged and appointments start -->
+        <div class="row">
+
+            <div class="col-md-6 mt-4 rounded position-relative contact-messages-bookings">
+                <h4><i class="fa-solid fa-message mr-3"></i>Contact Us</h4>
+                <br />
+                <div class="list-of-messages">
+                    {% for query in recent_queries %}
+                    <p class="message-list rounded">
+                        <a href="#">{{ query.message }}</a>
+                    </p>
+                    {% endfor %}
+                </div>
+                <span class="show-more-link"><a href="#">Show More</a></span>
+            </div>
+            <!-- no of messages from contact us end -->
+            
+
+            <!-- no of bookings start -->
+            <!-- no of bookings start -->
+<div class="col-md-6 mt-4 rounded position-relative contact-messages-bookings">
+    <h4><i class="fa-solid fa-calendar-check mr-3"></i>Recent Bookings</h4>
+    <br />
+    <div class="list-of-messages">
+        {% for booking in recent_bookings %}
+        <p class="message-list rounded">
+            <a href="{% url 'booking_details' booking.id %}">{{ booking.user.email }}</a>
+        </p>
+        {% endfor %}
+    <span class="show-more-link"><a href="{% url 'all_bookings'  %}">show more</a></span>
+</div>
+<!-- no of bookings end -->
+
+            <!-- no of bookings end -->
+
+        </div>
+        <!-- dashboard messaged and appointments end -->
+    </div>
+
+</body>
+
+</html>

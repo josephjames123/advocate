@@ -1,0 +1,19 @@
+<!-- select_date.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Date</title>
+</head>
+<body>
+    <h1>Select a Date to Book</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="selected_date">Select a Date:</label>
+        <input type="date" name="selected_date" required>
+        <br><br>
+        <input type="submit" value="Next">
+    </form>
+</body>
+</html>
+s

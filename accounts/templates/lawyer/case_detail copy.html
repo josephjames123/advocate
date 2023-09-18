@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Details</title>
+</head>
+<body>
+    <p><strong>Case Number:</strong> {{ case.case_number }}</p>
+    <h1>Case Details</h1>
+    
+    <h2>Client Information</h2>
+    <p><strong>Client Name:</strong> {{ case.client_name }}</p>
+    <p><strong>Client Email:</strong> {{ case.client_email }}</p>
+    <p><strong>Client Phone:</strong> {{ case.client_phone }}</p>
+    
+    <h2>Incident Details</h2>
+    <p><strong>Incident Place:</strong> {{ case.incident_place }}</p>
+    <p><strong>Incident Date:</strong> {{ case.incident_date }}</p>
+    <p><strong>Incident Time:</strong> {{ case.incident_time }}</p>
+    <p><strong>Witness Name:</strong> {{ case.witness_name }}</p>
+    <p><strong>Witness Details:</strong> {{ case.witness_details }}</p>
+    <p><strong>Incident Description:</strong> {{ case.incident_description }}</p>
+    
+    <h2>Client Aadhar Card</h2>
+    <p><strong>Aadhar Card Number:</strong> {{ case.client_adhar }}</p>
+    {% if case.client_adhar_photo %}
+    <img src="{{ case.client_adhar_photo.url }}" alt="Client Aadhar Card">
+{% else %}
+    <p>No Aadhar Card photo available for this case.</p>
+{% endif %}
+    
+    <h2>Case Status</h2>
+    <p><strong>Status:</strong> {{ case.status }}</p>
+    
+    <a href="">Edit Case</a>
+</body>
+</html>
