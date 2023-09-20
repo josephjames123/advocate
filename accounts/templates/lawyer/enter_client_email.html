@@ -111,6 +111,13 @@
             </div>
         </div>
     </header>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Enter Client Email</li>
+        </ol>
+    </nav>
     <div class="container py-5">
         <h1 class="text-center">Incident Details Registration</h1>
         <div class="row">

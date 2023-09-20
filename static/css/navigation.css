@@ -1,0 +1,16 @@
+#navigation {
+    display: flex; /* Use flexbox to create a row layout */
+    align-items: center; /* Vertically center items */
+    list-style: none;
+    padding: 0;
+}
+
+#navigation li {
+    margin: 0;
+    padding: 0;
+    margin-right: 0px; /* Add spacing between navigation items */
+}
+
+#navigation li:last-child {
+    margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
+}

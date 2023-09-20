@@ -1,40 +1,41 @@
 {% load static %}
-    <!DOCTYPE html>
-    <html lang="en">
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bookings.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+
+    <!-- icons -->
+    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
+
+    <title>Case Details</title>
+</head>
+
+<style>
+    /* Add this CSS to override the active tab's text color */
+    .nav.nav-pills li.active a {
+        color: #000; /* Black color */
+    }
     
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashboard</title>
+    /* Rest of your existing CSS styles */
     
-        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-        <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-        <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-        <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-        <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-        <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-        <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-        <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-        <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-        <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
-        <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-        <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-        <link rel="stylesheet" href="{% static 'css/bookings.css' %}">
-    
-        <!-- icons -->
-        <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
-    
-    </head>
-    
-    <body>
-        <!--[if lte IE 9]>
-                <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-            <![endif]-->
-    
-        <!-- header-start -->
-        <style>
-              figure img {
+    figure img {
         width: 20em;
         object-fit: cover;
     }
@@ -46,98 +47,142 @@
     .inline-data {
         display: flex;
         justify-content: space-between;
-    }  
-                #navigation {
-                    display: flex; /* Use flexbox to create a row layout */
-                    align-items: center; /* Vertically center items */
-                    list-style: none;
-                    padding: 0;
-                }
-            
-                #navigation li {
-                    margin: 0;
-                    padding: 0;
-                    margin-right: 0px; /* Add spacing between navigation items */
-                }
-            
-                #navigation li:last-child {
-                    margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
-                }
-            </style>
-        <header>
-            <div class="header-area ">
-                <div id="sticky-header" class="main-header-area">
-                    <div class="container-fluid p-0">
-                        <div class="row align-items-center justify-content-between no-gutters">
-                            <div class="col-xl-2 col-lg-2">
-                                <div class="logo-img">
-                                    <a href="index.html">
-                                        <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                    </a>
-                                </div>
+    }
+
+    /* Additional styles for the card */
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        margin: 0 auto;
+        background-color: #f9f9f9;
+    }
+
+    .data-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    figure img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .tab-pane.active {
+        margin-top: 20px; /* Add margin to create space between tab and content */
+    }
+
+    @media (max-width: 768px) {
+        .nav.nav-pills li {
+            width: 100%;
+            text-align: center;
+        }
+
+        .tab-pane {
+            padding: 15px;
+        }
+
+        figure img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        max-width: 600px; /* Increase the max-width to make the card wider */
+        margin: 0 auto;
+        background-color: #f9f9f9;
+    }
+    
+</style>
+
+
+<body>
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="index.html">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                                </a>
                             </div>
-                            <div class="col-xl-7 col-lg-8">
-                                <div class="main-menu  d-none d-lg-block">
-                                    <nav>
-                                        <ul id="navigation">
-                                            <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
-                                            <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                            <li><a href="{% url 'contact' %}">Contact</a></li>
-                                            <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
-                                            <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                                <ul class="submenu">
-                                                    
-                                                    
-                                                    {% if user.user_type == 'admin' %}
-                                                    <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                    {% endif %}
-                                                </ul>
+                        </div>
+                        <div class="col-xl-7 col-lg-8">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
+                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
                                                 
-                                            </li> -->
-                                            {% if user.is_authenticated %}
-                                            <li>
-                                                <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                                <ul class="submenu">
-                                                    {% if user.user_type == 'admin' %}
-                                                    
-                                                    {% endif %}
-                                                    {% if user.user_type == 'lawyer' %}
-                                                             <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                                      {% endif %}
-                                                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                                                </ul>
-                                            </li>
-                                            {% else %}
+                                                
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                                {% endif %}
+                                            </ul>
                                             
-                                            <li><a href="{% url 'signup' %}">Signup</a></li>
-                                            <li><a href="{% url 'login' %}">Login</a></li>
-                                            {% endif %}
-                                        </ul>
-                                        <nav>
-                                </div>
+                                        </li> -->
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                {% if user.user_type == 'admin' %}
+                                                
+                                                {% endif %}
+                                                {% if user.user_type == 'lawyer' %}
+                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
+                                                                  {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                        {% else %}
+                                        
+                                        <li><a href="{% url 'signup' %}">Signup</a></li>
+                                        <li><a href="{% url 'login' %}">Login</a></li>
+                                        {% endif %}
+                                    </ul>
+                                    <nav>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-    
-
+        </div>
+    </header>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'list_cases' %}">Cases</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CS/{{ case.case_number}}</li>
+        </ol>
+    </nav>
     <div id="exTab1" class="container mt-5">
-        <ul class="nav nav-pills">
+        <ul class="nav nav-pills justify-content-center"> <!-- Added justify-content-center -->
             <li class="active">
                 <a href="#1a" data-toggle="tab">Client Details</a>
             </li>
-            <li><a href="#2a" data-toggle="tab">Incident Details</a>
-            </li>
-            <li><a href="#3a" data-toggle="tab">Case Status</a>
+            <li>
+                <a href="#2a" data-toggle="tab">Incident Details</a>
             </li>
         </ul>
 
         <div class="tab-content clearfix position-relative">
             <!-- content of 1st tab start -->
             <div class="tab-pane active" id="1a">
-                <div class="inline-data">
+                <div class="card">
                     <div class="data-group">
                         <p>Case Number</p>
                         <p>CS/{{ case.case_number }}</p>
@@ -158,61 +203,52 @@
                         <p>Adhar Number</p>
                         <p>{{ case.client_adhar }}</p>
                     </div>
+                    <div class="data-group">
+                        <p>Adhar photo</p>
+                        <figure>
+                            <img src="{{ case.client_adhar_photo.url }}" alt="aadhar card" style="max-width: 200px; max-height: 200px;">
+                        </figure>
+                    </div>
                 </div>
-
-                <figure>
-                    <img src="{{ case.client_adhar_photo.url }}"
-                        alt="aadhar card">
-                </figure>
             </div>
             <!-- content of 1st tab end -->
 
             <!-- content of 2nd tab start -->
             <div class="tab-pane" id="2a">
-                <div class="inline-data">
+                <div class="card">
                     <div class="data-group">
                         <p>Place</p>
                         <p>{{ case.incident_place }}</p>
                     </div>
-
                     <div class="data-group">
                         <p>Date</p>
                         <p>{{ case.incident_date }}</p>
                     </div>
-
                     <div class="data-group">
                         <p>Time</p>
                         <p>{{ case.incident_time }}</p>
                     </div>
-
                     <div class="data-group">
                         <p>Name of witness</p>
                         <p>{{ case.witness_name }}</p>
                     </div>
-
                     <div class="data-group">
                         <p>Address of witness</p>
                         <p>{{ case.witness_details }}</p>
                     </div>
-                </div>
-
-                <div class="data-group">
-                    <p>Description</p>
-                    <p>
-                        {{ case.incident_description }}
-                    </p>
+                    <div class="data-group">
+                        <p>Description</p>
+                        <p>{{ case.incident_description }}</p>
+                    </div>
                 </div>
             </div>
             <!-- content of 2nd tab end -->
 
             <!-- content of 3rd tab start -->
-            <div class="tab-pane" id="3a">
-                <div class="data-group">
-                    <p>Status</p>
-                    <p>{{ case.status }} <a href="#"><i title="edit status" class="fa-solid fa-pencil ml-2"></i></a></p>
-                </div>
-            </div>
             <!-- content of 3rd tab end -->
+        </div>
+        <div style="text-align: center;">
+            <p>Go to <a href="{% url 'lawyer_dashboard' %}" class="text-success" style="font-weight: 600;">Dashboard</a></p>
         </div>
     </div>
 

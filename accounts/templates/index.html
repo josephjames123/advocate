@@ -70,7 +70,7 @@
                                         <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
                                         {% comment %} <li><a href="{% url 'practice' %}">Practice Area</a></li>  {% endcomment %}
-                                        <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                        {% comment %} <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
                                                 
                                                 
@@ -80,7 +80,7 @@
                                             </ul>
                                             
                                         </li>
-                                        {% if user.is_authenticated %}
+                                        {% if user.is_authenticated %} {% endcomment %}
                                         <li>
                                             <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
@@ -105,11 +105,7 @@
     </header>
     <!-- header-end -->
 
-    <!-- slider_area_start -->
-    
-    <!-- slider_area_end -->
-
-    <!-- about_area _start  -->
+   
     
 <!-- about_area _start -->
 <div class="our_loyers">
@@ -120,7 +116,7 @@
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="section_title text-center mb-60">
-                            <h3>Advocate Assist</h3>
+                            <h3>Our Lawyers</h3>
                             <p>Most valuable lawyers who provide<br>justice to your problems </p>
                         </div>
                     </div>

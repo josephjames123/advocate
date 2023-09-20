@@ -7,9 +7,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
     <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
 
     <!-- icons -->
     <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
@@ -110,7 +118,6 @@
 </style>
 
 <body>
-
     <header>
         <div class="header-area ">
             <div id="sticky-header" class="main-header-area">
@@ -168,7 +175,14 @@
             </div>
         </div>
     </header>
-
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Leave Requests</li>
+        </ol>
+    </nav>
 
     <div class="container py-5">
         <h1 class="text-center">Admin - Leave Requests</h1>

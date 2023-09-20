@@ -161,48 +161,55 @@
 
     <!-- Header -->
     <header>
-        <div class="header-area">
+        <div class="header-area ">
             <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid">
-                    <div class="row align-items-center justify-content-between">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
                         <div class="col-xl-2 col-lg-2">
                             <div class="logo-img">
-                                <a href="{% url 'home' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt="Logo" width="120">
+                                <a href="index.html">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
                                 </a>
                             </div>
                         </div>
                         <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu d-none d-lg-block">
+                            <div class="main-menu  d-none d-lg-block">
                                 <nav>
                                     <ul id="navigation">
-                                        <li><a href="{% url 'home' %}">Home</a></li>
-                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'practice' %}">Practice Area</a></li>
-                                        <li><a href="{% url 'lawyer_list' %}">Lawyers <i class="ti-angle-down"></i></a>
+                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
+                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
+                                                
+                                                
                                                 {% if user.user_type == 'admin' %}
                                                 <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
                                                 {% endif %}
                                             </ul>
-                                        </li>
+                                            
+                                        </li> -->
                                         {% if user.is_authenticated %}
                                         <li>
-                                            <a href="#">Welcome {{ user.first_name }} <i class="ti-angle-down"></i></a>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
                                                 {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                                                
                                                 {% endif %}
+                                                {% if user.user_type == 'lawyer' %}
+                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
+                                                                  {% endif %}
                                                 <li><a href="{% url 'logout' %}">Logout</a></li>
                                             </ul>
                                         </li>
                                         {% else %}
+                                        
                                         <li><a href="{% url 'signup' %}">Signup</a></li>
                                         <li><a href="{% url 'login' %}">Login</a></li>
                                         {% endif %}
                                     </ul>
-                                </nav>
+                                    <nav>
                             </div>
                         </div>
                     </div>

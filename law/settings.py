@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'accounts.middleware.RedirectAuthenticatedUserMiddleware',
     
 
 ]
@@ -168,7 +169,7 @@ EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='josejosu10010@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='befcgwnsszczoldz')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='difk ewsk ssdh eglf')
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
@@ -194,8 +195,8 @@ SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 
 
-RAZOR_KEY_ID = "rzp_test_0RqoFNB1wQWTP7"
-RAZOR_KEY_SECRET = "JvPq7n1qGkKoo79ay2Fep5MR"
+RAZORPAY_KEY_ID = "rzp_test_cvGs8NAQTlqQrP"
+RAZORPAY_KEY_SECRET = "hNPvcoyR5F1mKYlgG60C2GW6"
 
 
 

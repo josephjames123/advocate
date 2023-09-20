@@ -5,6 +5,8 @@ import datetime
 from datetime import datetime, timedelta ,time
 from taggit.managers import TaggableManager
 from django.contrib.auth import get_user_model  # Import the get_user_model function
+from django.utils.translation import gettext_lazy as _
+
 
 
 
@@ -65,7 +67,7 @@ class CustomUser(AbstractUser):
     pin = models.CharField(max_length=6, default='',blank=True,)  # Added: PIN code field
     state = models.CharField(max_length=50, choices=STATES, blank=True, null=False)
     # state = models.CharField(max_length=10, choices=STATES, default='kerala')  # Added: State field
-    phone = models.CharField(max_length=15,blank=True, unique=True)  # Added: Phone number field
+    phone = models.CharField(max_length=15,blank=True)  # Added: Phone number field
     
 # class TimeSlot(models.Model):
 #     start_time = models.TimeField()
@@ -522,10 +524,19 @@ class CurrentCase(models.Model):
 #         return f"Appointment with {self.lawyer.user.first_name} on {self.appointment_date}"
 
 class Appointment(models.Model):
+    
+    STATUS_CHOICES = (
+        ('not_paid', 'Not Paid'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+    )
+    
     lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE)
     client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     appointment_date = models.DateField()
     time_slot = models.CharField(max_length=20)# Use TimeSlot model here
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
+    
 
     # Add any other fields or methods related to appointments
 

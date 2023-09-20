@@ -108,10 +108,16 @@
                 </div>
             </div>
         </header>
-    
     <!-- header-end -->
 
-
+<!-- Breadcrumb navigation -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Add Lawyer</li>
+    </ol>
+</nav>
     <div class="container pb-5">
         <h2 class="mt-3 text-center">Add Lawyer</h2>
 
@@ -123,26 +129,26 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label for="first_name">First Name</label>
-                            <input type="text" name="first_name" placeholder="Lawyer first name" required />
+                            <input type="text" name="first_name" placeholder="Your first name" required />
                         </div>
                         <div class="input-group">
                             <label for="last_name">Last Name</label>
-                            <input type="text" name="last_name" placeholder="Lawyer last name" required />
+                            <input type="text" name="last_name" placeholder="Your last name" required />
                         </div>
                     </div>
 
                     <div class="input-row">
                         <div class="input-group">
                             <label for="email">Email Address</label>
-                            <input type="email" name="email" placeholder="email address" required />
+                            <input type="email" name="email" placeholder="Your email address" required />
                         </div>
                         <div class="input-group">
                             <label for="license">License Number</label>
-                            <input type="text" name="license_no" placeholder="kl/10001" required />
+                            <input type="text" name="license_no" placeholder="Your License Number" required />
                         </div>  
                         <div class="input-group">
                             <label for="license">Phone</label>
-                            <input type="text" name="phone" placeholder="Phone Number" required />
+                            <input type="text" name="phone" placeholder="Your Phone Number" required />
                         </div>    
                     </div>
                     {% if messages %}

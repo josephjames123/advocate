@@ -71,19 +71,10 @@
                                 <nav>
                                     <ul id="navigation">
                                         <li><a class="active" href="{% url 'home' %}">home</a></li>
+                                        <li><a href="{% url 'client_bookings' client_id=request.user.id %}">Bookings</a></li> 
                                         <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'list_cases' %}">Cases</a></li> 
-                                        <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
-                                            
-                                        </li>
+                                        
                                         {% if user.is_authenticated %}
                                         <li>
                                             <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
@@ -120,98 +111,28 @@
     </div>
    
     <div id="exTab1" class="container mt-5">
-        <ul class="nav nav-pills">
-            <li class="active">
-                <a href="#1a" data-toggle="tab">Confirmed</a>
-            </li>
-            <li><a href="#2a" data-toggle="tab">Rescheduled</a>
-            </li>
-            <li><a href="#3a" data-toggle="tab">Pending</a>
-            </li>
-            <li><a href="#4a" data-toggle="tab">Not Paid</a>
-            </li>
-            <li><a href="#5a" data-toggle="tab">Cancelled</a>
-            </li>
-        </ul>
-    
         <div class="tab-content clearfix">
            
-            <!-- content of 1st tab start -->
+            <!-- Content for displaying bookings -->
             <div class="tab-pane active" id="1a">
-                {% for booking in confirmed_bookings %}
-                <article class="article">
-                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                         <span class="show-more">
-                        <a href="#" style="color: #f2c64d;">show more</a>
-                    </span>
-                    {% empty %}
-                    <p>No Confirmed Bookings</p>
-               </article>
-               {% endfor %}
+                <div class="article">
+                    <ul>
+                        {% for booking in all_bookings %}
+                        <li>
+                            <p>{{ booking.appointment_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                            <span class="show-more">
+                                <!-- <a href="#" style="color: #f2c64d;">show more</a> -->
+                            </span>
+                        </li>
+                        {% empty %}
+                        <p>No bookings available.</p>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-            <!-- content of 1st tab end -->
-
-            <!-- content of 2nd tab start -->
-            <div class="tab-pane" id="2a">
-                {% for booking in rescheduled_bookings %}
-                <article class="article">
-                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                         <span class="show-more">
-                        <a href="#" style="color: #f2c64d;">show more</a>
-                    </span>
-                    {% empty %}
-                    <p>No Rescheduled Bookings</p>
-               </article>
-               {% endfor %}
-            </div>
-            <!-- content of 2nd tab end -->
             
-            <!-- content of 3rd tab start -->
-            <div class="tab-pane" id="3a">
-                
-                {% for booking in pending_bookings %}
-                <article class="article">
-                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                         <span class="show-more">
-                        <a href="#" style="color: #f2c64d;">show more</a>
-                    </span>
-                    {% empty %}
-                    <p>No Pending Bookings</p>
-               </article>
-               {% endfor %}
-                
-            </div>
-            <!-- content of 3rd tab end -->
-            
-            <!-- content of 4th tab start -->
-            <div class="tab-pane" id="4a">
-                {% for booking in notpaid_bookings %}
-                <article class="article">
-                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                         <span class="show-more">
-                        <a href="#" style="color: #f2c64d;">show more</a>
-                    </span>
-                    {% empty %}
-                    <p>No Unpaid Bookings</p>
-               </article>
-               {% endfor %}
-            </div>
-            <!-- content of 4th tab end -->
-
-            <!-- content of 5th tab start -->
-            <div class="tab-pane" id="5a">
-                {% for booking in canceled_bookings %}
-                <article class="article">
-                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                         <span class="show-more">
-                        <a href="#" style="color: #f2c64d;">show more</a>
-                    </span>
-                    {% empty %}
-                    <p>No Cancelled Bookings</p>
-               </article>
-               {% endfor %}
-            </div>
-            <!-- content of 5th tab end -->
+        </div>
+    </div>
             
         </div>
     </div>
