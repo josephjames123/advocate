@@ -49,6 +49,55 @@
             #navigation li:last-child {
                 margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
             }
+
+            .lawyer-card-row {
+    row-gap: 2em;
+}
+
+.lawyer-card {
+    width: 100%;
+}
+
+.lawyer-card-body {
+    width: 100%;
+    height: 17em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #eeebeb63;
+    border-radius: 5px;
+}
+
+.lawyer-card-body:hover {
+    background-color: #eeebebd7;
+}
+
+.lawyer-card-body figure {
+    height: 70%;
+    width: 100%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    margin: 0;
+}
+
+.lawyer-card-body figure img {
+    width: 10em;
+    height: 10em;
+    border-radius: 50%;
+}
+
+.lawyer-card-body h5,
+.lawyer-card-body p {
+    margin: 0;
+    text-align: center;
+    font-size: 18px;
+}
+
+.lawyer-card-body p {
+    font-size: 13px;
+}
         </style>
     <header>
         <div class="header-area ">
@@ -67,10 +116,10 @@
                                 <nav>
                                     <ul id="navigation">
                                         <li><a  href="{% url 'home' %}">home</a></li>
-                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        {% comment %} <li><a href="{% url 'practice' %}">Practice Area</a></li>  {% endcomment %}
-                                        {% comment %} <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                        <li><a href="{% url 'practice' %}">Practice Area</a></li> 
+                                        <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
                                                 
                                                 
@@ -79,8 +128,10 @@
                                                 {% endif %}
                                             </ul>
                                             
-                                        </li>
-                                        {% if user.is_authenticated %} {% endcomment %}
+                                        </li> -->
+                                        {% if user.is_authenticated %}
+                                        <li><a href="{% url 'client_bookings' client_id=request.user.id %}">Bookings</a></li> 
+                                        <li><a href="{% url 'list_cases' %}">Cases</a></li>
                                         <li>
                                             <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
@@ -93,6 +144,7 @@
                                         
                                         <li><a href="{% url 'signup' %}">Signup</a></li>
                                         <li><a href="{% url 'login' %}">Login</a></li>
+                                        <li><a href="{% url 'intern' %}">Intern</a></li>
                                         {% endif %}
                                     </ul>
                                 </nav>
@@ -154,9 +206,7 @@
                                     <div class="col-12 col-sm-6 h-100 d-flex flex-column">
                                         <div class="mt-3 p-5">
                                             <h3 class="mb-5">{{ lawyer.name }}</h3>
-                                            <h5 class="fw-normal fst-italic text-primary mb-2">{{ lawyer.specialization }}</h5>
-                                            <h5 class="fw-normal text-dark mb-4">Experience: {{ lawyer.experience }} Years</h5>
-                                            <p class="m-0">{{ lawyer.certification_name }}</p>
+                                            <h5 class="fw-normal fst-italic text-primary mb-2">{{ lawyer.specialization }} :Lawyer</h5>
                                         </div>
                                     </div>
                                     <div class="col-12 col-sm-1 h-100">
@@ -351,7 +401,8 @@
                             </div>
                         </div>
                     </div>
-            <div class="row">
+                    <div class="row g-5 lawyer-card-row">
+                        <!-- Use Django for loop to render lawyers -->
                 {% for lawyer in lawyer_info %}
                 <div class="col-xl-4 col-md-6 col-lg-4">
                     <div class="single_loyers text-center">
@@ -379,7 +430,7 @@
             </div>
         </div>
     </div> {% endcomment %}
-    <!-- our_loyers-end  -->
+    our_loyers-end 
 
     <!-- testmonial_area_start  -->
     <div class="testmonial_area testmonial_bg_1 overlay2">

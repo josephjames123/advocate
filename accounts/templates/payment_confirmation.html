@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation</title>
+</head>
+<body>
+    <h1>Payment Confirmation</h1>
+
+    <p>Appointment ID: {{ appointment.id }}</p>
+    <p>Date: {{ appointment.appointment_date }}</p>
+    <p>Time: {{ appointment.time_slot }}</p>
+
+    <!-- You can add more details or styling as needed -->
+
+    <p>Thank you for your payment.</p>
+    <a href="{% url 'generate_appointment_pdf' appointment.id %}" class="btn btn-primary">Generate PDF</a>
+
+</body>
+</html>

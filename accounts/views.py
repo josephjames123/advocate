@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
 from .models import CustomUser, LawyerProfile , CurrentCase  
-from django.http import HttpResponseForbidden , HttpResponseNotFound , HttpResponse
+from django.http import HttpResponseForbidden , HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -40,17 +40,41 @@ from pytz import timezone as pytz_timezone
 from .utils import validate_date, validate_time
 from django.http import HttpResponseServerError
 import traceback
+from django.utils.html import strip_tags
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.http import JsonResponse
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+import logging
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+
+logger = logging.getLogger(__name__)
+
+
 
 
 def login_view(request):
     if request.user.is_authenticated:
-        if request.user.user_type == 'admin':
+        user = request.user  # Get the authenticated user
+        if user.user_type == 'admin':
             return redirect(reverse('admin_dashboard'))
-        elif request.user.user_type == 'client':
-            return redirect(reverse('client_dashboard'))
-        elif request.user.user_type == 'lawyer':
-            return redirect(reverse('lawyer_dashboard'))
-        elif request.user.user_type == 'student':
+        elif user.user_type == 'client':
+            return redirect(reverse('home'))
+        elif user.user_type == 'lawyer':
+            # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
+            lawyer_profile = LawyerProfile.objects.get(user=user)
+            if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
+                return redirect(reverse('assign_working_hours'))
+            else:
+                return redirect(reverse('lawyer_dashboard'))
+        elif user.user_type == 'student':
             return redirect(reverse('student_dashboard'))
     
     if request.method == 'POST':
@@ -64,14 +88,19 @@ def login_view(request):
             elif user.user_type == 'client':
                 return redirect(reverse('client_dashboard'))
             elif user.user_type == 'lawyer':
-                return redirect(reverse('lawyer_dashboard'))
+                # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
+                lawyer_profile = LawyerProfile.objects.get(user=user)
+                if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
+                    return redirect(reverse('assign_working_hours'))
+                else:
+                    return redirect(reverse('lawyer_dashboard'))
             elif user.user_type == 'student':
                 return redirect(reverse('student_dashboard'))
-            
         else:
             messages.error(request, 'Invalid email or password. Please try again')
     
     return render(request, 'login.html')
+    
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -787,7 +816,7 @@ def student_dashboard(request):
 
         if student.is_approved:
             # Check if college and current CGPA fields are filled
-            if student.college and student.current_cgpa is not None:
+            if student.course and student.cgpa is not None:
                 recent_internships = Internship.objects.order_by('-pk')[:5]
                 return render(request, 'student/dashboard.html', {'user': request.user, 'recent_internships': recent_internships})
             else:
@@ -1598,6 +1627,53 @@ def search_lawyers(request):
 #     return render(request, 'assign_working_hours.html', {'all_time_slots': all_time_slots})
 
 @login_required
+# def assign_working_hours(request):
+#     if request.method == 'POST':
+#         print("Received a POST request")  # Debugging: Check if the request is received
+
+#         selected_time_slot_ids = request.POST.getlist('selected_time_slots')
+#         selected_time_slots = TimeSlot.objects.filter(id__in=selected_time_slot_ids)
+
+#         try:
+#             if request.user.is_authenticated and hasattr(request.user, 'lawyer_profile'):
+#                 lawyer = request.user.lawyer_profile
+
+#                 print(f"User {request.user.username} is authenticated and has a lawyer profile")  # Debugging: Check user profile
+
+#                 # Clear existing working slots for the lawyer
+#                 lawyer.working_slots.clear()
+
+#                 # Add the selected time slots to the lawyer's working slots
+#                 lawyer.working_slots.set(selected_time_slots)
+
+#                 print("Working slots assigned successfully")  # Debugging: Check if slots are assigned successfully
+#                 print("Selected slot IDs:", [slot.id for slot in selected_time_slots])  # Debugging: Check selected slot IDs
+
+#                 # Redirect to the dashboard or another page
+#                 return redirect('update')
+#         except Exception as e:
+#             # Log the error
+#             traceback.print_exc()
+#             return HttpResponseServerError("An error occurred while saving data.")
+
+#     # Retrieve all available time slots to display in the form
+#     all_time_slots = TimeSlot.objects.all()
+    
+#     # Check if the user is authenticated and has a lawyer profile
+#     if request.user.is_authenticated and hasattr(request.user, 'lawyer_profile'):
+#         lawyer = request.user.lawyer_profile
+#         selected_time_slot_ids = lawyer.working_slots.values_list('id', flat=True)
+#     else:
+#         selected_time_slot_ids = []
+
+#     breadcrumbs = [
+#         ("Home", reverse("home")),
+#         ("lawyer_dashboard", reverse("lawyer_dashboard")),
+#         ("assign_working_hours", None),  # Current page (no link)
+#     ]
+
+#     return render(request, 'assign_working_hours.html', {'all_time_slots': all_time_slots ,'breadcrumbs': breadcrumbs ,'selected_time_slot_ids': selected_time_slot_ids})
+@login_required
 def assign_working_hours(request):
     if request.method == 'POST':
         print("Received a POST request")  # Debugging: Check if the request is received
@@ -1613,6 +1689,8 @@ def assign_working_hours(request):
 
                 # Clear existing working slots for the lawyer
                 lawyer.working_slots.clear()
+                lawyer.time_update = datetime.now()
+                lawyer.save()  # Save the lawyer object to persist changeslawyer.time_update = datetime.now()
 
                 # Add the selected time slots to the lawyer's working slots
                 lawyer.working_slots.set(selected_time_slots)
@@ -1620,8 +1698,12 @@ def assign_working_hours(request):
                 print("Working slots assigned successfully")  # Debugging: Check if slots are assigned successfully
                 print("Selected slot IDs:", [slot.id for slot in selected_time_slots])  # Debugging: Check selected slot IDs
 
-                # Redirect to the dashboard or another page
-                return redirect('update')
+                # Check if the lawyer has selected at least one slot a day for a minimum of four days
+                if validate_working_hours(selected_time_slots):
+                    # Redirect to the dashboard or another page
+                    return redirect('update')
+                else:
+                    messages.error(request, 'Please atlest take any 4 days slot.')
         except Exception as e:
             # Log the error
             traceback.print_exc()
@@ -1644,6 +1726,21 @@ def assign_working_hours(request):
     ]
 
     return render(request, 'assign_working_hours.html', {'all_time_slots': all_time_slots ,'breadcrumbs': breadcrumbs ,'selected_time_slot_ids': selected_time_slot_ids})
+
+def validate_working_hours(selected_time_slots):
+    # Create a dictionary to count slots for each day
+    day_slot_count = {}
+
+    for slot in selected_time_slots:
+        day = slot.day  # Assuming you have a 'day_of_week' attribute for each TimeSlot
+        if day in day_slot_count:
+            day_slot_count[day] += 1
+        else:
+            day_slot_count[day] = 1
+
+    # Check if at least one slot is selected for each day of the week for a minimum of four days
+    days_with_slots = [day for day, count in day_slot_count.items() if count > 0]
+    return len(days_with_slots) >= 4
     
 
 # def book_lawyer(request, lawyer_id):
@@ -1689,8 +1786,11 @@ def select_date(request, lawyer_id):
         if LawyerDayOff.objects.filter(lawyer=lawyer, date=selected_date).exists():
             messages.error(request, 'Booking is not possible on a day marked as a holiday for the lawyer.')
         else:
-            return redirect('book_lawyer', lawyer_id=lawyer_id, selected_date=selected_date)
-        
+            # Check if the selected_date is within 7 days from the last update
+            if not lawyer.is_within_7_days(datetime.strptime(selected_date, '%Y-%m-%d').date()):
+                messages.error(request, 'Booking is only possible within 14 days from the last update of working hours.')
+            else:
+                return redirect('book_lawyer', lawyer_id=lawyer_id, selected_date=selected_date)
     
     return render(request, 'select_date.html', {'lawyer': lawyer })
 
@@ -1701,25 +1801,99 @@ def parse_time(time_str):
         return parsed_time
     except ValueError:
         return None
+    
+# @login_required
+# def book_lawyer(request, lawyer_id, selected_date):
+#     try:
+#         # Convert selected_date to a Python date object
+#         selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        
+#         # Get the current date
+#         current_date = timezone.now().date()
+
+#         # Check if the selected_date is in the past
+#         if selected_date < current_date:
+#             messages.error(request, 'Booking is not possible for past dates.')
+            
+
+#         # Get the lawyer object
+#         lawyer = LawyerProfile.objects.get(id=lawyer_id)
+        
+        
+        
+
+#         # Retrieve the lawyer's working time slots for the selected date
+#         working_time_slots = TimeSlot.objects.filter(lawyers=lawyer, day=selected_date.strftime('%A')).order_by('start_time')
+
+#         # Initialize a list to store available appointment slots
+#         appointment_slots = []
+
+#         # Iterate through the working time slots and generate appointment slots
+#         for time_slot in working_time_slots:
+#             start_time = datetime.combine(selected_date, time_slot.start_time)
+#             end_time = datetime.combine(selected_date, time_slot.end_time)
+
+#             current_time = start_time
+#             while current_time <= end_time:
+#                 appointment_slots.append(current_time.strftime('%I:%M %p'))
+#                 current_time += timedelta(minutes=15)
+
+#         if request.method == 'POST':
+#             # Handle the form submission when the client books an appointment
+#             selected_slot = request.POST.get('selected_slot')
+            
+#             # Check if the selected_date is within 7 days from the last update
+#             if not lawyer.is_within_7_days(selected_date):
+#                 return HttpResponseBadRequest("Selected date is not within 7 days from the last update.")
+
+#             # Check if the selected slot is still available
+#             if selected_slot and selected_slot in appointment_slots:
+#                 # Check if the selected slot is available for booking
+#                 if lawyer.is_available(selected_date, selected_slot):
+#                     try:
+#                         # Check if the selected slot is in the correct time format
+#                         selected_time = datetime.strptime(selected_slot, '%I:%M %p').time()
+#                     except ValueError:
+#                         messages.error(request, 'Invalid time format. Please choose a valid time from the list (e.g., 08:45 AM).')
+#                         return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
+
+#                     # Create an Appointment record
+#                     appointment = Appointment(
+#                         lawyer=lawyer,
+#                         client=request.user,
+#                         appointment_date=selected_date,
+#                         time_slot=selected_time  # Use the selected_time instead of selected_slot
+#                     )
+#                     appointment.save()
+
+#                     messages.success(request, 'Appointment booked successfully!')
+#                     return render(request, 'confirm.html')
+#                 else:
+#                     messages.error(request, 'Selected slot is not available. Please choose another slot.')
+#             else:
+#                 messages.error(request, 'Invalid selected slot format. Please choose a valid slot from the list.')
+
+#         return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
+#     except LawyerProfile.DoesNotExist:
+#         messages.error(request, 'Lawyer not found.')
+#         return redirect('home')
+
+
 @login_required
 def book_lawyer(request, lawyer_id, selected_date):
     try:
         # Convert selected_date to a Python date object
         selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
-        
+
         # Get the current date
-        current_date = timezone.now().date()
+        current_date = datetime.now().date()
 
         # Check if the selected_date is in the past
         if selected_date < current_date:
             messages.error(request, 'Booking is not possible for past dates.')
-            
 
         # Get the lawyer object
         lawyer = LawyerProfile.objects.get(id=lawyer_id)
-        
-        
-        
 
         # Retrieve the lawyer's working time slots for the selected date
         working_time_slots = TimeSlot.objects.filter(lawyers=lawyer, day=selected_date.strftime('%A')).order_by('start_time')
@@ -1741,6 +1915,10 @@ def book_lawyer(request, lawyer_id, selected_date):
             # Handle the form submission when the client books an appointment
             selected_slot = request.POST.get('selected_slot')
 
+            # Check if the selected_date is within 7 days from the last update
+            if not lawyer.is_within_7_days(selected_date):
+                return HttpResponseBadRequest("Selected date is not within 7 days from the last update.")
+
             # Check if the selected slot is still available
             if selected_slot and selected_slot in appointment_slots:
                 # Check if the selected slot is available for booking
@@ -1761,8 +1939,28 @@ def book_lawyer(request, lawyer_id, selected_date):
                     )
                     appointment.save()
 
-                    messages.success(request, 'Appointment booked successfully!')
-                    return render(request, 'confirm.html')
+                    # Initialize Razorpay client
+                    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+                    # Create an order with Razorpay
+                    order_amount = 10000  # Amount in paise (Change as needed)
+                    order_currency = 'INR'
+                    order_receipt = str(appointment.id)
+                    order_notes = {'appointment_id': appointment.id}
+                    order_payload = {
+                        'amount': order_amount,
+                        'currency': order_currency,
+                        'receipt': order_receipt,
+                        'notes': order_notes,
+                    }
+                    order = client.order.create(data=order_payload)
+
+                    # Update the appointment with the Razorpay order ID
+                    appointment.order_id = order.get('id')
+                    appointment.save()
+
+                    # Render the Razorpay payment page
+                    return render(request, 'razorpay_payment.html', {'order': order, 'appointment': appointment})
                 else:
                     messages.error(request, 'Selected slot is not available. Please choose another slot.')
             else:
@@ -1772,3 +1970,240 @@ def book_lawyer(request, lawyer_id, selected_date):
     except LawyerProfile.DoesNotExist:
         messages.error(request, 'Lawyer not found.')
         return redirect('home')
+
+@csrf_exempt
+def payment_confirmation(request, order_id):
+    try:
+        # Retrieve the appointment based on the order_id
+        appointment = Appointment.objects.get(order_id=order_id)
+
+        # Check if the appointment status is 'not_paid'
+        if appointment.status == 'not_paid':
+            # Update the appointment status to 'confirmed' since payment is successful
+            appointment.status = 'confirmed'
+            appointment.save()
+
+            # Render the payment confirmation page with appointment details
+            return render(request, 'payment_confirmation.html', {'appointment': appointment})
+        else:
+            # Handle cases where the appointment status is already 'confirmed' or 'cancelled'
+            return HttpResponse('Payment Failed')
+
+    except Appointment.DoesNotExist:
+        # Handle cases where the appointment with the given order_id does not exist
+        logger.error(f"Appointment with order_id {order_id} does not exist")
+        return HttpResponse('Appointment DoesNotExist')
+
+
+def intern(request):
+    if request.method == 'POST':
+        # Assuming all these fields are present in your HTML form
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']  # Updated field name
+        phnno = request.POST['phone']
+        dob = request.POST['dob']
+        address = request.POST['address']
+        course = request.POST['course']
+        course_place = request.POST['course_place']  # Updated field name
+        duration_of_course = request.POST['duration_of_course']  # Updated field name
+        specialization = request.POST['specialization']  # Updated field name
+        year_of_pass = request.POST['year_of_pass']  # Updated field name
+        cgpa = request.POST['cgpa']
+        experience = request.POST['experience']
+        adhaar_no = request.POST['adhaar_no']  # Updated field name
+        pic_of_aadhaar = request.FILES['adhaar_pic']  # Assuming it's a file input
+
+        # Create a new CustomUser instance
+        user = CustomUser.objects.create_user(username=email,email=email)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.phone = phnno
+        user.dob = dob
+        user.address = address
+        user.user_type='student'
+        user.save()
+        
+        # user = CustomUser.objects.create_user(
+        #     username=email,
+        #     email=email,
+        #     user_type='lawyer',
+        #     first_name=first_name,
+        #     last_name=last_name,
+        #     phone = phone,
+        # )
+
+        # Create a new Student instance and link it to the CustomUser
+        student = Student.objects.create(user=user)
+        student.course = course  # Updated field name
+        student.course_place = course_place
+        student.duration_of_course = duration_of_course
+        student.specialization = specialization
+        student.year_of_pass = year_of_pass
+        student.cgpa = cgpa
+        student.experience = experience
+        student.adhaar_no = adhaar_no
+        student.adhaar_pic = pic_of_aadhaar
+        student.save()
+
+        # Now you have saved the data to both CustomUser and Student models
+        # You can add additional fields and validation as needed
+
+        # Redirect to a success page or do something else
+        # Redirect to a success page or do something else
+        return HttpResponse('Application submitted successfully.')  # Replace 'success_page' with your actual success page URL
+
+    return render(request, 'student/intern.html')  # Replace 'intern_form.html' with your actual template name
+
+
+User = get_user_model()
+
+@login_required
+def approve_student(request, student_id):
+    if not request.user.user_type == 'admin':
+        return render(request, '404.html')
+    
+    try:
+        student = Student.objects.get(id=student_id)
+        student.is_approved = True
+        student.save()
+        
+        # Send an email to the approved student with a link to set the password
+        subject = 'Welcome to Our Platform'
+        from_email = 'your_email@gmail.com'  # Change to your email
+        recipient_list = [student.user.email]
+        
+        # Create a unique password reset link
+        uid = urlsafe_base64_encode(force_bytes(student.user.pk))
+        token = default_token_generator.make_token(student.user)
+        password_reset_url = f'http://127.0.0.1:8000/accounts/set_password/{uid}/{token}/'
+        
+        context = {
+            'user': student.user,
+            'password_reset_url': password_reset_url,
+        }
+        
+        html_message = render_to_string('password_reset_email.html', context)
+        plain_message = strip_tags(html_message)
+        
+        send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
+        
+        return redirect('list_student_requests')
+    except Student.DoesNotExist:
+        return render(request, '404.html')
+
+@login_required
+def reject_student(request, student_id):
+    if not request.user.user_type == 'admin':
+        return render(request, '404.html')
+    
+    try:
+        student = Student.objects.get(id=student_id)
+        student.delete()  # You can choose to delete the student's record or mark them as rejected
+        student.user.delete()
+        
+        
+        # Send a rejection email to the student
+        subject = 'Application Status: Rejected'
+        from_email = 'your_email@gmail.com'  # Change to your email
+        recipient_list = [student.user.email]
+        
+        context = {
+            'user': student.user,
+        }
+        
+        html_message = render_to_string('rejection_email.html', context)
+        plain_message = strip_tags(html_message)
+        
+        send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
+        
+        return redirect('list_student_requests')
+    except Student.DoesNotExist:
+        return render(request, '404.html')
+
+@login_required
+def list_student_requests(request):
+    if not request.user.user_type == 'admin':
+        return render(request, '404.html')
+    
+    # Get all student requests
+    student_requests = Student.objects.filter(is_approved=False)
+    
+    # Determine which students are eligible for approval
+    eligible_students = [student for student in student_requests if student.cgpa >= 7.5]
+    
+    # Determine which students need to be rejected
+    rejected_students = [student for student in student_requests if student.cgpa < 7.5]
+    
+    context = {
+        'eligible_students': eligible_students,
+        'rejected_students': rejected_students,
+    }
+    
+    return render(request, 'admin/list_student_requests.html', context)
+
+
+def password_reset_confirm_student(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('login')  # Redirect to the login page after a successful reset
+        else:
+            form = SetPasswordForm(user)
+
+        return render(request, 'password_reset_confirm_student.html', {'form': form})
+    else:
+        return render(request, '404.html')
+    
+
+
+
+
+def generate_appointment_pdf(request, appointment_id):
+    # Get the appointment object from the database
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Prepare context data to be passed to the template
+    context = {
+        'appointment': appointment,
+        'client_name': f"{appointment.client.first_name} {appointment.client.last_name}",
+        'client_address': appointment.client.address,
+        'client_email': appointment.client.email,
+        'lawyer_name': f"{appointment.lawyer.user.first_name} {appointment.lawyer.user.last_name}",
+        'appointment_date': appointment.appointment_date,
+        'appointment_id': appointment.id,
+        'appointment_order_id': appointment.order_id,
+        'appointment_time': appointment.time_slot,
+        'amount': '1 INR',  # You can fetch this dynamically if needed
+    }
+
+    # Render the HTML template with the context
+    pdf_html = render(request, 'receipt.html', context)
+
+    # Create a BytesIO buffer to receive the PDF data
+    buffer = BytesIO()
+
+    # Create the PDF file
+    pdf = pisa.pisaDocument(BytesIO(pdf_html.content), buffer)
+
+    if not pdf.err:
+        # Set the response content type and filename
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="appointment_{appointment.id}.pdf"'
+
+        # Get the value of the BytesIO buffer and add it to the response
+        pdf_data = buffer.getvalue()
+        buffer.close()
+        response.write(pdf_data)
+
+        return response
+
+    return HttpResponse('PDF generation error')

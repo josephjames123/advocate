@@ -51,6 +51,9 @@
             #navigation li:last-child {
                 margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
             }
+            .error {
+                color: red;
+            }
         </style>
    <header>
     <div class="header-area ">
@@ -135,6 +138,7 @@
             </div>
         </div>
     </div>
+    <div class="error">
     {% if messages %}
 <ul class="messages">
     {% for message in messages %}
@@ -142,5 +146,6 @@
     {% endfor %}
 </ul>
 {% endif %}
+</div>
 </body>
 </html>

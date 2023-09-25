@@ -6,11 +6,7 @@ from datetime import datetime, timedelta ,time
 from taggit.managers import TaggableManager
 from django.contrib.auth import get_user_model  # Import the get_user_model function
 from django.utils.translation import gettext_lazy as _
-
-
-
-
-
+from django.core.exceptions import ValidationError
 
 class CustomUser(AbstractUser):
     USER_TYPES = (
@@ -262,6 +258,7 @@ class LawyerProfile(models.Model):
     experience = models.IntegerField(null=True, blank=True)
     court = models.CharField(max_length=200, choices=COURT,blank=True)
     working_hours = models.ManyToManyField(TimeSlot, blank=True)
+    time_update = models.DateTimeField(null=True, blank=True)
     
     def get_available_time_slots(self, day_of_week):
         # Retrieve the time slots associated with this lawyer for the given day_of_week
@@ -291,6 +288,23 @@ class LawyerProfile(models.Model):
                     start_time += timedelta(minutes=15)  # Adjust the slot duration as needed
 
         return available_time_slots
+    
+    def is_within_7_days(self, date_to_check):
+        if self.time_update:
+            # Calculate the difference between the last update and the given date
+            time_difference = date_to_check - self.time_update.date()
+
+            # Check if the difference is within 7 days
+            if 0 <= time_difference.days <= 14:
+                return True
+
+        return False
+
+
+
+
+
+
 
     # def is_available(self, date, time_slot):
     #     # Check if the selected slot is available for booking on a specific date
@@ -396,15 +410,42 @@ class Booking(models.Model):
     def __str__(self):
         return self.user.email
     
-class Student(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
-    college = models.CharField(max_length=100)
-    current_cgpa = models.DecimalField(max_digits=3, decimal_places=2, null=False)
-    is_approved = models.BooleanField(default=False)
+# class Student(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
+#     college = models.CharField(max_length=100)
+#     current_cgpa = models.DecimalField(max_digits=3, decimal_places=2, null=False)
+#     is_approved = models.BooleanField(default=False)
     
+
+#     def __str__(self):
+#         return f"{self.user.first_name} {self.user.last_name}"
+
+class Student(models.Model):
+
+    SPECIALIZATIONS = (
+        ('family', 'Family Lawyer'),
+        ('criminal', 'Criminal Lawyer'),
+        ('consumer', 'Consumer Lawyer'),
+        ('corporate', 'Corporate Lawyer'),
+        ('civilrights', 'Civil Rights Lawyer'),
+        ('divorce', 'Divorce Lawyer'),
+        # Add more specializations as needed
+    )
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
+    course = models.CharField(max_length=100, blank=True)
+    course_place = models.CharField(max_length=100, blank=True)
+    duration_of_course = models.CharField(max_length=20, blank=True)
+    specialization = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True)
+    year_of_pass = models.IntegerField(blank=True, null=True)
+    cgpa = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
+    experience = models.TextField(blank=True)  # You can use a TextField for experience details
+    adhaar_no = models.CharField(max_length=12, blank=True, unique=True)
+    adhaar_pic = models.ImageField(upload_to='student_uploads/', blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
+     
     
     
 class Internship(models.Model):
@@ -523,8 +564,37 @@ class CurrentCase(models.Model):
 #     def __str__(self):
 #         return f"Appointment with {self.lawyer.user.first_name} on {self.appointment_date}"
 
-class Appointment(models.Model):
+# class Appointment(models.Model):
     
+#     STATUS_CHOICES = (
+#         ('not_paid', 'Not Paid'),
+#         ('confirmed', 'Confirmed'),
+#         ('cancelled', 'Cancelled'),
+#     )
+    
+#     lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE)
+#     client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+#     appointment_date = models.DateField()
+#     time_slot = models.CharField(max_length=20)# Use TimeSlot model here
+#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_paid')
+    
+
+#     # Add any other fields or methods related to appointments
+
+#     def __str__(self):
+#         return f'Appointment with {self.lawyer} on {self.appointment_date} at {self.time_slot}'
+    
+#     def clean(self):
+#         # Calculate the 7-day window start date based on the lawyer's most recent working hours assignment date.
+#         most_recent_working_hours_date = self.lawyer.working_slots.aggregate(models.Max('created_date'))['created_date__max']
+        
+#         if most_recent_working_hours_date:
+#             seven_days_ago = most_recent_working_hours_date + timedelta(days=7)
+            
+#             if self.appointment_date < seven_days_ago.date():
+#                 raise ValidationError("You can only schedule appointments within 7 days of your most recent working hours assignment.")
+
+class Appointment(models.Model):
     STATUS_CHOICES = (
         ('not_paid', 'Not Paid'),
         ('confirmed', 'Confirmed'),
@@ -534,11 +604,24 @@ class Appointment(models.Model):
     lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE)
     client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     appointment_date = models.DateField()
-    time_slot = models.CharField(max_length=20)# Use TimeSlot model here
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
+    time_slot = models.CharField(max_length=20)  # Use TimeSlot model here
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_paid')
+    order_id = models.CharField(max_length=100, blank=True, null=True)  # Add this field for Razorpay order ID
     
-
     # Add any other fields or methods related to appointments
 
     def __str__(self):
         return f'Appointment with {self.lawyer} on {self.appointment_date} at {self.time_slot}'
+    
+    def clean(self):
+        # Calculate the 7-day window start date based on the lawyer's most recent working hours assignment date.
+        most_recent_working_hours_date = self.lawyer.working_slots.aggregate(models.Max('created_date'))['created_date__max']
+        
+        if most_recent_working_hours_date:
+            seven_days_ago = most_recent_working_hours_date + timedelta(days=14)
+            
+            if self.appointment_date < seven_days_ago.date():
+                raise ValidationError("You can only schedule appointments within 7 days of your most recent working hours assignment.")
+
+            
+            

@@ -196,12 +196,12 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Appy Leave</li>
+            <li class="breadcrumb-item active" aria-current="page">Mark Holiday</li>
         </ol>
     </nav>
 
     <div class="container py-5">
-        <h1 class="text-center">Leave</h1>
+        <h1 class="text-center">Holidays</h1>
         <div class="row mt-4">
             <div class="col-md-6">
                 <table id="example" class="table table-striped" style="width:100%">
@@ -224,14 +224,14 @@
             <div class="col-md-6 add-user-col d-flex justify-content-center align-items-center flex-column">
                 <form action="{% url 'mark_holiday' %}" method="post">
                     {% csrf_token %}
-                    <h3 class="text-center">Apply Leave</h3>
+                    <h3 class="text-center">Mark Holiday</h3>
                     <div class="add-user-form">
                         <div class="input-group">
                             <label for="date">Select Date</label>
                             <input type="date" name="holiday_date" id="holiday_date" required />
                         </div>
                         <div class="input-group">
-                            <button class="btn btn-warning text-white" type="submit">Apply Leave</button>
+                            <button class="btn btn-warning text-white" type="submit">Mark Holiday</button>
                         </div>
                     </div>
                 </form>

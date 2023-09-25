@@ -32,8 +32,14 @@ urlpatterns = [
     path('update_lawyer_profile/<int:user_id>/', views.update_lawyer_profile, name='update_lawyer_profile'),
     path('profile/', views.profile, name='profile'),
     path('client_bookings/<int:client_id>/', views.client_bookings, name='client_bookings'),
+    path('list-student-requests/', views.list_student_requests, name='list_student_requests'),
+    path('approve-student/<int:student_id>/', views.approve_student, name='approve_student'),
+    path('reject-student/<int:student_id>/', views.reject_student, name='reject_student'),
+    path('set_password/<str:uidb64>/<str:token>/', views.password_reset_confirm_student, name='password_reset_confirm_student'),
+]
+
 
 
    
     
-]
+

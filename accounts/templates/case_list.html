@@ -136,7 +136,7 @@
                             <div class="main-menu  d-none d-lg-block">
                                 <nav>
                                     <ul id="navigation">
-                                        <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
                                         <!-- <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
                                         <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
@@ -195,7 +195,13 @@
                     <thead>
                         <tr>
                             <th class="text-center">Case Number</th>
-                            <th class="text-center">Client</th>
+                            <th class="text-center">
+                                {% if user.user_type == 'client' %}
+                                    Lawyer <!-- Display lawyer's name for clients -->
+                                {% elif user.user_type == 'lawyer' %}
+                                    Client  <!-- Display client's name for lawyers -->
+                                {% endif %}
+                            </th>
                             <th class="text-center">Status</th>
                             <th class="text-center"></th>
                         </tr>
@@ -205,7 +211,13 @@
                         {% for case in cases %} 
                         <tr>
                             <td>{{ case.case_number }} </td>
-                            <td> {{ case.client_name }}</td>
+                            <td>
+                                {% if user.user_type == 'client' %}
+                                    {{ case.lawyer_name }} <!-- Display lawyer's name for clients -->
+                                {% elif user.user_type == 'lawyer' %}
+                                    {{ case.client_name }} <!-- Display client's name for lawyers -->
+                                {% endif %}
+                            </td>
                             <td>{{ case.status }}</td>
                             <td>
                                 

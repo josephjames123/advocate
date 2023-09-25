@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Requests</title>
+</head>
+<body>
+    <h1>Student Requests</h1>
+    
+    <h2>Eligible Students</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>CGPA</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in eligible_students %}
+            <tr>
+                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                <td>{{ student.user.email }}</td>
+                <td>{{ student.cgpa }}</td>
+                <td>
+                    <a href="{% url 'approve_student' student.id %}">Approve</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>Rejected Students</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>CGPA</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in rejected_students %}
+            <tr>
+                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                <td>{{ student.user.email }}</td>
+                <td>{{ student.cgpa }}</td>
+                <td>
+                    <a href="{% url 'reject_student' student.id %}">Reject</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

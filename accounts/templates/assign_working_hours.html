@@ -41,6 +41,12 @@
         input[type=checkbox] {
             accent-color: #ffc107;
         }
+        .result {
+        padding-top: 3%;
+        align-items: center;
+        text-align: center;
+        color: red;
+    }
     </style>
 </head>
 
@@ -110,6 +116,16 @@
             <li class="breadcrumb-item active" aria-current="page">Assign Working Hours</li>
         </ol>
     </nav>
+    
+    <div class="result">
+        {% if messages %}
+                      
+                        {% for message in messages %}
+                          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                                      {% endif %}</center></div>
+                                      <div class="row">
+                                      <div class="col-md-8">
     <div class="container py-5">
         <h1 class="text-center">Assign Your Working Hours</h1>
         <form method="post" action="{% url 'assign_working_hours' %}">
@@ -239,6 +255,18 @@
             </div>
         </form>
     </div>
+</div>
+<div class="col-md-4 d-flex align-items-center justify-content-center">
+    <div style=" padding: 20px; text-align: center; ">
+        <h4>Important Information</h4>
+        <li><p>Select at least 4 working days</p></li>
+        <li><p>Minimum one slot a day</p></li>
+        <li><p>Valid for the next 7 days, so choose accordingly</p></li>
+        <li><p>Feel free to change, if you wish to do so</p></li>
+    </div>
+</div>
+
+
 </body>
 
 </html>

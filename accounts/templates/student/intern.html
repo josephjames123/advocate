@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Form</title>
+</head>
+<body>
+    <h1>User Profile Form</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="name">First _Name:</label>
+        <input type="text" id="name" name="first_name" required><br><br>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="last_name" required><br><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="phnno">Phone Number:</label>
+        <input type="text" id="phnno" name="phone" required><br><br>
+        
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required><br><br>
+        
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" rows="4" cols="50" required></textarea><br><br>
+        
+        <label for="course">Course:</label>
+        <input type="text" id="course" name="course" required><br><br>
+        
+        <label for="course_place">Course Place:</label>
+        <input type="text" id="course_place" name="course_place" required><br><br>
+        
+        <label for="duration_of_course">Duration of Course:</label>
+        <input type="text" id="duration_of_course" name="duration_of_course" required><br><br>
+        
+        <label for="specialization">Specialization (if any):</label>
+        <input type="text" id="specialization" name="specialization"><br><br>
+        
+        <label for="year_of_pass">Year of Pass:</label>
+        <input type="text" id="year_of_pass" name="year_of_pass"><br><br>
+        
+        <label for="cgpa">CGPA:</label>
+        <input type="text" id="cgpa" name="cgpa"><br><br>
+        
+        <label for="experience">Experience (if any):</label>
+        <textarea id="experience" name="experience" rows="4" cols="50"></textarea><br><br>
+        
+        <label for="adhaar_no">Aadhaar Number:</label>
+        <input type="text" id="adhaar_no" name="adhaar_no" required><br><br>
+        
+        <label for="adhaar_pic">Picture of Aadhaar:</label>
+        <input type="file" id="adhaar_pic" name="adhaar_pic" accept="image/*" required><br><br>
+        
+        <input type="submit" value="Save">
+    </form>
+</body>
+</html>
