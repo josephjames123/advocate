@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Report</title>
+</head>
+<body>
+    <h1>Upload Report for Case: {{ case.case_number }}</h1>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="student_id">Student ID:</label>
+        <select name="student_id" id="student_id">
+            {% for student in students %}
+                <option value="{{ student.id }}">{{ student.user.first_name }} {{ student.user.last_name }}</option>
+            {% endfor %}
+        </select><br><br>
+        
+        <label for="report_file">Upload Report:</label>
+        <input type="file" name="report_file" id="report_file"><br><br>
+        
+        <label for="report_note">Report Note:</label>
+        <textarea name="report_note" id="report_note"></textarea><br><br>
+        
+        <button type="submit">Submit Report</button>
+    </form>
+</body>
+</html>

@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
 from .models import CustomUser, LawyerProfile , CurrentCase  
-from django.http import HttpResponseForbidden , HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
+from django.http import HttpResponseForbidden , Http404,HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -17,7 +17,7 @@ from django.utils.http import urlsafe_base64_decode
 from .forms import CustomPasswordResetForm  
 from django.core.exceptions import ValidationError
 from datetime import datetime
-from .models import LawyerProfile , ContactEntry , Internship , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment
+from .models import LawyerProfile , ContactEntry , Internship , Task , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment , CaseTracking , WorkAssignment
 from .forms import ContactForm , BookingForm , InternshipForm , BookingStatusForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
 import markdown
 from django.contrib import messages
@@ -54,6 +54,12 @@ from io import BytesIO
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from io import BytesIO
+import json
+from .constants import PaymentStatus
+from django.views.decorators.http import require_POST
+from django.core.exceptions import PermissionDenied
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -1484,8 +1490,11 @@ def case_detail(request, case_id):
     # Retrieve the case object by its ID or return a 404 error if not found
     case = get_object_or_404(Case, pk=case_id)
 
-    # Render the 'case_detail.html' template with the case object
-    return render(request, 'lawyer/case_detail.html', {'case': case})
+    # Retrieve the case tracking data associated with this case
+    case_tracking_data = CaseTracking.objects.filter(case=case)
+
+    # Render the 'case_detail.html' template with the case and case tracking data
+    return render(request, 'lawyer/case_detail.html', {'case': case, 'case_tracking_data': case_tracking_data})
 
 # def case_saved(request):
 #     return render(request, 'case_saved.html')
@@ -1945,13 +1954,15 @@ def book_lawyer(request, lawyer_id, selected_date):
                     # Create an order with Razorpay
                     order_amount = 10000  # Amount in paise (Change as needed)
                     order_currency = 'INR'
-                    order_receipt = str(appointment.id)
-                    order_notes = {'appointment_id': appointment.id}
+                    # order_receipt = str(appointment.id)
+                    # order_notes = {'appointment_id': appointment.id}
                     order_payload = {
                         'amount': order_amount,
                         'currency': order_currency,
-                        'receipt': order_receipt,
-                        'notes': order_notes,
+                        # 'receipt': order_receipt,
+                        # 'notes': order_notes,
+                        'payment_capture':"1"
+                        
                     }
                     order = client.order.create(data=order_payload)
 
@@ -1959,8 +1970,22 @@ def book_lawyer(request, lawyer_id, selected_date):
                     appointment.order_id = order.get('id')
                     appointment.save()
 
-                    # Render the Razorpay payment page
-                    return render(request, 'razorpay_payment.html', {'order': order, 'appointment': appointment})
+                    # # Render the Razorpay payment page
+                    # return render(request, 'razorpay_payment.html', {'order': order, 'appointment': appointment})
+                    
+                    return render(
+            request,
+            "razorpay_payment.html",
+            {
+                "callback_url": "http://" + "127.0.0.1:8000" + "/callback/",
+                "razorpay_key": 'rzp_test_lj6ETS9DRjXtea',
+                "order": order,
+                'appointment':appointment,
+                'lawyer_id': lawyer_id,
+                'selected_date': selected_date,
+            },
+        )
+                    
                 else:
                     messages.error(request, 'Selected slot is not available. Please choose another slot.')
             else:
@@ -1971,28 +1996,180 @@ def book_lawyer(request, lawyer_id, selected_date):
         messages.error(request, 'Lawyer not found.')
         return redirect('home')
 
+# @csrf_exempt
+# def payment_confirmation(request, order_id):
+#     try:
+#         # Retrieve the appointment based on the order_id
+#         appointment = Appointment.objects.get(order_id=order_id)
+
+#         # Check if the appointment status is 'not_paid'
+#         if appointment.status == 'not_paid':
+#             # Update the appointment status to 'confirmed' since payment is successful
+#             appointment.status = 'confirmed'
+#             appointment.save()
+
+#             # Render the payment confirmation page with appointment details
+#             return render(request, 'payment_confirmation.html', {'appointment': appointment})
+#         else:
+#             # Handle cases where the appointment status is already 'confirmed' or 'cancelled'
+#             return HttpResponse('Payment Failed')
+
+#     except Appointment.DoesNotExist:
+#         # Handle cases where the appointment with the given order_id does not exist
+#         logger.error(f"Appointment with order_id {order_id} does not exist")
+#         return HttpResponse('Appointment DoesNotExist')
+
+# Define the verify_signature function
+def verify_signature(response_data):
+    client = razorpay.Client(auth=("rzp_test_lj6ETS9DRjXtea", "Pl1WiNYAVRJRdroNQY1ytUxK"))
+    return client.utility.verify_payment_signature(response_data)
+
 @csrf_exempt
-def payment_confirmation(request, order_id):
-    try:
-        # Retrieve the appointment based on the order_id
-        appointment = Appointment.objects.get(order_id=order_id)
+def callback(request):
+    if request.method == 'POST':
+        try:
+            # Get the data sent by Razorpay
+            razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            razorpay_signature = request.POST.get('razorpay_signature', '')
 
-        # Check if the appointment status is 'not_paid'
-        if appointment.status == 'not_paid':
-            # Update the appointment status to 'confirmed' since payment is successful
-            appointment.status = 'confirmed'
-            appointment.save()
+            # Verify the payment signature using the verify_signature function
+            is_signature_valid = verify_signature({
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_signature': razorpay_signature,
+            })
 
-            # Render the payment confirmation page with appointment details
-            return render(request, 'payment_confirmation.html', {'appointment': appointment})
-        else:
-            # Handle cases where the appointment status is already 'confirmed' or 'cancelled'
-            return HttpResponse('Payment Failed')
+            if is_signature_valid:
+                # Logic to perform if payment is successful
+                # Save the razorpay_payment_id and razorpay_signature to the appointment model
+                try:
+                    appointment = Appointment.objects.get(order_id=razorpay_order_id)
+                    appointment.status = 'confirmed'  # Assuming you have a status field in your model
+                    appointment.razorpay_payment_id = razorpay_payment_id
+                    appointment.razorpay_signature = razorpay_signature
+                    appointment.save()
 
-    except Appointment.DoesNotExist:
-        # Handle cases where the appointment with the given order_id does not exist
-        logger.error(f"Appointment with order_id {order_id} does not exist")
-        return HttpResponse('Appointment DoesNotExist')
+                    return render(request, 'payment_confirmation.html', {'appointment': appointment})
+                except Appointment.DoesNotExist:
+                    return JsonResponse({"error": "Appointment not found"}, status=404)
+            else:
+                # Logic to perform if payment is unsuccessful
+                return JsonResponse({"status": "failure"})
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# @csrf_exempt
+# def callback(request):
+    
+#     def verify_signature(response_data):
+#         client = razorpay.Client(auth=("rzp_test_1sFSQT1jdm1swd", "PYkvqUl4Zx2EfNeRAAf9FXJs"))
+#         return client.utility.verify_payment_signature(response_data)
+#     if "razorpay_signature" in request.POST:
+        
+#         razorpay_payment_id = request.POST.get("razorpay_payment_id", "")
+#         order_id = request.POST.get("razorpay_order_id", "")
+#         razorpay_signature = request.POST.get("razorpay_signature", "")
+#         order = Appointment.objects.get(order_id=order_id)
+#         order.razorpay_payment_id = razorpay_payment_id
+#         order.razorpay_signature = razorpay_signature
+#         order.save()
+#     # if request.method == 'POST':
+#     #     try:
+#     #         # Parse the POST data sent by Razorpay
+#     #         data = json.loads(request.body.decode('utf-8'))
+#     #         razorpay_payment_id = data.get('razorpay_payment_id')
+#     #         razorpay_order_id = data.get('razorpay_order_id')
+#     #         razorpay_signature = data.get('razorpay_signature')
+
+#     #         # Verify the payment signature using Razorpay's API
+#     #         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+#     #         payment_verification = client.utility.verify_payment_signature({
+#     #             'razorpay_order_id': razorpay_order_id,
+#     #             'razorpay_payment_id': razorpay_payment_id,
+#     #             'razorpay_signature': razorpay_signature,
+#     #         })
+
+#     #         if payment_verification:
+#     #             # Logic to perform if payment is successful
+#     #             # Save the razorpay_payment_id and razorpay_signature to the appointment model
+#     #             appointment = Appointment.objects.get(order_id=razorpay_order_id)
+#     #             appointment.status = 'confirmed'
+#     #             appointment.razorpay_payment_id = razorpay_payment_id
+#     #             appointment.razorpay_signature = razorpay_signature
+#     #             appointment.save()
+
+#                 return JsonResponse({"status": "success"})
+#             else:
+#                 # Logic to perform if payment is unsuccessful
+#                 return JsonResponse({"status": "failure"})
+
+#         except json.JSONDecodeError as e:
+#             return JsonResponse({"error": str(e)}, status=400)
+#         except Appointment.DoesNotExist:
+#             return JsonResponse({"error": "Appointment not found"}, status=404)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+
+#     else:
+#         return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+
+# @csrf_exempt
+# def callback(request):
+#     def verify_signature(response_data):
+#         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+#         return client.utility.verify_payment_signature(response_data)
+
+#     if request.method == 'POST':
+#         try:
+#             # Check if the request body is empty
+#             if not request.body:
+#                 return JsonResponse({"error": "Empty request body"}, status=400)  # Return a JSON response with an error message
+
+#             data = json.loads(request.body.decode('utf-8'))  # Decode and parse JSON data from the request body
+            
+            
+
+#             if "razorpay_signature" in data:
+#                 razorpay_payment_id = data.get("razorpay_payment_id", "")
+#                 order_id = data.get("razorpay_order_id", "")
+#                 razorpay_signature = data.get("razorpay_signature", "")
+#                 order = Appointment.objects.get(order_id=order_id)
+#                 order.razorpay_payment_id = razorpay_payment_id
+#                 order.razorpay_signature = razorpay_signature
+
+#                 order.save()
+#                 if not verify_signature(data):
+#                     order.status = PaymentStatus.SUCCESS
+#                     order.save()
+#                     return JsonResponse({"status": order.status})
+#                 else:
+#                     order.status = PaymentStatus.FAILURE
+#                     order.save()
+#                     return JsonResponse({"status": order.status})
+#             else:
+#                 razorpay_payment_id = data.get("error[metadata]", {}).get("payment_id")
+#                 order_id = data.get("error[metadata]", {}).get("order_id")
+#                 order = Appointment.objects.get(order_id=order_id)
+#                 order.razorpay_payment_id = razorpay_payment_id
+#                 order.status = PaymentStatus.FAILURE
+#                 order.save()
+#                 return JsonResponse({"status": order.status})
+
+#         except json.JSONDecodeError as e:
+#             return JsonResponse({"error": str(e)}, status=400)
+#         except Appointment.DoesNotExist:
+#             return JsonResponse({"error": "Appointment not found"}, status=404)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+#     else:
+#         return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 def intern(request):
@@ -2007,12 +2184,47 @@ def intern(request):
         course = request.POST['course']
         course_place = request.POST['course_place']  # Updated field name
         duration_of_course = request.POST['duration_of_course']  # Updated field name
-        specialization = request.POST['specialization']  # Updated field name
+        # specialization = request.POST['specialization']  # Updated field name
         year_of_pass = request.POST['year_of_pass']  # Updated field name
         cgpa = request.POST['cgpa']
         experience = request.POST['experience']
         adhaar_no = request.POST['adhaar_no']  # Updated field name
         pic_of_aadhaar = request.FILES['adhaar_pic']  # Assuming it's a file input
+        
+        # Check if the email is already in use
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists.')
+            return render(request, 'student/intern.html')
+        # Check if the email is already in use
+        if Student.objects.filter(adhaar_no=adhaar_no).exists():
+            messages.error(request, 'Adhar Number already exists.')
+            return render(request, 'student/intern.html')
+        
+         # Check if the email is already in use
+        if CustomUser.objects.filter(phone=phnno).exists():
+            messages.error(request, 'Phone already exists.')
+            return render(request, 'student/intern.html')
+        
+        # Check if phnno contains only numeric digits
+        if not re.match("^[0-9]+$", phnno):
+            messages.error(request, 'Phone should only contain numeric digits.')
+            return render(request, 'student/intern.html')
+        
+        # Calculate age based on the provided DOB
+        try:
+            dob_date = date.fromisoformat(dob)
+            today = date.today()
+            age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
+        except ValueError:
+            messages.error(request, 'Invalid date format. Please use YYYY-MM-DD.')
+            return render(request, 'student/intern.html')
+
+        # Check if the age is less than 18
+        if age < 18:
+            messages.error(request, 'You must be at least 18 years old to sign up.')
+            return render(request, 'student/intern.html')
+            
+        
 
         # Create a new CustomUser instance
         user = CustomUser.objects.create_user(username=email,email=email)
@@ -2038,7 +2250,7 @@ def intern(request):
         student.course = course  # Updated field name
         student.course_place = course_place
         student.duration_of_course = duration_of_course
-        student.specialization = specialization
+        # student.specialization = specialization
         student.year_of_pass = year_of_pass
         student.cgpa = cgpa
         student.experience = experience
@@ -2051,8 +2263,10 @@ def intern(request):
 
         # Redirect to a success page or do something else
         # Redirect to a success page or do something else
-        return HttpResponse('Application submitted successfully.')  # Replace 'success_page' with your actual success page URL
+        # return HttpResponse('Application submitted successfully.')  # Replace 'success_page' with your actual success page URL
+        return render(request,'application_successful.html')  # Replace 'success_page' with your actual success page URL
 
+        
     return render(request, 'student/intern.html')  # Replace 'intern_form.html' with your actual template name
 
 
@@ -2130,10 +2344,11 @@ def list_student_requests(request):
     student_requests = Student.objects.filter(is_approved=False)
     
     # Determine which students are eligible for approval
-    eligible_students = [student for student in student_requests if student.cgpa >= 7.5]
+    eligible_students = [student for student in student_requests if student.cgpa is not None and student.cgpa >= 7.5]
     
     # Determine which students need to be rejected
-    rejected_students = [student for student in student_requests if student.cgpa < 7.5]
+    rejected_students = [student for student in student_requests if student.cgpa is not None and student.cgpa < 7.5]
+
     
     context = {
         'eligible_students': eligible_students,
@@ -2179,7 +2394,8 @@ def generate_appointment_pdf(request, appointment_id):
         'client_email': appointment.client.email,
         'lawyer_name': f"{appointment.lawyer.user.first_name} {appointment.lawyer.user.last_name}",
         'appointment_date': appointment.appointment_date,
-        'appointment_id': appointment.id,
+        'appointment_id': appointment.order_id,
+        'appointment_payment_id': appointment.razorpay_payment_id,
         'appointment_order_id': appointment.order_id,
         'appointment_time': appointment.time_slot,
         'amount': '1 INR',  # You can fetch this dynamically if needed
@@ -2207,3 +2423,113 @@ def generate_appointment_pdf(request, appointment_id):
         return response
 
     return HttpResponse('PDF generation error')
+
+
+def student_detail(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    context = {
+        'student': student,
+    }
+    return render(request, 'student_detail.html', context)
+
+
+def add_case_update(request, case_number):
+    # Retrieve the corresponding Case object based on the case_number
+    case = get_object_or_404(Case, case_number=case_number)
+
+    if request.method == 'POST':
+        # Extract form data from request.POST
+        activity = request.POST.get('activity')
+        description = request.POST.get('description')
+        date = request.POST.get('date')
+        
+        # Create a new CaseUpdate object associated with the Case
+        case_update = CaseTracking.objects.create(
+            case=case,
+            activity=activity,
+            description=description,
+            date=date
+        )
+        
+        # Save the case update
+        case_update.save()
+        
+        # Redirect to the case detail page
+        return redirect('list_cases')
+    
+    return render(request, 'add_case_update_form.html', {'case': case})
+
+
+def unassigned_students(request):
+    unassigned_students = Student.objects.filter(is_approved=True, lawyer__isnull=True)
+    return render(request, 'unassigned_students.html', {'unassigned_students': unassigned_students})
+
+def hire_student(request, student_id):
+    if request.method == 'POST':
+        student = Student.objects.get(id=student_id)
+
+        # Check if the student is already hired
+        if student.lawyer:
+            messages.error(request, 'This student is already hired.')
+        else:
+            # Assign the lawyer to the student
+            student.lawyer = request.user.lawyer_profile
+            student.save()
+            messages.success(request, f'You have hired {student.user.first_name} {student.user.last_name}.')
+
+    return redirect('unassigned_students')
+
+def assign_work(request):
+    # Get the currently logged-in lawyer
+    current_lawyer = request.user.lawyer_profile
+
+    # Query students who are hired by the current lawyer
+    hired_students = Student.objects.filter(lawyer=current_lawyer, is_approved=True)
+
+    # Query cases associated with the current lawyer
+    lawyer_cases = Case.objects.filter(lawyer=current_lawyer)
+
+    if request.method == 'POST':
+        description = request.POST.get('description')
+        deadline_date = request.POST.get('deadline_date')
+        student_id = request.POST.get('student_id')
+        case_id = request.POST.get('case_id')  # Get the selected case (optional)
+
+        try:
+            # Check if the student_id exists and is eligible for work assignment
+            student = Student.objects.get(id=student_id, is_approved=True, lawyer=current_lawyer)
+        except Student.DoesNotExist:
+            return render(request, 'assign_work.html', {'error_message': 'Invalid student selection'})
+
+        # Create a new WorkAssignment object and assign it to the current lawyer
+        work_assignment = WorkAssignment(
+            description=description,
+            deadline_date=deadline_date,
+            student=student,
+            case_id=case_id  # Assign the selected case (optional)
+        )
+        work_assignment.save()
+        
+        # Redirect to a success page or another appropriate view
+        return render(request, 'work_assigned.html')
+
+    context = {
+        'hired_students': hired_students,
+        'lawyer_cases': lawyer_cases,
+    }
+
+    return render(request, 'assign_work.html', context)
+
+
+@login_required
+def student_work_assignments(request):
+    if request.user.user_type != 'student':
+        # Redirect to an appropriate page or display an error message
+        # because only students are allowed to access this view.
+        return render(request, '404.html')
+
+    # Retrieve work assignments for the current student
+    student = request.user.student_profile
+    work_assignments = WorkAssignment.objects.filter(student=student)
+
+    return render(request, 'student_work_assignments.html', {'work_assignments': work_assignments})

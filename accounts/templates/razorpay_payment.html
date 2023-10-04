@@ -1,85 +1,132 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Razorpay Payment</title>
-    <!-- Include Razorpay's JavaScript SDK -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #dc3545;
+            color: white;
+        }
+        .card-title {
+            font-size: 24px;
+        }
+        .rounded-circle {
+            width: 250px;
+            height: 250px;
+            border: 5px solid #fff;
+        }
+        .form-control {
+            border: 1px solid #ccc;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <h1>Make a Payment</h1>
-
-    <!-- Payment Form -->
-    <form id="payment-form">
-        <!-- Name -->
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br>
-
-        <!-- Email -->
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br>
-
-        <!-- Phone Number -->
-        <label for="phone">Phone Number:</label>
-        <input type="tel" id="phone" name="phone" required><br>
-
-        <!-- Amount (you can set this dynamically in JavaScript) -->
-        <input type="hidden" id="amount" name="amount" value="{{ order.amount }}">
-
-        <!-- Razorpay Payment Button -->
-        <button type="button" id="rzp-button">Pay Now</button>
-
-        <!-- Store appointment.order_id in a hidden input field -->
-        <input type="hidden" id="order-id" name="order_id" value="{{ appointment.order_id }}">
-    </form>
-
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="card-title text-center mb-0">Confirm Your Appointment</h1>
+                    </div>
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <div class="text-center">
+                            <img src="{% static 'img/payment/payment_confirm.jpg' %}" class="rounded-circle">
+                        </div>
+                        <form class="p-4" id="payment-form">
+                            <p class="form-label text-center text-success">Your Appointment with {{appointment.lawyer.user.first_name}} {{appointment.lawyer.user.last_name}} on {{appointment.appointment_date}} {{appointment.time_slot}} is under process. Confirm & pay to book your appointment.</p>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" id="name" name="name" value="{{ appointment.client.first_name }} {{ appointment.client.last_name }}" disabled required class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email:</label>
+                                <input type="email" id="email" name="email" value="{{ appointment.client.email }}" disabled required class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number:</label>
+                                <input type="text" id="phone" name="phone" value="{{appointment.client.phone}}" disabled required class="form-control">
+                            </div>
+                            <input type="hidden" id="amount" name="amount" value="{{ order.amount }}">
+                            <input type="hidden" id="order-id" name="order_id" value="{{ order_id }}">
+                            <div class="mb-3 text-center">
+                                <button class="btn btn-danger mt-3 mr-2" type="button" onclick="cancelAppointment()">Cancel this Appointment</button>
+                                <button class="btn btn-success mt-3" type="button" id="rzp-button" onclick="handlePayment()">Confirm & Pay Now</button>\
+                                
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
-        // Initialize orderId as null
-        var orderId = null;
 
-        // Razorpay Configuration
-        var options = {
-            key: 'rzp_test_lj6ETS9DRjXtea', // Replace with your Razorpay API key
-            amount: document.getElementById('amount').value,
-            currency: 'INR',
-            name: 'Advocate Assist',
-            description: 'Payment for Legal Services',
-            image: '',
-            handler: function (response) {
-                var paymentId = response.razorpay_payment_id;
-                orderId = document.getElementById('order-id').value; // Get orderId from the hidden input field
+function cancelAppointment() {
+       
+       window.location.href = "{% url 'home' %}";
+   }
 
-                console.log("orderId:", orderId);
-                console.log("paymentId:", paymentId);
 
-                // Redirect to the payment confirmation page
-                redirectToPaymentConfirmation();
-            },
-            prefill: {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                contact: document.getElementById('phone').value
-            }
-        };
-
-        // Create a Razorpay payment form
-        var rzp = new Razorpay(options);
-
-        document.getElementById('rzp-button').addEventListener('click', function () {
-            options.amount = document.getElementById('amount').value; // Update the amount
-            rzp.open();
-        })
-
-        // Function to redirect to the payment confirmation page
-        function redirectToPaymentConfirmation() {
-            // Check if orderId is set
-            if (orderId !== null) {
-                console.log("Redirecting to:", '/payment-confirmation/' + orderId + '/');
-                window.location.href = '/payment-confirmation/' + orderId + '/';
-            } else {
-                console.log("orderId is null. Unable to redirect.");
-            }
+        function handlePayment() {
+            var options = {
+                key: "rzp_test_lj6ETS9DRjXtea",
+                amount: 10000,
+                currency: "INR",
+                name: "{{appointment.client.first_name}}",
+                description: "Test Transaction",
+                image: "https://imgur.com/NOWiBu9",
+                order_id: "{{ appointment.order_id }}",
+                callback_url: "{{callback_url}}",
+                redirect: true,
+                prefill: {
+                    "name": "{{appointment.client.first_name}}",
+                    "email": "{{appointment.client.email}}",
+                    "contact": "{{appointment.client.phone}}",
+                },
+                notes: {
+                    "address": "Razorpay Corporate Office"
+                },
+                theme: {
+                    "color": "#3399cc"
+                },
+                handler: function (response) {
+                    console.log("Razorpay Response:", response);
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
         }
     </script>
 </body>

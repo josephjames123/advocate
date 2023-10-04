@@ -7,6 +7,8 @@ from taggit.managers import TaggableManager
 from django.contrib.auth import get_user_model  # Import the get_user_model function
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from .constants import PaymentStatus
+
 
 class CustomUser(AbstractUser):
     USER_TYPES = (
@@ -351,7 +353,8 @@ class LawyerProfile(models.Model):
 
         conflicting_appointments = self.appointments.filter(
             appointment_date=selected_date,
-            time_slot=selected_time
+            time_slot=selected_time,
+            status = 'confirmed',
         )
 
         return not conflicting_appointments.exists()
@@ -431,17 +434,28 @@ class Student(models.Model):
         ('divorce', 'Divorce Lawyer'),
         # Add more specializations as needed
     )
+    
+    SPECIALIZATIONS = (
+        ('2019', '2019'),
+        ('2020', '2020'),
+        ('2021', '2021'),
+        ('2022', '2022'),
+        ('2023', '2023'),
+        ('2024', '2024'),
+        # Add more specializations as needed
+    )
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
     course = models.CharField(max_length=100, blank=True)
     course_place = models.CharField(max_length=100, blank=True)
     duration_of_course = models.CharField(max_length=20, blank=True)
-    specialization = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True)
-    year_of_pass = models.IntegerField(blank=True, null=True)
+    # specialization = models.CharField(max_length=255, blank=True, null=True)
+    year_of_pass = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True,null=True)
     cgpa = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
-    experience = models.TextField(blank=True)  # You can use a TextField for experience details
+    experience = models.TextField(blank=True,null=True)  # You can use a TextField for experience details
     adhaar_no = models.CharField(max_length=12, blank=True, unique=True)
     adhaar_pic = models.ImageField(upload_to='student_uploads/', blank=True, null=True)
     is_approved = models.BooleanField(default=False)
+    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
@@ -532,7 +546,27 @@ class Case(models.Model):
         return f"Case {self.case_number} ({self.client_name})"
     
     
-from django.db import models
+class CaseTracking(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='case_tracking')  # Reference to the original case
+    posted_date = models.DateTimeField(auto_now_add=True)  # Automatically set the current date and time when an entry is created
+    activity = models.CharField(max_length=100)  # Activity related to the case
+    description = models.TextField()  # Description of the activity
+    date = models.DateField()  # Date of the activity
+
+    def __str__(self):
+        return f"Case Tracking - Case {self.case.case_number} ({self.posted_date})"
+    
+    
+class WorkAssignment(models.Model):
+    description = models.TextField()
+    deadline_date = models.DateField()
+    case = models.ForeignKey('Case', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Work Assignment for Case {self.case.case_number}"
+    
+
 
 class CurrentCase(models.Model):
     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE, related_name='current_cases')
@@ -605,8 +639,10 @@ class Appointment(models.Model):
     client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     appointment_date = models.DateField()
     time_slot = models.CharField(max_length=20)  # Use TimeSlot model here
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_paid')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PaymentStatus.PENDING)
     order_id = models.CharField(max_length=100, blank=True, null=True)  # Add this field for Razorpay order ID
+    razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True,null=True)
     
     # Add any other fields or methods related to appointments
 
@@ -622,6 +658,25 @@ class Appointment(models.Model):
             
             if self.appointment_date < seven_days_ago.date():
                 raise ValidationError("You can only schedule appointments within 7 days of your most recent working hours assignment.")
+            
+    def save_payment_data(self, payment_id, signature_id):
+        """
+        Save the Razorpay payment ID and signature ID for this appointment.
+        """
+        self.razorpay_payment_id = payment_id
+        self.razorpay_signature = signature_id
+        self.status = 'confirmed'  # You may want to update the status here as well
+        self.save()
+
+
+class Task(models.Model):
+    work_assignment = models.ForeignKey(WorkAssignment, on_delete=models.CASCADE)
+    files = models.FileField(upload_to='task_files/', blank=True, null=True)
+    note = models.TextField(blank=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Task for Case {self.case.case_number} - Student: {self.student.user.first_name} {self.student.user.last_name}"
 
             
             

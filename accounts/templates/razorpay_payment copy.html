@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+    <title>Razorpay Payment</title>
+    <!-- Include Razorpay's JavaScript SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<style>
+            
+    #navigation {
+        display: flex; /* Use flexbox to create a row layout */
+        align-items: center; /* Vertically center items */
+        list-style: none;
+        padding: 0;
+    }
+
+    #navigation li {
+        margin: 0;
+        padding: 0;
+        margin-right: 0px; /* Add spacing between navigation items */
+    }
+
+    #navigation li:last-child {
+        margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
+    }
+</style>
+<header>
+<div class="header-area ">
+    <div id="sticky-header" class="main-header-area">
+        <div class="container-fluid p-0">
+            <div class="row align-items-center justify-content-between no-gutters">
+                <div class="col-xl-2 col-lg-2">
+                    <div class="logo-img">
+                        <a href="index.html">
+                            <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-xl-7 col-lg-8">
+                    <div class="main-menu  d-none d-lg-block">
+                        <nav>
+                            <ul id="navigation">
+                                <li><a class="active" href="{% url 'home' %}">home</a></li>
+                                <li><a href="{% url 'client_bookings' client_id=request.user.id %}">Bookings</a></li> 
+                                <!-- <li><a href="{% url 'about' %}">About</a></li>
+                                <li><a href="{% url 'contact' %}">Contact</a></li> -->
+                                <li><a href="{% url 'list_cases' %}">Cases</a></li>
+                                
+                                {% if user.is_authenticated %}
+                                <li>
+                                    <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                    <ul class="submenu">
+                                        {% if user.user_type == 'admin' %}
+                                        <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>                                       
+                                                 {% endif %}
+                                                 {% if user.user_type == 'lawyer' %}
+                                                 <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                       
+                                                          {% endif %}
+                                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                                    </ul>
+                                </li>
+                                {% else %}
+                                
+                                <li><a href="{% url 'signup' %}">Signup</a></li>
+                                <li><a href="{% url 'login' %}">Login</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</header>
+<!-- Breadcrumb navigation -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-transparent pl-0">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Book Lawyer</li>
+    </ol>
+</nav>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12 add-user-col d-flex justify-content-center">
+                <form class="add-user-form" id="payment-form">
+                    <h1 class="text-center">Make A Payment</h1>
+                    <div class="input-group">
+                        <label for="name">Name</label>
+                        <input type="text" name="name" id="name" required />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" name="email" id="email" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" name="phone" id="phone" required />
+                    </div>
+                    <div class="input-group">
+                        <input type="hidden" id="amount" name="amount" value="{{ order.amount }}">
+                    </div>
+                    <div class="input-group">
+                        <button class="btn btn-warning" type="button" id="rzp-button">Pay Now</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="hidden" id="order-id" name="order_id" value="{{ appointment.order_id }}">
+                        <input type="hidden" id="payment-id" name="razorpay_payment_id">
+                        <input type="hidden" id="signature-id" name="razorpay_signature">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+    <script>
+        // Initialize orderId as null
+        var orderId = null;
+
+        // Razorpay Configuration
+        var options = {
+            key: 'rzp_test_cvGs8NAQTlqQrP', // Replace with your Razorpay API key
+            amount: document.getElementById('amount').value,
+            currency: 'INR',
+            name: 'Advocate Assist',
+            description: 'Payment for Legal Services',
+            image: '',
+            handler: function (response) {
+                var paymentId = response.razorpay_payment_id;
+                var signatureId = response.razorpay_signature;
+                orderId = document.getElementById('order-id').value; // Get orderId from the hidden input field
+                paymentId=document.getElementById('payment-id').value;
+                signatureId = document.getElementById('signature-id').value;
+
+                // Generate the Razorpay signature using your API key and other required data
+                var razorpaySignature = generateRazorpaySignature(paymentId, orderId);
+
+                console.log("orderId:", orderId);
+                console.log("paymentId:", paymentId);
+
+                // Redirect to the payment confirmation page
+                redirectToPaymentConfirmation();
+            },
+            prefill: {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                contact: document.getElementById('phone').value
+            }
+        };
+
+        // Create a Razorpay payment form
+        var rzp = new Razorpay(options);
+
+        document.getElementById('rzp-button').addEventListener('click', function () {
+            options.amount = document.getElementById('amount').value; // Update the amount
+            rzp.open();
+        })
+
+        // Function to redirect to the payment confirmation page
+        function redirectToPaymentConfirmation() {
+            // Check if orderId is set
+            if (orderId !== null) {
+                console.log("Redirecting to:", '/payment-confirmation/' + orderId + '/');
+                window.location.href = '/payment-confirmation/' + orderId + '/';
+            } else {
+                console.log("orderId is null. Unable to redirect.");
+            }
+        }
+    </script>
+</html>

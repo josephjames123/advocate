@@ -36,6 +36,7 @@ urlpatterns = [
     path('approve-student/<int:student_id>/', views.approve_student, name='approve_student'),
     path('reject-student/<int:student_id>/', views.reject_student, name='reject_student'),
     path('set_password/<str:uidb64>/<str:token>/', views.password_reset_confirm_student, name='password_reset_confirm_student'),
+    
 ]
 
 

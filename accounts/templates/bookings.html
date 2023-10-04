@@ -181,6 +181,9 @@
                             <th>Status</th>
                             <th>Date</th>
                             <th>Time Slot</th>
+                            <th>Status</th>
+                            <th>Order Id</th>
+                            <th>Payment Id</th>
                         </tr>
                     </thead>
                     
@@ -192,6 +195,9 @@
                             <td>{{ booking.client.get_full_name }}</td>
                             <td>{{ booking.appointment_date }}</td>
                             <td>{{ booking.time_slot }}</td>
+                            <td>{{ booking.status }}</td>
+                            <td>{{ booking.order_id }}</td>
+                            <td>{{ booking.razorpay_payment_id }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

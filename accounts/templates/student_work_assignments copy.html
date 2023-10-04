@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Work Assignments</title>
+</head>
+<body>
+    <h1>Your Work Assignments</h1>
+    <ul>
+        {% for assignment in work_assignments %}
+            <li>
+                {{ assignment.description }} - Deadline: {{ assignment.deadline_date }}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                    <!-- <button type="submit">Update Report</button> -->
+                </form>
+            </li>
+        {% empty %}
+            <li>No work assignments found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
