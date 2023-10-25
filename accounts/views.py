@@ -64,7 +64,7 @@ from .models import Application
 logger = logging.getLogger(__name__)
 
 
-
+# login view #
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -107,7 +107,7 @@ def login_view(request):
     
     return render(request, 'login.html')
     
-
+# signup #
 def signup_view(request):
     if request.user.is_authenticated:
         if request.user.user_type == 'admin':
@@ -205,15 +205,21 @@ def signup_view(request):
 
     return render(request, 'signup.html')
 
+# logout #
+
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+# dashboard  #
 
 def dashboard_view(request):
     if request.user.is_authenticated:
         return render(request, 'dashboard.html', {'user': request.user})
     else:
         return redirect('login')
+    
+# admin Dashboard #    
     
 @login_required
 def admin_dashboard(request):
@@ -240,6 +246,8 @@ def admin_dashboard(request):
         return render(request, 'admin/dashboard.html', context)
     else:
         return render(request, '404.html')
+    
+    
 @login_required
 def client_dashboard(request):
     user = request.user

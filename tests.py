@@ -105,6 +105,7 @@ class Hosttest(TestCase):
         students2.click()
         time.sleep(3)
         print("Leave Applied")
+        
         # awork=driver.find_element(By.CSS_SELECTOR,"a[href='/assign_work/']")
         # awork.click()
         # time.sleep(2)
