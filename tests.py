@@ -166,11 +166,9 @@ class Hosttest(TestCase):
         time.sleep(2)
         print("Logout Successfull")
         print("Test Completed Successfully")
+        
 
         
-        
-        
-       
 
     # Add more test methods as needed
 
