@@ -9,7 +9,8 @@
     <style>
         .gradient-custom-2 {
             background: #fccb90;
-            background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+            /* background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593); */
+            background: black;
         } 
         @media (min-width: 768px) {
             .gradient-form {
@@ -132,12 +133,6 @@
                                     
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <select class="form-select" id="user_type" name="user_type" required >
-                                            <option value="student">Student</option>
-                                            <option value="client" selected>Client</option>
-                                        </select>     
-                                  </div>
                                   <div class="mb-3">
                                     <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone Number" required oninput="formatPhoneNumber()" onchange="validatePhoneNumber()">
                                     <div class="invalid-feedback"></div> 

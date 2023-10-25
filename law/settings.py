@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'accounts.middleware.RedirectAuthenticatedUserMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     
 
 ]

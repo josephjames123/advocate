@@ -210,10 +210,10 @@
                     <tbody>
                         {% for case in cases %} 
                         <tr>
-                            <td>{{ case.case_number }} </td>
+                            <td>cs\{{ case.case_number }} </td>
                             <td>
                                 {% if user.user_type == 'client' %}
-                                    {{ case.lawyer_name }} <!-- Display lawyer's name for clients -->
+                                {{ case.lawyer.user.get_full_name }} <!-- Display lawyer's name for clients -->
                                 {% elif user.user_type == 'lawyer' %}
                                     {{ case.client_name }} <!-- Display client's name for lawyers -->
                                 {% endif %}

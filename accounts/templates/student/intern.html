@@ -42,7 +42,7 @@
             <div class="row align-items-center justify-content-between no-gutters">
                 <div class="col-xl-2 col-lg-2">
                     <div class="logo-img">
-                        <a href="index.html">
+                        <a href="{% url 'login' %}">
                             <img src="{% static 'img\icon.ico' %}" alt=""width="120">
                         </a>
                     </div>
@@ -51,7 +51,7 @@
                     <div class="main-menu  d-none d-lg-block">
                         <nav>
                             <ul id="navigation">
-                                <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
                                 <!-- <li><a href="{% url 'about' %}">About</a></li>
                                 <li><a href="{% url 'contact' %}">Contact</a></li>
                                 <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
@@ -95,7 +95,7 @@
 
 
     <div class="container pb-5">
-        <h2 class="my-5 text-center">Apply  Internship</h2>
+        <h2 class="my-5 text-center">Add New Intern</h2>
 
         <div class="row">
             <div class="col-md-12">
@@ -164,6 +164,19 @@
                             <input type="text" name="duration_of_course" required 
                                 placeholder="Your course duration" />
                         </div>
+                        <div class="input-group">
+                            <label for="specialization">Specialization(if any)</label>
+                            <select name="specialization" required>
+                                <option selected disabled>Choose Specialization</option>
+                                <option value="family">Family Lawyer</option>
+                                <option value="criminal">Criminal Lawyer</option>
+                                <option value="consumer">Consumer Lawyer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- year of pass and current cgpa -->
+                    <div class="input-row">
                         <div class="input-group">Year Of passing</label>
                             <select name="year_of_pass" required>
                                 <option selected disabled>Choose Year</option>
@@ -174,38 +187,31 @@
                                 <option value="2024">2024</option>
                             </select>
                         </div>
-                    </div>
-
-                    <!-- year of pass and current cgpa -->
-                    <div class="input-row">
-                       
                         <div class="input-group">
                             <label for="current_cgpa">Current CGPA</label>
                             <input type="type" name="cgpa" placeholder="Your current CGPA" required />
-                        </div>
-                        <div class="input-group">
-                            <label for="address">Experience(if any)</label>
-                            <textarea name="experience" id="" cols="30" rows="1" placeholder="Your experiences" ></textarea>
                         </div>
                     </div>
 
                     <!-- experience and aadhar number -->
                     <div class="input-row">
-                      
+                        <div class="input-group">
+                            <label for="address">Experience(if any)</label>
+                            <textarea name="experience" id="" cols="30" rows="1" placeholder="Your experiences" ></textarea>
+                        </div>
                         <div class="input-group">
                             <label for="aadharno">Aadhar Number</label>
                             <input type="number" name="adhaar_no" placeholder="Your aadhar number" required />
-                        </div>
-                        <div class="input-group">
-                            <label for="profile_picture">Upload Adhaar</label>
-                            <input type="file" name="adhaar_pic" accept=".jpg, .jpeg, .png" id="profile_picture"
-                                required />
                         </div>
                     </div>
 
                     <!-- profile pricture -->
                     <div class="input-row">
-                       
+                        <div class="input-group">
+                            <label for="profile_picture">Upload Adhaar</label>
+                            <input type="file" name="adhaar_pic" accept=".jpg, .jpeg, .png" id="profile_picture"
+                                required />
+                        </div>
                         <div class="input-group"></div>
                     </div>
 

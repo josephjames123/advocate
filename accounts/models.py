@@ -55,7 +55,7 @@ class CustomUser(AbstractUser):
     ('Puducherry', 'Puducherry'),
 )
     user_type = models.CharField(max_length=10, choices=USER_TYPES, default='client')
-    
+    id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True, default='')  # Change: Use email as the username
     first_name = models.CharField(max_length=30, default='')  # Added: First name field
     last_name = models.CharField(max_length=30, default='')  # Added: Last name field
@@ -67,94 +67,6 @@ class CustomUser(AbstractUser):
     # state = models.CharField(max_length=10, choices=STATES, default='kerala')  # Added: State field
     phone = models.CharField(max_length=15,blank=True)  # Added: Phone number field
     
-# class TimeSlot(models.Model):
-#     start_time = models.TimeField()
-#     # end_time = models.TimeField()
-    
-    
-    
-#     def __str__(self):
-#         # return f"{self.start_time.strftime('%I:%M %p')} - {self.end_time.strftime('%I:%M %p')}"
-#         return f"{self.start_time.strftime('%I:%M %p')} "
-
-# class TimeSlot(models.Model):
-#     # name = models.CharField(max_length=30)
-#     start_time = models.TimeField()
-
-#     def __str__(self):
-#         # Calculate the end time by adding one hour to the start_time
-#         start_datetime = datetime.combine(datetime.today(), self.start_time)
-#         end_datetime = start_datetime + timedelta(hours=1)
-
-#         # Format the start and end times as "HH:MM AM/PM"
-#         formatted_start_time = start_datetime.strftime("%I:%M %p")
-#         formatted_end_time = end_datetime.strftime("%I:%M %p")
-
-#         # Combine start and end times to create the name
-#         name = f"{formatted_start_time} - {formatted_end_time}"
-
-#         return name
-
-
-# class TimeSlot(models.Model):
-#     DAY_CHOICES = (
-#         ('Monday', 'Monday'),
-#         ('Tuesday', 'Tuesday'),
-#         ('Wednesday', 'Wednesday'),
-#         ('Thursday', 'Thursday'),
-#         ('Friday', 'Friday'),
-#         ('Saturday', 'Saturday'),
-#         ('Sunday', 'Sunday'),
-#     )
-
-#     SLOT_CHOICES = (
-#         ('8-10', '8:00 AM - 10:00 AM'),
-#         ('10-12', '10:00 AM - 12:00 PM'),
-#         ('1-3', '1:00 PM - 3:00 PM'),
-#         ('3-5', '3:00 PM - 5:00 PM'),
-#         ('8-8:15', '8:00 AM - 8:15 AM'),
-#         ('8:15-8:30', '8:15 AM - 8:30 AM'),
-#         ('8:30-8:45', '8:30 AM - 8:45 AM'),
-#         # Add more 15-minute slots here
-#     )
-
-#     day = models.CharField(max_length=10, choices=DAY_CHOICES)
-#     slot = models.CharField(max_length=10, choices=SLOT_CHOICES)
-
-#     def _str_(self):
-#         return f"{self.day} - {self.get_slot_display()}"
-
-#     class Meta:
-#         unique_together = ('day', 'slot')
-    
-# class TimeSlot(models.Model):
-#     DAY_CHOICES = (
-#         ('Monday', 'Monday'),
-#         ('Tuesday', 'Tuesday'),
-#         ('Wednesday', 'Wednesday'),
-#         ('Thursday', 'Thursday'),
-#         ('Friday', 'Friday'),
-#         ('Saturday', 'Saturday'),
-#         ('Sunday', 'Sunday'),
-#     )
-
-#     MAIN_SLOT_CHOICES = (
-#         ('8-10', '8:00 AM - 10:00 AM'),
-#         ('10-12', '10:00 AM - 12:00 PM'),
-#         ('1-3', '1:00 PM - 3:00 PM'),
-#         ('3-5', '3:00 PM - 5:00 PM'),
-#     )
-
-#     day = models.CharField(max_length=10, choices=DAY_CHOICES)
-#     main_slot = models.CharField(max_length=10, choices=MAIN_SLOT_CHOICES)
-#     lawyers = models.ManyToManyField('LawyerProfile', blank=True, related_name='working_slots')
-
-#     def __str__(self):
-#         return f"{self.get_day_display()} - {self.get_main_slot_display()}"
-
-#     class Meta:
-#         unique_together = ('day', 'main_slot')
-
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -168,7 +80,7 @@ class TimeSlot(models.Model):
         ('Saturday', 'Saturday'),
         ('Sunday', 'Sunday'),
     )
-
+    id = models.AutoField(primary_key=True)
     day = models.CharField(max_length=10, choices=DAY_CHOICES)
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -180,34 +92,6 @@ class TimeSlot(models.Model):
     class Meta:
         unique_together = ('day', 'start_time', 'end_time')
 
-
-# class TimeSlot(models.Model):
-#     DAY_CHOICES = (
-#         ('Monday', 'Monday'),
-#         ('Tuesday', 'Tuesday'),
-#         ('Wednesday', 'Wednesday'),
-#         ('Thursday', 'Thursday'),
-#         ('Friday', 'Friday'),
-#         ('Saturday', 'Saturday'),
-#         ('Sunday', 'Sunday'),
-#     )
-
-#     MAIN_SLOT_CHOICES = (
-#         ('8-10', '8:00 AM - 10:00 AM'),
-#         ('10-12', '10:00 AM - 12:00 PM'),
-#         ('1-3', '1:00 PM - 3:00 PM'),
-#         ('3-5', '3:00 PM - 5:00 PM'),
-#     )
-
-#     day = models.CharField(max_length=15, choices=DAY_CHOICES)
-#     main_slot = models.CharField(max_length=10, choices=MAIN_SLOT_CHOICES)
-#     lawyer = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='working_hours')
-
-#     def __str__(self):
-#         return f"{self.day} - {self.main_slot}"
-
-
-    
 class LawyerProfile(models.Model):
     SPECIALIZATIONS = (
         ('family', 'Family Lawyer'),
@@ -228,8 +112,6 @@ class LawyerProfile(models.Model):
         # Add more as needed
     )
     id = models.AutoField(primary_key=True)
-
-    
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='lawyer_profile')
     # lawyer_id = models.AutoField(primary_key=True)
     specialization = models.CharField(max_length=20, choices=SPECIALIZATIONS,blank=True)
@@ -302,48 +184,8 @@ class LawyerProfile(models.Model):
 
         return False
 
-
-
-
-
-
-
-    # def is_available(self, date, time_slot):
-    #     # Check if the selected slot is available for booking on a specific date
-    #     return not Appointment.objects.filter(
-    #         lawyer=self,
-    #         appointment_date=date,
-    #         time_slot=time_slot,
-    #     ).exists()
-
-    # working_time_start = models.TimeField(null=True, blank=True)
-    # working_time_end = models.TimeField(null=True, blank=True)
-    # working_time_start = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_start_time')
-    # working_time_end = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True, related_name='lawyer_end_time')
-
-    
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} - {self.specialization}"
-    
-    
-    
-    
-    
-    
-    # def calculate_experience(self):
-    #     today = timezone.now().date()
-    #     experience = (today - self.start_date).days // 365
-    #     return experience
-    
-    # def calculate_experience(self):
-    #     today = timezone.now().date()
-
-    #     if self.start_date:
-    #         experience = (today - self.start_date).days // 365
-    #     else:
-    #         experience = 0
-
-    #     return experience
     
     def is_available(self, selected_date, selected_slot):
         try:
@@ -351,11 +193,15 @@ class LawyerProfile(models.Model):
         except ValueError:
             return False
 
+        # Filter based on the 'status' field in the Payment class
         conflicting_appointments = self.appointments.filter(
             appointment_date=selected_date,
             time_slot=selected_time,
-            status = 'confirmed',
+            payment__status='confirmed',  # Use 'payment__status' to access the 'status' field in Payment
         )
+
+        # Now 'conflicting_appointments' will contain only those with 'confirmed' status
+        # Add additional checks or logic as needed
 
         return not conflicting_appointments.exists()
 
@@ -371,6 +217,7 @@ class LawyerProfile(models.Model):
         super().save(*args, **kwargs)
     
 class Certificate(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='certificates/', blank=True, null=True)
 
@@ -378,6 +225,7 @@ class Certificate(models.Model):
         return self.name
 
 class Day(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
 
     def __str__(self):
@@ -385,43 +233,11 @@ class Day(models.Model):
     
         
         
-class ContactEntry(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    subject = models.CharField(max_length=100)
-    message = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
     
 
     
     
-class Booking(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
-    details = models.TextField()
-    booking_date = models.DateField()
-    time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, default="pending")
-    original_booking_date = models.DateField(null=True, blank=True)
-
-    def is_confirmed(self):
-        return self.status == "confirmed"
-
-    def __str__(self):
-        return self.user.email
-    
-# class Student(models.Model):
-#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
-#     college = models.CharField(max_length=100)
-#     current_cgpa = models.DecimalField(max_digits=3, decimal_places=2, null=False)
-#     is_approved = models.BooleanField(default=False)
-    
-
-#     def __str__(self):
-#         return f"{self.user.first_name} {self.user.last_name}"
 
 class Student(models.Model):
 
@@ -445,10 +261,11 @@ class Student(models.Model):
         # Add more specializations as needed
     )
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
+    id = models.AutoField(primary_key=True)
     course = models.CharField(max_length=100, blank=True)
     course_place = models.CharField(max_length=100, blank=True)
     duration_of_course = models.CharField(max_length=20, blank=True)
-    # specialization = models.CharField(max_length=255, blank=True, null=True)
+    specialization = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True,null= True)
     year_of_pass = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True,null=True)
     cgpa = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     experience = models.TextField(blank=True,null=True)  # You can use a TextField for experience details
@@ -463,6 +280,7 @@ class Student(models.Model):
     
     
 class Internship(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     lawyer_profile = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE, related_name='internships')
     min_cgpa = models.DecimalField(max_digits=3, decimal_places=2)
@@ -476,19 +294,8 @@ class Internship(models.Model):
     def __str__(self):
         return self.name
     
-
-class Application(models.Model):
-    internship = models.ForeignKey(Internship, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    application_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.student.user.username} - {self.internship.name}'
-    
-# class StudentUser(CustomUser):
-#     is_approved = models.BooleanField(default=False)
-
 class LawyerDayOff(models.Model):
+    id = models.AutoField(primary_key=True)
     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
     date = models.DateField()
 
@@ -502,7 +309,7 @@ class HolidayRequest(models.Model):
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
     )
-
+    id = models.AutoField(primary_key=True)
     lawyer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
@@ -516,7 +323,7 @@ class Case(models.Model):
         ('open', 'Open'),
         ('closed', 'Closed'),
     )
-
+    id = models.AutoField(primary_key=True)
     # Auto-generate a unique case number like 1001, 1002, ...
     case_number = models.CharField(max_length=10, unique=True)
     client = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='cases', blank=True, null=True)
@@ -547,6 +354,7 @@ class Case(models.Model):
     
     
 class CaseTracking(models.Model):
+    id = models.AutoField(primary_key=True)
     case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='case_tracking')  # Reference to the original case
     posted_date = models.DateTimeField(auto_now_add=True)  # Automatically set the current date and time when an entry is created
     activity = models.CharField(max_length=100)  # Activity related to the case
@@ -558,6 +366,7 @@ class CaseTracking(models.Model):
     
     
 class WorkAssignment(models.Model):
+    id = models.AutoField(primary_key=True)
     description = models.TextField()
     deadline_date = models.DateField()
     case = models.ForeignKey('Case', on_delete=models.CASCADE)
@@ -569,6 +378,7 @@ class WorkAssignment(models.Model):
 
 
 class CurrentCase(models.Model):
+    id = models.AutoField(primary_key=True)
     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE, related_name='current_cases')
     case_number = models.CharField(max_length=10)
     client_name = models.CharField(max_length=100)
@@ -586,65 +396,13 @@ class CurrentCase(models.Model):
 
     def __str__(self):
         return f"Case {self.case_number} - {self.client_name}"
-    
-    
-# class Appointment(models.Model):
-#     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
-#     client = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
-#     appointment_date = models.DateField()
-#     status = models.CharField(max_length=20)
-
-#     def __str__(self):
-#         return f"Appointment with {self.lawyer.user.first_name} on {self.appointment_date}"
-
-# class Appointment(models.Model):
-    
-#     STATUS_CHOICES = (
-#         ('not_paid', 'Not Paid'),
-#         ('confirmed', 'Confirmed'),
-#         ('cancelled', 'Cancelled'),
-#     )
-    
-#     lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE)
-#     client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
-#     appointment_date = models.DateField()
-#     time_slot = models.CharField(max_length=20)# Use TimeSlot model here
-#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_paid')
-    
-
-#     # Add any other fields or methods related to appointments
-
-#     def __str__(self):
-#         return f'Appointment with {self.lawyer} on {self.appointment_date} at {self.time_slot}'
-    
-#     def clean(self):
-#         # Calculate the 7-day window start date based on the lawyer's most recent working hours assignment date.
-#         most_recent_working_hours_date = self.lawyer.working_slots.aggregate(models.Max('created_date'))['created_date__max']
-        
-#         if most_recent_working_hours_date:
-#             seven_days_ago = most_recent_working_hours_date + timedelta(days=7)
-            
-#             if self.appointment_date < seven_days_ago.date():
-#                 raise ValidationError("You can only schedule appointments within 7 days of your most recent working hours assignment.")
 
 class Appointment(models.Model):
-    STATUS_CHOICES = (
-        ('not_paid', 'Not Paid'),
-        ('confirmed', 'Confirmed'),
-        ('cancelled', 'Cancelled'),
-    )
-    
+    id = models.AutoField(primary_key=True)
     lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE)
     client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     appointment_date = models.DateField()
     time_slot = models.CharField(max_length=20)  # Use TimeSlot model here
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PaymentStatus.PENDING)
-    order_id = models.CharField(max_length=100, blank=True, null=True)  # Add this field for Razorpay order ID
-    razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
-    razorpay_signature = models.CharField(max_length=255, blank=True,null=True)
-    
-    # Add any other fields or methods related to appointments
 
     def __str__(self):
         return f'Appointment with {self.lawyer} on {self.appointment_date} at {self.time_slot}'
@@ -654,22 +412,38 @@ class Appointment(models.Model):
         most_recent_working_hours_date = self.lawyer.working_slots.aggregate(models.Max('created_date'))['created_date__max']
         
         if most_recent_working_hours_date:
-            seven_days_ago = most_recent_working_hours_date + timedelta(days=14)
-            
+            seven_days_ago = most_recent_working_hours_date + timedelta(days=7)            
             if self.appointment_date < seven_days_ago.date():
                 raise ValidationError("You can only schedule appointments within 7 days of your most recent working hours assignment.")
-            
+
+class Payment(models.Model):
+    STATUS_CHOICES = (
+        (PaymentStatus.SUCCESS, 'Confirmed'),
+        (PaymentStatus.FAILURE, 'Cancelled'),
+        (PaymentStatus.PENDING, 'Not Paid'),
+    )
+    id = models.AutoField(primary_key=True)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PaymentStatus.PENDING)
+    order_id = models.CharField(max_length=100, blank=True, null=True)  # Add this field for Razorpay order ID
+    razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.order_id}'
+
     def save_payment_data(self, payment_id, signature_id):
         """
         Save the Razorpay payment ID and signature ID for this appointment.
         """
         self.razorpay_payment_id = payment_id
         self.razorpay_signature = signature_id
-        self.status = 'confirmed'  # You may want to update the status here as well
+        self.status = PaymentStatus.SUCCESS  # Use PaymentStatus to update the status
         self.save()
 
 
 class Task(models.Model):
+    id = models.AutoField(primary_key=True)
     work_assignment = models.ForeignKey(WorkAssignment, on_delete=models.CASCADE)
     files = models.FileField(upload_to='task_files/', blank=True, null=True)
     note = models.TextField(blank=True)
@@ -679,4 +453,11 @@ class Task(models.Model):
         return f"Task for Case {self.case.case_number} - Student: {self.student.user.first_name} {self.student.user.last_name}"
 
             
-            
+class Application(models.Model):
+    id = models.AutoField(primary_key=True)
+    internship = models.ForeignKey(Internship, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    application_date = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f'{self.student.user.username} - {self.internship.name}'

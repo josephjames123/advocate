@@ -112,7 +112,7 @@
                     <div class="row align-items-center justify-content-between no-gutters">
                         <div class="col-xl-2 col-lg-2">
                             <div class="logo-img">
-                                <a href="index.html">
+                                <a href="{% url 'login' %}">
                                     <img src="{% static 'img\icon.ico' %}" alt=""width="120">
                                 </a>
                             </div>
@@ -121,7 +121,7 @@
                             <div class="main-menu  d-none d-lg-block">
                                 <nav>
                                     <ul id="navigation">
-                                        <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
                                         <!-- <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
                                         <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
@@ -177,36 +177,32 @@
                     <thead>
                         <tr>
                             <th>Lawyer Name</th>
-                            
-                            <th>Status</th>
-                            <th>Date</th>
+                            <th>Client Name</th>
+                            <th>Appointment Date</th>
                             <th>Time Slot</th>
-                            <th>Status</th>
+                            <th>Payment Status</th>
                             <th>Order Id</th>
-                            <th>Payment Id</th>
+                            <th>Razorpay Payment Id</th>
                         </tr>
                     </thead>
-                    
                     <tbody>
                         {% for booking in bookings %}
                         <tr>
-                            <td>{{ booking.lawyer.user.get_full_name }}</td>
-                            
-                            <td>{{ booking.client.get_full_name }}</td>
-                            <td>{{ booking.appointment_date }}</td>
-                            <td>{{ booking.time_slot }}</td>
-                            <td>{{ booking.status }}</td>
-                            <td>{{ booking.order_id }}</td>
-                            <td>{{ booking.razorpay_payment_id }}</td>
+                            <td>{{ booking.appointment.lawyer.user.get_full_name }}</td>
+                            <td>{{ booking.appointment.client.get_full_name }}</td>
+                            <td>{{ booking.appointment.appointment_date }}</td>
+                            <td>{{ booking.appointment.time_slot }}</td>
+                            <td>{{ booking.payment.get_status_display|default:"N/A" }}</td>
+                            <td>{{ booking.payment.order_id|default:"N/A" }}</td>
+                            <td>{{ booking.payment.razorpay_payment_id|default:"N/A" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                    
-                   
                 </table>
             </div>
         </div>
     </div>
+
 
     <script>
         new DataTable('#example');

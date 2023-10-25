@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -107,15 +108,12 @@
                 <table>
                     <tr>
                         <td class="title">
-                            <img
-                                    src="C:\Users\ABY\Desktop\advocate\Advocate-Assist\static\img\icon\icon.ico"
-                                    style="width: 100%; max-width: 300px"
-                            />
+                            <img src="{% static 'img/icon/icon.ico' %}" style="width: 100%; max-width: 300px" />
                         </td>
 
                         <td>
                             Invoice #: {{ appointment.id }}<br />
-                            Created: {% now "F j, Y" %}<br />
+                            Created: {{ appointment_date|date:"F j, Y" }}<br />
                         </td>
                     </tr>
                 </table>
@@ -133,29 +131,27 @@
                         </td>
 
                         <td>
-                            Name :<b>{{ client_name }}</b><br />
-                            Address: <b> {{ client_address }}</b><br />
+                            Name: <b>{{ client_name }}</b><br />
+                            Address: <b>{{ client_address }}</b><br />
                             Email: <b>{{ client_email }}</b>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            Date : <b>{{appointment_date}}</b><br />
-                            Time : <b>{{appointment_time}}</b><br />
-                            Amount : <b>{{amount}}</b>
+                            Date: <b>{{ appointment_date|date:"F j, Y" }}</b><br />
+                            Time: <b>{{ appointment_time }}</b><br />
+                            Amount: <b>{{ amount }}</b>
                         </td>
 
                         <td>
-                            Id:<b>{{ appointment_id }}</b><br />
-                            Id:<b>{{ appointment_payment_id }}</b><br />
-                            Order id:<b>{{ appointment_order_id }}</b><br />
-                            
+                            Id: <b>{{ appointment_id }}</b><br />
+                            Payment Id: <b>{{ payment.razorpay_payment_id }}</b><br />
+                            Order Id: <b>{{ payment.order_id }}</b><br />   
                         </td>
                     </tr>
                 </table>
             </td>
         </tr>
-
     </table>
 </div>
 </body>

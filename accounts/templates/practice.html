@@ -60,7 +60,7 @@
                     <div class="row align-items-center justify-content-between no-gutters">
                         <div class="col-xl-2 col-lg-2">
                             <div class="logo-img">
-                                <a href="index.html">
+                                <a href="{% url 'login' %}">
                                     <img src="{% static 'img\icon.ico' %}" alt=""width="120">
                                 </a>
                             </div>
@@ -69,7 +69,7 @@
                             <div class="main-menu  d-none d-lg-block">
                                 <nav>
                                     <ul id="navigation">
-                                        <li><a class="active" href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>
+                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
                                         <!-- <li><a href="{% url 'about' %}">About</a></li>
                                         <li><a href="{% url 'contact' %}">Contact</a></li>
                                         <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
