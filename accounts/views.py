@@ -246,7 +246,8 @@ def admin_dashboard(request):
         return render(request, 'admin/dashboard.html', context)
     else:
         return render(request, '404.html')
-    
+
+# client dashboard #    
     
 @login_required
 def client_dashboard(request):
@@ -262,6 +263,7 @@ def client_dashboard(request):
 
     return render(request, 'client/dashboard.html', context)
 
+# lawyer dashboard #
 
 @login_required
 def lawyer_dashboard(request):
@@ -287,6 +289,8 @@ def lawyer_dashboard(request):
         return render(request, 'lawyer/dashboard.html', {'user': request.user, 'booking_count': booking_count,'bookings': bookings , 'case_count': case_count})
     else:
         return render(request, '404.html')
+
+# add Lawyer #
 
 @login_required    
 def add_lawyer(request):
@@ -377,7 +381,7 @@ def add_lawyer(request):
     
     return render(request, 'admin/add_lawyer.html')
 
-
+# custom password set #
 
 def custom_password_set_confirm(request, uidb64, token):
     user_id = urlsafe_base64_decode(uidb64)
@@ -396,6 +400,7 @@ def custom_password_set_confirm(request, uidb64, token):
     
     return render(request, 'registration/password_set_confirm.html', {'form': form, 'user': user})
 
+# home #
 def home(request):
     # Fetch the most recently added 3 lawyers from the database
     lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
@@ -424,6 +429,8 @@ def confirm(request):
 
 def about(request):
     return render(request, 'about.html')
+
+# lawyer List #
 
 def lawyer_list(request):
     # Fetch the most recently added 3 lawyers from the database
@@ -520,6 +527,9 @@ def reschedule_appointment(request, booking_id):
         form.fields.pop('details')  # Remove the 'details' field from the form
 
     return render(request, 'reschedule_appointment.html', {'form': form, 'booking': booking})
+
+## internship details #
+
 @login_required
 def internship_detail(request, internship_id):
     internship = get_object_or_404(Internship, id=internship_id)
@@ -538,6 +548,8 @@ def internship_detail(request, internship_id):
 
     return render(request, 'student/internship_detail.html', {'internship': internship, 'roles_html': roles_html})
 
+# add internship #
+
 @login_required
 def add_internship(request):
     if request.method == 'POST':
@@ -549,6 +561,8 @@ def add_internship(request):
         form = InternshipForm()
 
     return render(request, 'admin/add_internship.html', {'form': form})
+
+# student dashboard #
 
 @login_required
 def student_dashboard(request):
@@ -576,6 +590,8 @@ def student_dashboard(request):
 
     # If not a student or not logged in, return forbidden access
     return render(request, '404.html')
+
+# approve student #
 
 @login_required
 def approve_students(request):
@@ -666,6 +682,8 @@ def calculate_experience(experience_str):
     total_days = years * 365 + months * 30 + days
     return total_days
 
+# lawyer entry1 #
+
 @login_required
 def lawyer_save(request):
     if request.user.user_type != 'lawyer':
@@ -715,7 +733,9 @@ def lawyer_save(request):
      
     else:
         return render(request, 'lawyer/user_details_form.html', {'available_time_slots': available_time_slots})
-    
+
+# mark Leave #
+  
 @login_required
 def mark_holiday(request):
     user = request.user  # Get the current user
@@ -748,7 +768,7 @@ def mark_holiday(request):
         messages.error(request, 'Only lawyers can request holidays.')
         return redirect('home')  # Redirect non-lawyers or unauthenticated users to the home page
 
-    
+# update profile #    
 
 @login_required
 def update_profile(request):
@@ -841,6 +861,7 @@ def all_bookings(request, lawyer_id=None, client_id=None):
     # Render the template
     return render(request, 'bookings.html', context)
 
+# client booking #
 
 @login_required
 def client_bookings(request, client_id):
@@ -929,6 +950,7 @@ def admin_approve_reject_holiday(request, request_id):
     # Redirect back to the admin dashboard or any other appropriate view
     return redirect('admin_dashboard')  # Update this to the appropriate view name
 
+# case registration #
 
 @login_required
 def enter_client_email(request):
@@ -1061,6 +1083,8 @@ def is_valid_date(date_str):
         return True
     except ValueError:
         return False
+
+# current case #
 @login_required
 def current_cases(request):
     # Ensure that only lawyers can access this view
@@ -1150,6 +1174,8 @@ def search_lawyers(request):
 
     # Pass the search results to the template
     return render(request, 'search.html', {'lawyers': lawyers, 'query': query})
+
+# working hours #
 
 @login_required
 def assign_working_hours(request):
@@ -1250,6 +1276,7 @@ def parse_time(time_str):
     except ValueError:
         return None
 
+# book lawyer date and payment #
 
 @login_required
 def book_lawyer(request, lawyer_id, selected_date):
@@ -1374,6 +1401,8 @@ def callback(request, appointment_id):
             return JsonResponse({"error": "An error occurred during payment processing"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# intern details #
 
 def intern(request):
     if request.method == 'POST':
@@ -1573,6 +1602,8 @@ def password_reset_confirm_student(request, uidb64, token):
         return render(request, 'password_reset_confirm_student.html', {'form': form})
     else:
         return render(request, '404.html')
+
+# pdf generator #
     
 def generate_appointment_pdf(request, appointment_id):
     # Get the appointment object from the database
@@ -1631,6 +1662,8 @@ def student_detail(request, student_id):
     return render(request, 'student_detail.html', context)
 
 
+# case tracker #
+
 def add_case_update(request, case_number):
     # Retrieve the corresponding Case object based on the case_number
     case = get_object_or_404(Case, case_number=case_number)
@@ -1657,10 +1690,13 @@ def add_case_update(request, case_number):
     
     return render(request, 'add_case_update_form.html', {'case': case})
 
+# unassigned student #
 
 def unassigned_students(request):
     unassigned_students = Student.objects.filter(is_approved=True, lawyer__isnull=True)
     return render(request, 'unassigned_students.html', {'unassigned_students': unassigned_students})
+
+# hire student #
 
 def hire_student(request, student_id):
     if request.method == 'POST':
@@ -1676,6 +1712,8 @@ def hire_student(request, student_id):
             messages.success(request, f'You have hired {student.user.first_name} {student.user.last_name}.')
 
     return redirect('unassigned_students')
+
+# assign work #
 
 def assign_work(request):
     # Get the currently logged-in lawyer
@@ -1717,6 +1755,7 @@ def assign_work(request):
     }
 
     return render(request, 'assign_work.html', context)
+
 
 
 @login_required
