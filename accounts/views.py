@@ -283,10 +283,9 @@ def lawyer_dashboard(request):
         bookings = Appointment.objects.filter(lawyer=lawyer_profile).order_by('-pk')
 
         # Count the number of bookings for this lawyer
-        booking_count = Booking.objects.filter(lawyer=lawyer_profile).count()
         case_count = Case.objects.filter(lawyer=lawyer_profile).count()
         
-        return render(request, 'lawyer/dashboard.html', {'user': request.user, 'booking_count': booking_count,'bookings': bookings , 'case_count': case_count})
+        return render(request, 'lawyer/dashboard.html', {'user': request.user,'bookings': bookings , 'case_count': case_count})
     else:
         return render(request, '404.html')
 
