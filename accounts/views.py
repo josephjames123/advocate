@@ -1347,7 +1347,7 @@ def book_lawyer(request, lawyer_id, selected_date):
                     "razorpay_payment.html",
                     {
                         "callback_url": "http://" + "127.0.0.1:8000" + f"/callback/{appointment.id}/",
-                        "razorpay_key": 'rzp_test_lj6ETS9DRjXtea',
+                        "razorpay_key": "rzp_test_QtI3zIbpa2Kcyl",
                         "order": order,
                         'appointment': appointment,
                         'lawyer_id': lawyer_id,
@@ -1363,7 +1363,7 @@ def book_lawyer(request, lawyer_id, selected_date):
 
 # Define the verify_signature function
 def verify_signature(response_data):
-    client = razorpay.Client(auth=("rzp_test_cvGs8NAQTlqQrP", "hNPvcoyR5F1mKYlgG60C2GW6"))
+    client = razorpay.Client(auth=("rzp_test_QtI3zIbpa2Kcyl", "TGxT70N3Nw3Si5Ys3RF5MpY0"))
     return client.utility.verify_payment_signature(response_data)
 
 @csrf_exempt

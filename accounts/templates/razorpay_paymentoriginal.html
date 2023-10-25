@@ -1,0 +1,48 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<div class="col-6 mx-auto" style="margin-top:10%;">
+    <form action="{% url 'book_lawyer' lawyer_id=lawyer_id selected_date=selected_date %}" method='POST'>
+        {% csrf_token %}
+        <!-- <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Name</label>
+            <input type="name" name="name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Amount</label>
+            <input type="number" name="amount" class="form-control" id="exampleInputPassword1">
+        </div>
+        <input type="hidden" name="hidden">
+        <div>
+            <button type="submit" class="btn btn-primary">Pay Now</button>
+        </div> -->
+    </form>
+</div>
+
+<script>
+    var options = {
+        key: "rzp_test_cvGs8NAQTlqQrP",
+        amount: 10000, 
+        currency: "INR",
+        name: "{{appointment.client.name}}",
+        description: "Test Transaction",
+        image: "https://imgur.com/NOWiBu9",
+        order_id: "{{ appointment.order_id }}",  // Use double curly braces to access Django template variables
+        callback_url: "{{callback_url}}",  // Use the URL pattern name
+        redirect: true,
+        prefill: {
+            "name": "{{appointment.client.name}}",
+            "email": "{{appointment.client.email}}",
+            "contact": "{{appointment.client.phone}}"
+        },
+        notes: {
+            "address": "Razorpay Corporate Office"
+        },
+        theme: {
+            "color": "#3399cc"
+        },
+        handler: function (response) {
+        console.log("Razorpay Response:", response);
+    }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+</script>
