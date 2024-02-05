@@ -1,0 +1,64 @@
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'admin_base.html' %}
+{% endif %}
+
+{% block title %}Leave report - Adv Assist{% endblock %}
+
+{% block content %}
+
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Dashboard</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+              </li>
+            </ol>
+          </nav>
+        </div>
+        <div class="ms-auto">
+        </div>
+      </div>
+      <!--end breadcrumb-->
+
+      <div class="row">
+        <div class="col-xl-12 md-12 mx-auto">
+          <div class="card">
+            <div class="card-header px-4 py-3">
+              <h5 class="mb-0">Leave Report User</h5>
+            </div>
+            <div class="card-body p-4">
+              <form class="row g-3 needs-validation" method="post" action="{% url 'generate_leave_reports_admin_pdf' %}" novalidate>
+                {% csrf_token %}
+                <div class="col-md-12">
+                  <label for="bsValidation3" class="form-label">Client Email</label>
+                  <input type="email" class="form-control" id="bsValidation3" name="email"
+                    placeholder="Enter Client Email" required>
+                  {% if messages %}
+                  {% for message in messages %}
+                  <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+                  {% endfor %}
+                  {% endif %}
+                </div>
+                <div class="col-md-12">
+                  <div class="d-md-flex d-grid align-items-center gap-3">
+                    <button type="submit" class="btn btn-secondary px-4">Download</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--end row-->
+
+    </div>
+  </main>
+
+{% endblock %}

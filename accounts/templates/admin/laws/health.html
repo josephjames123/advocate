@@ -1,0 +1,94 @@
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'student_base.html' %}
+{% endif %}
+
+{% block title %}Health Laws - Adv Assist{% endblock %}
+
+{% block content %}
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+                <div class="">
+					<div class="">
+						<div class="container py-2">
+							<h2 class="font-weight-light text-center text-muted py-3">Health Laws</h2>
+							<!-- timeline item 1 -->
+							<div class="row">
+								
+								<!-- timeline item 1 event content -->
+								<div class="col py-2">
+									<div class="card radius-15">
+										<div class="card-body">
+											<div class="float-end text-muted">IPC Section 272</div>
+											<h4 class="card-title text-muted">Adulteration of Food or Drink Intended for Sale</h4>
+											<p class="card-text">This section deals with the adulteration of food or drink intended for sale, making it a criminal offense. Adulteration poses risks to public health, and this section aims to prevent such practices.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/row-->
+							<!-- timeline item 1 event content -->
+							<div class="col py-2">
+								<div class="card radius-15">
+									<div class="card-body">
+										<div class="float-end text-muted">IPC Section 273</div>
+										<h4 class="card-title text-muted"> Sale of Noxious Food or Drink: </h4>
+										<p class="card-text">This section criminalizes the sale of noxious (harmful) food or drink, with the intent to cause injury to human health. It addresses situations where substances harmful to health are knowingly sold as food or drink.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--/row-->
+						<!-- timeline item 1 event content -->
+						<div class="col py-2">
+							<div class="card radius-15">
+								<div class="card-body">
+									<div class="float-end text-muted">Section 443:</div>
+									<h4 class="card-title text-muted"> The Food Safety and Standards Act </h4>
+									<p class="card-text">Governs food safety standards, regulation of food products, and establishes the Food Safety and Standards Authority of India (FSSAI).</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--/row-->
+					<!-- timeline item 1 event content -->
+					<div class="col py-2">
+						<div class="card radius-15">
+							<div class="card-body">
+								<div class="float-end text-muted">Section 487</div>
+								<h4 class="card-title text-muted">The Drugs and Cosmetics Act</h4>
+								<p class="card-text">Regulates the import, manufacture, distribution, and sale of drugs and cosmetics. It ensures the quality and safety of pharmaceutical products.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/row-->
+                        </div>
+					</div>
+				</div>
+
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    {% endblock %}

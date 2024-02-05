@@ -1,10 +1,11 @@
 # accounts/views.py
+from calendar import monthrange
 from django.utils.http import urlsafe_base64_decode
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
-from .models import CustomUser, LawyerProfile , CurrentCase  
+from .models import CustomUser, LawyerProfile , CurrentCase, StudentPayment  
 from django.http import HttpResponseForbidden , Http404,HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
@@ -14,11 +15,11 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode
 # from django.contrib.auth.forms import SetPasswordForm
-from .forms import CustomPasswordResetForm  
+from .forms import CustomPasswordResetForm, LeaveReportsFilterForm, LeaveRequestForm, TaskForm  
 from django.core.exceptions import ValidationError
 from datetime import datetime
-from .models import LawyerProfile, Internship , Task , Student , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment , CaseTracking , WorkAssignment , Payment
-from .forms import InternshipForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
+from .models import LawyerProfile , ContactEntry , Internship , Task , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment , CaseTracking , WorkAssignment , Payment
+from .forms import ContactForm , BookingForm , InternshipForm , BookingStatusForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
 import markdown
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -30,7 +31,7 @@ from django.db import models  # Import the models module from Django's database 
 import os
 from django.utils import timezone
 import pytz  # Import pytz module
-from django.db.models import Q
+from django.db.models import Q, F, Value, CharField
 from .forms import UserProfileUpdateForm  # Create a form for profile updates
 from django.core.paginator import Paginator
 from django.core.files.storage import default_storage
@@ -58,13 +59,29 @@ import json
 from .constants import PaymentStatus
 from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
-from .models import Application
+from twilio.rest import Client
+import random
+
 
 
 logger = logging.getLogger(__name__)
 
+# # Replace these with your Twilio credentials
+# TWILIO_ACCOUNT_SID = 'AC30860f145a25bb1043dafe33140671ac'
+# TWILIO_AUTH_TOKEN = 'e8b78caf7b9f27f25c5fae1791abf5b7'
+# TWILIO_PHONE_NUMBER = '+447360273978'
 
-# login view #
+# def send_otp_via_twilio(phone_number, otp):
+#     # Twilio client setup
+#     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+#     # Replace 'your_twilio_phone_number' with the Twilio phone number you've purchased
+#     message = client.messages.create(
+#         body=f'Your OTP is: {otp}',
+#         from_=TWILIO_PHONE_NUMBER,
+#         to=phone_number
+#     )
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -74,19 +91,26 @@ def login_view(request):
         elif user.user_type == 'client':
             return redirect(reverse('home'))
         elif user.user_type == 'lawyer':
-            # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
-            lawyer_profile = LawyerProfile.objects.get(user=user)
-            if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
-                return redirect(reverse('assign_working_hours'))
-            else:
-                return redirect(reverse('lawyer_dashboard'))
+            # # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
+            # lawyer_profile = LawyerProfile.objects.get(user=user)
+            # # if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
+            # # Assuming lawyer_profile.time_update is a datetime object
+            # if lawyer_profile.time_update:
+            #     print(lawyer_profile.time_update)  # Check the entire datetime object
+            #     print(lawyer_profile.time_update.month)
+            # else:
+            #     print("lawyer_profile.time_update is None or not a valid datetime object.")
+            # if lawyer_profile.time_update is None or lawyer_profile.time_update.month != timezone.now().month:
+            #     return redirect(reverse('assign_working_hours'))
+            # else:
+            return redirect(reverse('lawyer_dashboard'))
         elif user.user_type == 'student':
             return redirect(reverse('student_dashboard'))
     
     if request.method == 'POST':
         email = request.POST['email']  # Change this to 'email'
         password = request.POST['password']
-        user = authenticate(request, username=email, password=password)  # Use email for authentication
+        user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
             if user.user_type == 'admin':
@@ -94,20 +118,138 @@ def login_view(request):
             elif user.user_type == 'client':
                 return redirect(reverse('client_dashboard'))
             elif user.user_type == 'lawyer':
-                # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
-                lawyer_profile = LawyerProfile.objects.get(user=user)
-                if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
-                    return redirect(reverse('assign_working_hours'))
-                else:
-                    return redirect(reverse('lawyer_dashboard'))
+            # # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
+            #     lawyer_profile = LawyerProfile.objects.get(user=user)
+            #     # if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
+            #     if lawyer_profile.time_update:
+            #         print(lawyer_profile.time_update) 
+            #         print(lawyer_profile.time_update.month)
+            #     else:
+            #         print("lawyer_profile.time_update is None or not a valid datetime object.")
+            #     if lawyer_profile.time_update is None or lawyer_profile.time_update.month != timezone.now().month:
+            #         return redirect(reverse('assign_working_hours'))
+            #     else:
+                return redirect(reverse('lawyer_dashboard'))
             elif user.user_type == 'student':
                 return redirect(reverse('student_dashboard'))
         else:
             messages.error(request, 'Invalid email or password. Please try again')
     
     return render(request, 'login.html')
+
+def generate_otp():
+    return str(random.randint(1000, 9999))
+
+def send_otp(phone_number, otp):
+    phone_number_with_country_code = '+91' + phone_number
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+    try:
+        message = client.messages.create(
+            to=phone_number_with_country_code,
+            from_=settings.TWILIO_PHONE_NUMBER,
+            body=f'Your OTP is: {otp}'
+        )
+        print(message.sid) 
+    except Exception as e:
+        print(f"Error sending OTP: {e}")
+
+def login_otp(request):
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+
+        if not phone_number:
+            messages.error(request, 'Phone number is required.')
+            return render(request, 'login/login_via_otp.html')
+
+        phone_number = phone_number.replace(" ", "")
+        if len(phone_number) != 10 or not phone_number.isdigit():
+            messages.error(request, 'Invalid phone number.')
+            return render(request, 'login/login_via_otp.html')
+
+        # Generate and send OTP
+        otp = generate_otp()
+        send_otp(phone_number, otp)
+
+        # Save OTP and phone number in session for verification
+        request.session['login_otp'] = otp
+        request.session['login_phone'] = phone_number
+
+        return redirect('otp_verification')  # Redirect to the OTP verification page
+
+    return render(request, 'login/login_via_otp.html')
+
+def otp_verification(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('entered_otp')
+        stored_otp = request.session.get('login_otp')
+        phone_number = request.session.get('login_phone')
+        
+        print(f"Entered OTP: {entered_otp}")
+        print(f"Stored OTP: {stored_otp}")
+        print(f"Phone Number: {phone_number}")
+
+        if entered_otp == stored_otp:
+            print("Entered authentication")
+            User = get_user_model()
+            user = authenticate(request, phone=phone_number)  # No need to provide a password
+
+            if user:
+                login(request, user)
+                print("User authenticated and logged in:", user)
+                
+                if user.user_type == 'admin':
+                    return redirect(reverse('admin_dashboard'))
+                elif user.user_type == 'client':
+                    return redirect(reverse('client_dashboard'))
+                elif user.user_type == 'lawyer':
+                    # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
+                    lawyer_profile = LawyerProfile.objects.get(user=user)
+                    if lawyer_profile.time_update is None or lawyer_profile.time_update.month != timezone.now().month:
+                        return redirect(reverse('assign_working_hours'))
+                    else:
+                        return redirect(reverse('lawyer_dashboard'))
+                elif user.user_type == 'student':
+                    return redirect(reverse('student_dashboard'))
+            else:
+                messages.error(request, 'Invalid OTP. Please try again')
+
+    return render(request, 'login/otp_verification.html')
+
+# def otp_verification(request):
+#     if request.method == 'POST':
+#         entered_otp = request.POST.get('otp', '')
+#         stored_otp = request.session.get('otp', '')
+#         user_id = request.session.get('user_id', '')
+
+#         if entered_otp == stored_otp and user_id:
+#             # Clear session data
+#             del request.session['otp']
+#             del request.session['user_id']
+
+#             # Log in the user
+#             user = CustomUser.objects.get(pk=user_id)
+#             login(request, user)
+
+#             if user.user_type == 'admin':
+#                 return redirect(reverse('admin_dashboard'))
+#             elif user.user_type == 'client':
+#                 return redirect(reverse('client_dashboard'))
+#             elif user.user_type == 'lawyer':
+#                 # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
+#                 lawyer_profile = LawyerProfile.objects.get(user=user)
+#                 if lawyer_profile.time_update is None or (timezone.now() - lawyer_profile.time_update).days > 14:
+#                     return redirect(reverse('assign_working_hours'))
+#                 else:
+#                     return redirect(reverse('lawyer_dashboard'))
+#             elif user.user_type == 'student':
+#                 return redirect(reverse('student_dashboard'))
+#         else:
+#             messages.error(request, 'Invalid OTP. Please try again.')
+
+#     return render(request, 'otp_verification.html')
     
-# signup #
+
 def signup_view(request):
     if request.user.is_authenticated:
         if request.user.user_type == 'admin':
@@ -131,9 +273,10 @@ def signup_view(request):
         pin = request.POST['pin']
         state = request.POST['state']
         phone = request.POST['phone']
+        user_type = request.POST['user_type']
 
         # Check if any field is empty
-        if not (email and password and first_name and last_name  and address and dob and pin and state and phone):
+        if not (email and password and first_name and last_name  and address and dob and pin and state and phone and user_type):
             messages.error(request, 'All fields are required')
             return render(request, 'signup.html')
 
@@ -199,19 +342,15 @@ def signup_view(request):
             pin=pin,
             state=state,
             phone=phone,
-
+            user_type=user_type,
         )
         return redirect('login')
 
     return render(request, 'signup.html')
 
-# logout #
-
 def logout_view(request):
     logout(request)
     return redirect('login')
-
-# dashboard  #
 
 def dashboard_view(request):
     if request.user.is_authenticated:
@@ -219,36 +358,37 @@ def dashboard_view(request):
     else:
         return redirect('login')
     
-# admin Dashboard #    
-    
 @login_required
 def admin_dashboard(request):
     if request.user.user_type == 'admin':
         # Calculate the number of lawyers
         lawyer_count = LawyerProfile.objects.count()
+        booking_count = Booking.objects.count()
         internship_count = Internship.objects.count()
         students_count = Student.objects.count()
         cases_count = Case.objects.count()
         
         
         # Retrieve the recent 5 bookings, ordered by pk in descending order (greatest to smallest)
+        recent_bookings = Booking.objects.order_by('-pk')[:5]
+        recent_queries = ContactEntry.objects.order_by('-pk')[:5]
         
         context = {
             'user': request.user,
             'lawyer_count': lawyer_count,
+            'booking_count': booking_count,
             'internship_count': internship_count,
-            'students_count':students_count,
+            'students_count': students_count,
             'cases_count': cases_count,
-            }
+            'recent_bookings': recent_bookings,
+            'recent_queries': recent_queries,
+}
+
             
         
-        # Pass the count and recent bookings to the template
         return render(request, 'admin/dashboard.html', context)
     else:
         return render(request, '404.html')
-
-# client dashboard #    
-    
 @login_required
 def client_dashboard(request):
     user = request.user
@@ -263,7 +403,6 @@ def client_dashboard(request):
 
     return render(request, 'client/dashboard.html', context)
 
-# lawyer dashboard #
 
 @login_required
 def lawyer_dashboard(request):
@@ -281,15 +420,33 @@ def lawyer_dashboard(request):
         # Get the current lawyer's profile
         lawyer_profile = LawyerProfile.objects.get(user=request.user)
         bookings = Appointment.objects.filter(lawyer=lawyer_profile).order_by('-pk')
+        
+        # Retrieve students associated with the lawyer
+        students = lawyer_profile.student_set.all()
+        
+        # Count the number of students
+        student_count = students.count()
 
         # Count the number of bookings for this lawyer
+        booking_count = Booking.objects.filter(lawyer=lawyer_profile).count()
         case_count = Case.objects.filter(lawyer=lawyer_profile).count()
-        
-        return render(request, 'lawyer/dashboard.html', {'user': request.user,'bookings': bookings , 'case_count': case_count})
+        current_month = timezone.now().month
+        time_update = lawyer_profile.time_update  
+
+        context = {
+            'user': request.user,
+            'booking_count': booking_count,
+            'bookings': bookings,
+            'case_count': case_count,
+            'current_month': current_month,
+            'time_update': time_update,
+            'student_count':student_count
+        }
+
+        return render(request, 'lawyer/dashboard.html', context)
     else:
         return render(request, '404.html')
 
-# add Lawyer #
 
 @login_required    
 def add_lawyer(request):
@@ -380,7 +537,7 @@ def add_lawyer(request):
     
     return render(request, 'admin/add_lawyer.html')
 
-# custom password set #
+
 
 def custom_password_set_confirm(request, uidb64, token):
     user_id = urlsafe_base64_decode(uidb64)
@@ -399,7 +556,6 @@ def custom_password_set_confirm(request, uidb64, token):
     
     return render(request, 'registration/password_set_confirm.html', {'form': form, 'user': user})
 
-# home #
 def home(request):
     # Fetch the most recently added 3 lawyers from the database
     lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
@@ -429,8 +585,6 @@ def confirm(request):
 def about(request):
     return render(request, 'about.html')
 
-# lawyer List #
-
 def lawyer_list(request):
     # Fetch the most recently added 3 lawyers from the database
     lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
@@ -459,9 +613,24 @@ def lawyer_details(request, lawyer_id):
     return render(request, 'lawyer/lawyer_details.html', {'lawyer': lawyer})
 
 def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Save the form data to the database
+            contact_entry = ContactEntry(
+                name=form.cleaned_data['name'],
+                email=form.cleaned_data['email'],
+                subject=form.cleaned_data['subject'],
+                message=form.cleaned_data['message']
+            )
+            contact_entry.save()
 
+            # Redirect to a thank you page or the same page with a success message
+            return submit(request)
+    else:
+        form = ContactForm()
 
-    return render(request, 'contact.html')
+    return render(request, 'contact.html', {'form': form})
 
 @login_required
 def error(request):
@@ -527,16 +696,48 @@ def reschedule_appointment(request, booking_id):
 
     return render(request, 'reschedule_appointment.html', {'form': form, 'booking': booking})
 
-## internship details #
+@login_required
+def booking_details(request, booking_id):
+    booking = get_object_or_404(Booking, pk=booking_id)
+
+    # Check if the user making the request is the lawyer associated with the booking
+    if request.user == booking.lawyer.user:
+        if request.method == 'POST':
+            form = BookingStatusForm(request.POST, instance=booking)
+            if form.is_valid():
+                # Debugging: Print the status before saving
+                print("Status before saving:", booking.status)
+
+                form.save()
+
+                # Debugging: Print the status after saving
+                print("Status after saving:", booking.status)
+
+                # Redirect to a success page or display a success message
+                return redirect('lawyer_dashboard')  # Replace 'success_page' with your actual success page URL
+
+        else:
+            form = BookingStatusForm(instance=booking)
+
+        return render(request, 'booking_details.html', {'booking': booking, 'form': form})
+
+    # If the user making the request is not the booking's lawyer, deny access
+    else:
+        # You can customize this part to display an error message or redirect to an error page
+        return render(request, 'sorry.html')
 
 @login_required
 def internship_detail(request, internship_id):
     internship = get_object_or_404(Internship, id=internship_id)
     roles_html = markdown.markdown(internship.roles)
+    student = Student.objects.get(user=request.user)
+    # Print statements for debugging
+    print("Student Lawyer:", student.lawyer)
+    print("Student CGPA:", student.cgpa)
+    print("Internship Minimum CGPA:", internship.min_cgpa)
 
     if request.method == 'POST':
         if request.user.user_type == 'student':
-            student = Student.objects.get(user=request.user)
             application, created = Application.objects.get_or_create(internship=internship, student=student)
             if created:
                 messages.success(request, 'Application submitted successfully.')
@@ -545,9 +746,7 @@ def internship_detail(request, internship_id):
 
             return redirect('internship_detail', internship_id=internship_id)
 
-    return render(request, 'student/internship_detail.html', {'internship': internship, 'roles_html': roles_html})
-
-# add internship #
+    return render(request, 'student/internship_detail.html', {'internship': internship, 'roles_html': roles_html , 'student': student})
 
 @login_required
 def add_internship(request):
@@ -561,36 +760,32 @@ def add_internship(request):
 
     return render(request, 'admin/add_internship.html', {'form': form})
 
-# student dashboard #
-
 @login_required
 def student_dashboard(request):
-    # Check if the user is logged in and is a student
     if request.user.is_authenticated and request.user.user_type == 'student':
         try:
-            # Try to retrieve the student profile associated with the user
             student = Student.objects.get(user=request.user)
         except Student.DoesNotExist:
-            # If the student profile doesn't exist, render 'student_details.html'
             return render(request, 'student/student_details.html')  
 
         if student.is_approved:
-            # Check if college and current CGPA fields are filled
             if student.course and student.cgpa is not None:
+                work_assignment_count = WorkAssignment.objects.filter(student=student).count()
+                
                 recent_internships = Internship.objects.order_by('-pk')[:5]
-                return render(request, 'student/dashboard.html', {'user': request.user, 'recent_internships': recent_internships})
+
+                return render(request, 'student/dashboard.html', {
+                    'user': request.user,
+                    'recent_internships': recent_internships,
+                    'work_assignment_count': work_assignment_count,  
+                })
             else:
-                # Redirect to 'student_details.html' if college or CGPA fields are not filled
                 return render(request, 'student/student_details.html')
 
         else:
-            # Display a message or a separate template for unapproved students
             return render(request, 'student/not_approved.html')
 
-    # If not a student or not logged in, return forbidden access
     return render(request, '404.html')
-
-# approve student #
 
 @login_required
 def approve_students(request):
@@ -681,8 +876,6 @@ def calculate_experience(experience_str):
     total_days = years * 365 + months * 30 + days
     return total_days
 
-# lawyer entry1 #
-
 @login_required
 def lawyer_save(request):
     if request.user.user_type != 'lawyer':
@@ -732,24 +925,24 @@ def lawyer_save(request):
      
     else:
         return render(request, 'lawyer/user_details_form.html', {'available_time_slots': available_time_slots})
-
-# mark Leave #
-  
+    
 @login_required
 def mark_holiday(request):
-    user = request.user  # Get the current user
+    user = request.user  
 
-    # Check if the user is a lawyer
     if user.is_authenticated and user.user_type == 'lawyer':
-        lawyer_profile = LawyerProfile.objects.get(user=user)  # Get the associated lawyer profile
+        lawyer_profile = LawyerProfile.objects.get(user=user)  
 
         if request.method == 'POST':
             holiday_date = request.POST.get('holiday_date')
+            reason = request.POST.get('reason')
+            supportingdocuments = request.POST.get('supportingdocuments')
+            
+            holiday_type = 'dutyleave'
 
-            # Check if the date is not already marked as a holiday
+
             if not HolidayRequest.objects.filter(lawyer=user, date=holiday_date).exists():
-                # Create a holiday request
-                holiday_request = HolidayRequest(lawyer=user, date=holiday_date)
+                holiday_request = HolidayRequest(lawyer=user, date=holiday_date,reason = reason,supporting_documents=supportingdocuments,type=holiday_type)
                 holiday_request.save()
                 messages.success(request, 'Holiday request sent for review.')
             else:
@@ -765,9 +958,9 @@ def mark_holiday(request):
 
     else:
         messages.error(request, 'Only lawyers can request holidays.')
-        return redirect('home')  # Redirect non-lawyers or unauthenticated users to the home page
+        return redirect('home')  
 
-# update profile #    
+    
 
 @login_required
 def update_profile(request):
@@ -795,15 +988,12 @@ def update_lawyer_profile(request, user_id):
     lawyer_profile, created = LawyerProfile.objects.get_or_create(user=user)
 
     if request.method == 'POST':
-        # Update user fields if provided in the form, or keep the existing values
         user.address = request.POST.get('address', user.address)
         user.phone = request.POST.get('pin', user.phone)
         
-        
-
         lawyer_profile.specialization = request.POST.get('specialization', lawyer_profile.specialization)
         lawyer_profile.court = request.POST.get('court', lawyer_profile.court)
-
+        lawyer_profile.additional_qualification = request.POST.get('additional_qualification', lawyer_profile.additional_qualification)
 
         # Handle profile_picture file upload
         profile_picture = request.FILES.get('profile_picture')
@@ -814,9 +1004,14 @@ def update_lawyer_profile(request, user_id):
         if not profile_picture and lawyer_profile.profile_picture:
             lawyer_profile.profile_picture = lawyer_profile.profile_picture  # Keep the existing image
 
+        # Handle additional_qualification_documents file upload
+        additional_qualification_documents = request.FILES.get('additional_qualification_documents')
+        if additional_qualification_documents:
+            lawyer_profile.additional_qualification_documents = additional_qualification_documents
+            
         user.save()
         lawyer_profile.save()
-        return redirect('login')  # Redirect to a success page
+        return redirect('home')  # Redirect to a success page
 
     # For GET request, retrieve and display the form
     context = {
@@ -826,6 +1021,29 @@ def update_lawyer_profile(request, user_id):
     }
 
     return render(request, 'lawyer/update_lawyer_profile.html', context)
+
+# @login_required
+# def all_bookings(request, lawyer_id=None, client_id=None):
+#     # Define a base queryset with all bookings
+#     queryset = Appointment.objects.all()
+
+#     # Filter bookings by lawyer if lawyer_id is provided
+#     if lawyer_id is not None:
+#         lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+#         queryset = queryset.filter(lawyer=lawyer)
+
+#     # Filter bookings by client if client_id is provided
+#     if client_id is not None:
+#         client = get_object_or_404(CustomUser, id=client_id)
+#         queryset = queryset.filter(client=client)
+
+#     # Pass the filtered bookings to the template
+#     context = {
+#         'bookings': queryset,
+#     }
+
+#     # Render the template
+#     return render(request, 'bookings.html', context)
 
 
 @login_required
@@ -860,7 +1078,6 @@ def all_bookings(request, lawyer_id=None, client_id=None):
     # Render the template
     return render(request, 'bookings.html', context)
 
-# client booking #
 
 @login_required
 def client_bookings(request, client_id):
@@ -884,15 +1101,6 @@ def list_lawyers(request):
     # Fetch all lawyer profiles from the database
     lawyers = LawyerProfile.objects.all()
 
-    # Search functionality
-    search_query = request.GET.get('search')
-    if search_query:
-        # Use Q objects to perform a case-insensitive search on concatenated names
-        lawyers = lawyers.filter(
-            Q(user__first_name__icontains=search_query) |
-            Q(user__last_name__icontains=search_query)
-        )
-
     # Pagination
     page_number = request.GET.get('page')
     paginator = Paginator(lawyers, 10)  # Show 10 lawyers per page
@@ -901,7 +1109,6 @@ def list_lawyers(request):
     # Pass the lawyer profiles to the template
     context = {
         'lawyers': page,  # Use the paginated lawyers
-        'search_query': search_query,
     }
 
     # Render the template
@@ -949,7 +1156,6 @@ def admin_approve_reject_holiday(request, request_id):
     # Redirect back to the admin dashboard or any other appropriate view
     return redirect('admin_dashboard')  # Update this to the appropriate view name
 
-# case registration #
 
 @login_required
 def enter_client_email(request):
@@ -1082,8 +1288,6 @@ def is_valid_date(date_str):
         return True
     except ValueError:
         return False
-
-# current case #
 @login_required
 def current_cases(request):
     # Ensure that only lawyers can access this view
@@ -1149,15 +1353,38 @@ def list_cases(request):
     user_type = request.user.user_type  # Assuming you have 'user_type' set in your CustomUser model
     
     if user_type == 'lawyer':
+        # Fetch cases for the lawyer
         cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
+
+        # Fetch work assignments and tasks for each case
+        for case in cases:
+            case.work_assignments = WorkAssignment.objects.filter(case=case)
+            for work_assignment in case.work_assignments:
+                work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
     elif user_type == 'client':
         cases = Case.objects.filter(client=request.user)
     elif user_type == 'admin':
         cases = Case.objects.all()
+        
+        # Fetch work assignments and tasks for each case
+        for case in cases:
+            case.work_assignments = WorkAssignment.objects.filter(case=case)
+            for work_assignment in case.work_assignments:
+                work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
     else:
         cases = None
 
     return render(request, 'case_list.html', {'cases': cases})
+
+
+def view_tasks_for_assignment(request, work_assignment_id):
+    # Fetch the WorkAssignment object based on the work_assignment_id
+    work_assignment = get_object_or_404(WorkAssignment, pk=work_assignment_id)
+    
+    # Fetch tasks for the work assignment
+    tasks = Task.objects.filter(work_assignment=work_assignment)
+
+    return render(request, 'case_list.html', {'work_assignment': work_assignment, 'tasks': tasks})
 
 
 def search_lawyers(request):
@@ -1173,8 +1400,6 @@ def search_lawyers(request):
 
     # Pass the search results to the template
     return render(request, 'search.html', {'lawyers': lawyers, 'query': query})
-
-# working hours #
 
 @login_required
 def assign_working_hours(request):
@@ -1247,6 +1472,31 @@ def validate_working_hours(selected_time_slots):
     
 
 
+# @login_required
+# def select_date(request, lawyer_id):
+#     # Retrieve the lawyer using the lawyer_id parameter
+#     lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+    
+#     if request.method == 'POST':
+#         selected_date = request.POST.get('selected_date')
+        
+#         # Check if it's a holiday for the lawyer
+#         if LawyerDayOff.objects.filter(lawyer=lawyer, date=selected_date).exists():
+#             messages.error(request, 'Booking is not possible on a day marked as a holiday for the lawyer.')
+#         else:
+#             selected_date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
+
+#             if lawyer.time_update.month != selected_date_obj.month:
+#                 messages.error(request, 'Booking is only possible when the selected date is in the same month as the last update of working hours.')
+#             # Check if the selected_date is within 7 days from the last update
+#             # if not lawyer.is_within_7_days(datetime.strptime(selected_date, '%Y-%m-%d').date()):
+#             #     messages.error(request, 'Booking is only possible within 14 days from the last update of working hours.')
+#             else:
+#                 return redirect('book_lawyer', lawyer_id=lawyer_id, selected_date=selected_date)
+    
+#     return render(request, 'select_date.html', {'lawyer': lawyer })
+
+
 @login_required
 def select_date(request, lawyer_id):
     # Retrieve the lawyer using the lawyer_id parameter
@@ -1259,13 +1509,15 @@ def select_date(request, lawyer_id):
         if LawyerDayOff.objects.filter(lawyer=lawyer, date=selected_date).exists():
             messages.error(request, 'Booking is not possible on a day marked as a holiday for the lawyer.')
         else:
-            # Check if the selected_date is within 7 days from the last update
-            if not lawyer.is_within_7_days(datetime.strptime(selected_date, '%Y-%m-%d').date()):
-                messages.error(request, 'Booking is only possible within 14 days from the last update of working hours.')
+            selected_date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
+
+            if lawyer.time_update.month != selected_date_obj.month:
+                messages.error(request, 'Booking is only possible when the selected date is in the same month as the last update of working hours.')
             else:
                 return redirect('book_lawyer', lawyer_id=lawyer_id, selected_date=selected_date)
     
     return render(request, 'select_date.html', {'lawyer': lawyer })
+
 
 def parse_time(time_str):
     try:
@@ -1275,7 +1527,6 @@ def parse_time(time_str):
     except ValueError:
         return None
 
-# book lawyer date and payment #
 
 @login_required
 def book_lawyer(request, lawyer_id, selected_date):
@@ -1347,7 +1598,7 @@ def book_lawyer(request, lawyer_id, selected_date):
                     "razorpay_payment.html",
                     {
                         "callback_url": "http://" + "127.0.0.1:8000" + f"/callback/{appointment.id}/",
-                        "razorpay_key": "rzp_test_QtI3zIbpa2Kcyl",
+                        "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
                         "order": order,
                         'appointment': appointment,
                         'lawyer_id': lawyer_id,
@@ -1363,7 +1614,7 @@ def book_lawyer(request, lawyer_id, selected_date):
 
 # Define the verify_signature function
 def verify_signature(response_data):
-    client = razorpay.Client(auth=("rzp_test_QtI3zIbpa2Kcyl", "TGxT70N3Nw3Si5Ys3RF5MpY0"))
+    client = razorpay.Client(auth=("rzp_test_cvGs8NAQTlqQrP", "hNPvcoyR5F1mKYlgG60C2GW6"))
     return client.utility.verify_payment_signature(response_data)
 
 @csrf_exempt
@@ -1401,46 +1652,45 @@ def callback(request, appointment_id):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-# intern details #
-
 def intern(request):
+    cgpa = request.session.get('cgpa', '')
+    course = request.session.get('course', '')
+
+
     if request.method == 'POST':
-        # Assuming all these fields are present in your HTML form
+        # Retrieve form data
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
-        email = request.POST['email']  # Updated field name
+        email = request.POST['email']
         phnno = request.POST['phone']
         dob = request.POST['dob']
         address = request.POST['address']
-        course = request.POST['course']
-        course_place = request.POST['course_place']  # Updated field name
-        duration_of_course = request.POST['duration_of_course']  # Updated field name
-        specialization = request.POST['specialization']  # Updated field name
-        year_of_pass = request.POST['year_of_pass']  # Updated field name
-        cgpa = request.POST['cgpa']
+        course_place = request.POST['course_place']
+        duration_of_course = request.POST['duration_of_course']
+        specialization = request.POST['specialization']
+        year_of_pass = request.POST['year_of_pass']
         experience = request.POST['experience']
-        adhaar_no = request.POST['adhaar_no']  # Updated field name
-        pic_of_aadhaar = request.FILES['adhaar_pic']  # Assuming it's a file input
-        
-        # Check if the email is already in use
+        adhaar_no = request.POST['adhaar_no']
+        pic_of_aadhaar = request.FILES['adhaar_pic']
+        cgpa = request.session.get('cgpa', '')
+        course = request.session.get('course', '')
+
+        # Check if email, adhaar number, and phone are already in use
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists.')
-            return render(request, 'student/intern.html')
-        # Check if the email is already in use
+            return render(request, 'student/submit_cgpa.html')
         if Student.objects.filter(adhaar_no=adhaar_no).exists():
             messages.error(request, 'Adhar Number already exists.')
-            return render(request, 'student/intern.html')
-        
-         # Check if the email is already in use
+            return render(request, 'student/submit_cgpa.html')
         if CustomUser.objects.filter(phone=phnno).exists():
             messages.error(request, 'Phone already exists.')
-            return render(request, 'student/intern.html')
-        
+            return render(request, 'student/submit_cgpa.html')
+
         # Check if phnno contains only numeric digits
         if not re.match("^[0-9]+$", phnno):
             messages.error(request, 'Phone should only contain numeric digits.')
-            return render(request, 'student/intern.html')
-        
+            return render(request, 'student/submit_cgpa.html')
+
         # Calculate age based on the provided DOB
         try:
             dob_date = date.fromisoformat(dob)
@@ -1448,37 +1698,26 @@ def intern(request):
             age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
         except ValueError:
             messages.error(request, 'Invalid date format. Please use YYYY-MM-DD.')
-            return render(request, 'student/intern.html')
+            return render(request, 'student/submit_cgpa.html')
 
         # Check if the age is less than 18
         if age < 18:
             messages.error(request, 'You must be at least 18 years old to sign up.')
-            return render(request, 'student/intern.html')
-            
-        
+            return render(request, 'student/submit_cgpa.html')
 
         # Create a new CustomUser instance
-        user = CustomUser.objects.create_user(username=email,email=email)
+        user = CustomUser.objects.create_user(username=email, email=email)
         user.first_name = first_name
         user.last_name = last_name
         user.phone = phnno
         user.dob = dob
         user.address = address
-        user.user_type='student'
+        user.user_type = 'student'
         user.save()
-        
-        # user = CustomUser.objects.create_user(
-        #     username=email,
-        #     email=email,
-        #     user_type='lawyer',
-        #     first_name=first_name,
-        #     last_name=last_name,
-        #     phone = phone,
-        # )
 
         # Create a new Student instance and link it to the CustomUser
         student = Student.objects.create(user=user)
-        student.course = course  # Updated field name
+        student.course = course
         student.course_place = course_place
         student.duration_of_course = duration_of_course
         student.specialization = specialization
@@ -1488,10 +1727,13 @@ def intern(request):
         student.adhaar_no = adhaar_no
         student.adhaar_pic = pic_of_aadhaar
         student.save()
-        return render(request,'application_successful.html')  # Replace 'success_page' with your actual success page URL
+        return render(request, 'application_successful.html')
 
-        
-    return render(request, 'student/intern.html')  # Replace 'intern_form.html' with your actual template name
+    print(course)
+    print(cgpa)
+    return render(request, 'student/intern.html', {'course': course ,'cgpa': cgpa})
+
+
 
 
 User = get_user_model()
@@ -1568,15 +1810,23 @@ def list_student_requests(request):
     student_requests = Student.objects.filter(is_approved=False)
     
     # Determine which students are eligible for approval
-    eligible_students = [student for student in student_requests if student.cgpa is not None and student.cgpa >= 7.5]
+    merit_students = []
+    nonmerit_students = []
     
-    # Determine which students need to be rejected
-    rejected_students = [student for student in student_requests if student.cgpa is not None and student.cgpa < 7.5]
+    # for student in student_requests:
+    #     if student.course == 'LLB' and student.cgpa is not None and student.cgpa >= 8.0:
+    #         merit_students.append(student)
+    #     elif student.course == 'LLM' and student.cgpa is not None and student.cgpa >= 7.0:
+    #         merit_students.append(student)
+    #     else:
+    #         nonmerit_students.append(student)
 
-    
+    # context = {
+    #     'merit_students': merit_students,
+    #     'nonmerit_students': nonmerit_students,
+    # }
     context = {
-        'eligible_students': eligible_students,
-        'rejected_students': rejected_students,
+        'student_requests':student_requests,
     }
     
     return render(request, 'admin/list_student_requests.html', context)
@@ -1601,8 +1851,6 @@ def password_reset_confirm_student(request, uidb64, token):
         return render(request, 'password_reset_confirm_student.html', {'form': form})
     else:
         return render(request, '404.html')
-
-# pdf generator #
     
 def generate_appointment_pdf(request, appointment_id):
     # Get the appointment object from the database
@@ -1661,8 +1909,6 @@ def student_detail(request, student_id):
     return render(request, 'student_detail.html', context)
 
 
-# case tracker #
-
 def add_case_update(request, case_number):
     # Retrieve the corresponding Case object based on the case_number
     case = get_object_or_404(Case, case_number=case_number)
@@ -1689,13 +1935,37 @@ def add_case_update(request, case_number):
     
     return render(request, 'add_case_update_form.html', {'case': case})
 
-# unassigned student #
 
+# def unassigned_students(request):
+#     unassigned_students = Student.objects.filter(is_approved=True, lawyer__isnull=True)
+#     return render(request, 'unassigned_students.html', {'unassigned_students': unassigned_students})
+
+@login_required
 def unassigned_students(request):
-    unassigned_students = Student.objects.filter(is_approved=True, lawyer__isnull=True)
-    return render(request, 'unassigned_students.html', {'unassigned_students': unassigned_students})
+    # Retrieve the currently logged-in lawyer
+    lawyer_profile = request.user.lawyer_profile
+    # Filter students who have applied for internships under the logged-in lawyer
+    applied_students = Student.objects.filter(is_approved=True, application__internship__lawyer_profile=lawyer_profile)
 
-# hire student #
+    # Filter students who are already enrolled in internships under the logged-in lawyer
+    enrolled_students = Student.objects.filter(is_approved=True, lawyer=lawyer_profile)
+
+    return render(request, 'unassigned_students.html', {'applied_students': applied_students, 'enrolled_students': enrolled_students})
+
+# def hire_student(request, student_id):
+#     if request.method == 'POST':
+#         student = Student.objects.get(id=student_id)
+
+#         # Check if the student is already hired
+#         if student.lawyer:
+#             messages.error(request, 'This student is already hired.')
+#         else:
+#             # Assign the lawyer to the student
+#             student.lawyer = request.user.lawyer_profile
+#             student.save()
+#             messages.success(request, f'You have hired {student.user.first_name} {student.user.last_name}.')
+
+#     return redirect('unassigned_students')
 
 def hire_student(request, student_id):
     if request.method == 'POST':
@@ -1705,14 +1975,19 @@ def hire_student(request, student_id):
         if student.lawyer:
             messages.error(request, 'This student is already hired.')
         else:
-            # Assign the lawyer to the student
-            student.lawyer = request.user.lawyer_profile
-            student.save()
-            messages.success(request, f'You have hired {student.user.first_name} {student.user.last_name}.')
+            # Check if the lawyer has reached the maximum number of hired students (5 in this example)
+            max_students = 5
+            current_hired_students = Student.objects.filter(lawyer=request.user.lawyer_profile).count()
+
+            if current_hired_students >= max_students:
+                messages.error(request, 'You have reached the maximum limit of hired students.')
+            else:
+                # Assign the lawyer to the student
+                student.lawyer = request.user.lawyer_profile
+                student.save()
+                messages.success(request, f'You have hired {student.user.first_name} {student.user.last_name}.')
 
     return redirect('unassigned_students')
-
-# assign work #
 
 def assign_work(request):
     # Get the currently logged-in lawyer
@@ -1756,7 +2031,6 @@ def assign_work(request):
     return render(request, 'assign_work.html', context)
 
 
-
 @login_required
 def student_work_assignments(request):
     if request.user.user_type != 'student':
@@ -1769,3 +2043,420 @@ def student_work_assignments(request):
     work_assignments = WorkAssignment.objects.filter(student=student)
 
     return render(request, 'student_work_assignments.html', {'work_assignments': work_assignments})
+
+
+def auth(request):
+    if request.user.user_type == 'admin':
+        # Calculate the number of lawyers
+        lawyer_count = LawyerProfile.objects.count()
+        booking_count = Booking.objects.count()
+        internship_count = Internship.objects.count()
+        students_count = Student.objects.count()
+        cases_count = Case.objects.count()
+        
+        
+        # Retrieve the recent 5 bookings, ordered by pk in descending order (greatest to smallest)
+        recent_bookings = Booking.objects.order_by('-pk')[:5]
+        recent_queries = ContactEntry.objects.order_by('-pk')[:5]
+        
+        context = {
+            'user': request.user,
+            'lawyer_count': lawyer_count,
+            'booking_count': booking_count,
+            'internship_count': internship_count,
+            'students_count': students_count,
+            'cases_count': cases_count,
+            'recent_bookings': recent_bookings,
+            'recent_queries': recent_queries,
+}
+
+            
+        
+        # Pass the count and recent bookings to the template
+        return render(request, 'admin/dash.html', context)
+    else:
+        return render(request, '404.html')
+    
+
+@login_required
+def work_assignment_tasks(request, work_assignment_id):
+    work_assignment = get_object_or_404(WorkAssignment, pk=work_assignment_id)
+
+    if request.user == work_assignment.student.user or request.user == work_assignment.case.lawyer.user:
+        tasks = Task.objects.filter(work_assignment=work_assignment)
+
+        return render(request, 'tasks/work_assignment_tasks.html', {'work_assignment': work_assignment, 'tasks': tasks})
+
+    return render(request, '404.html')  
+
+
+@login_required
+def create_task(request, work_assignment_id):
+    work_assignment = get_object_or_404(WorkAssignment, pk=work_assignment_id)
+
+    if request.user != work_assignment.student.user:
+        return render(request, '404.html')
+
+    if request.method == 'POST':
+        form = TaskForm(request.POST, request.FILES)
+        if form.is_valid():
+            task = Task(
+                work_assignment=work_assignment,
+                files=form.cleaned_data['files'],
+                note=form.cleaned_data['note'],
+                student=work_assignment.student
+            )
+            task.save()
+
+            # You can add a success message if needed
+            # messages.success(request, 'Task submitted successfully.')
+
+            # Redirect to the same page with a GET request
+            return redirect('create_task', work_assignment_id=work_assignment.id)
+    else:
+        form = TaskForm()
+
+    return render(request, 'task_create.html', {'form': form, 'work_assignment': work_assignment})
+
+@login_required
+def mark_leave_request(request, leave_type):
+    user = request.user
+
+    if user.is_authenticated and user.user_type == 'lawyer':
+        if request.method == 'POST':
+            form = LeaveRequestForm(request.POST)
+
+            if form.is_valid():
+                leave_request = form.save(commit=False)
+                leave_request.lawyer = user
+                leave_request.status = 'pending'
+                leave_request.type = leave_type
+
+                if leave_type == 'casual_leave':
+                    # Calculate the total leave days for the current month
+                    current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                    current_month_end = (current_month_start + timedelta(days=32)).replace(microsecond=0) - timedelta(days=1)
+
+                    # Check if there's already a leave request for the same day
+                    existing_leave_requests = HolidayRequest.objects.filter(
+                        lawyer=user,
+                        type=leave_type,
+                        date=leave_request.date
+                    )
+
+                    if existing_leave_requests.exists():
+                        messages.warning(request, 'You have already marked leave for this day.')
+                        return redirect('mark_casual_leave', leave_type=leave_type)
+
+                    # Count leave days only for the month of the requested date
+                    total_leave_days = HolidayRequest.objects.filter(
+                        lawyer=user,
+                        type=leave_type,
+                        date__year=leave_request.date.year,
+                        date__month=leave_request.date.month
+                    ).count()
+
+                    # Allow only three casual leave days in the specific month
+                    if total_leave_days >= 3:
+                        messages.warning(request, 'You can only request a maximum of 3 casual leave days in this month.')
+                        return redirect('mark_casual_leave', leave_type=leave_type)
+
+                leave_request.save()
+
+                messages.success(request, 'Leave request sent')
+                return redirect('mark_casual_leave', leave_type=leave_type)
+
+        form = LeaveRequestForm()
+
+        # Retrieve leave requests and their statuses for the logged-in lawyer
+        leave_requests = HolidayRequest.objects.filter(lawyer=user, type=leave_type)
+
+        context = {
+            'leave_requests': leave_requests,
+            'form': form,
+            'leave_type': leave_type,
+        }
+        return render(request, 'lawyer/mark_leave_request.html', context)
+
+    else:
+        messages.error(request, 'Only lawyers can request leave.')
+        return redirect('home')
+    
+@login_required    
+def leave_reports(request):
+    user = request.user
+
+    if user.is_authenticated and user.user_type == 'lawyer':
+        lawyer_profile = LawyerProfile.objects.get(user=user)
+
+        # Handle the form
+        form = LeaveReportsFilterForm(request.GET)
+        if form.is_valid():
+            selected_month = int(form.cleaned_data['month'])
+            selected_year = int(form.cleaned_data['year'])
+            first_day = timezone.datetime(selected_year, selected_month, 1)
+            last_day = timezone.datetime(selected_year, selected_month, monthrange(selected_year, selected_month)[1], 23, 59, 59, 999999)
+
+            # Get leave reports for the selected month and year
+            leave_reports = HolidayRequest.objects.filter(lawyer=user, date__range=(first_day, last_day))
+        else:
+            # If form is not valid, get leave reports for the current month and year
+            today = timezone.now()
+            first_day = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            last_day = today.replace(day=monthrange(today.year, today.month)[1], hour=23, minute=59, second=59, microsecond=999999)
+
+            leave_reports = HolidayRequest.objects.filter(lawyer=user, date__range=(first_day, last_day))
+
+        context = {
+            'leave_reports': leave_reports,
+            'form': form,
+        }
+
+        return render(request, 'lawyer/leave_reports.html', context)
+
+    else:
+        messages.error(request, 'Only lawyers can view leave reports.')
+        return redirect('home')
+    
+    
+def generate_leave_report_pdf(leave_reports, lawyer_name):
+    # Create a file-like buffer to receive PDF data
+    buffer = BytesIO()
+
+    # Generate HTML content with style
+    html_content = get_template('pdf_template.html').render({'leave_reports': leave_reports, 'lawyer_name': lawyer_name})
+
+    # Create PDF document
+    pisa_status = pisa.CreatePDF(html_content, dest=buffer)
+
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF', status=500)
+
+    # FileResponse sets the Content-Disposition header for PDF download
+    buffer.seek(0)
+    return HttpResponse(buffer.read(), content_type='application/pdf')
+
+def download_leave_reports_pdf(request):
+    user = request.user
+
+    if user.is_authenticated and user.user_type == 'lawyer':
+        # Fetch all holiday requests of the logged-in lawyer, newest first
+        leave_reports = HolidayRequest.objects.filter(lawyer=user).order_by('-date')
+
+        # Get lawyer details
+        lawyer_name = f"{user.first_name} {user.last_name}"
+
+        # Generate PDF report
+        pdf_response = generate_leave_report_pdf(leave_reports, lawyer_name)
+
+        # Set the response headers for PDF download
+        pdf_response['Content-Disposition'] = 'attachment; filename="leave_reports.pdf"'
+        return pdf_response
+
+    else:
+        # You can customize the error response based on your requirements
+        return HttpResponse("Unauthorized access", status=401)
+
+   
+def generate_leave_reports_admin_pdf(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        print("Provided email:", email)
+
+        # Check if the email is associated with a lawyer
+        user = CustomUser.objects.filter(username=email, user_type='lawyer').first()
+        print("Found user:", user)
+
+        if user:
+            # Fetch all holiday requests of the lawyer, newest first
+            leave_reports = HolidayRequest.objects.filter(lawyer=user).order_by('-date')
+
+            # Get lawyer details
+            lawyer_name = f"{user.first_name} {user.last_name}"
+
+            # Generate PDF report
+            pdf_response = generate_leave_report_pdf(leave_reports, lawyer_name)
+
+            # Set the response headers for PDF download
+            pdf_response['Content-Disposition'] = 'attachment; filename="leave_reports.pdf"'
+            return pdf_response
+        else:
+            messages.error(request, "No lawyer found with the provided email.")
+            return render(request, 'admin/leave_reports.html')
+
+    else:
+        # Render a form for inputting the email
+        return render(request, 'admin/leave_reports.html',)
+
+def business_laws(request):
+    return render (request,'admin/laws/business.html')
+
+def tax_laws(request):
+    return render (request,'admin/laws/tax.html')
+
+
+def emp_laws(request):
+    return render (request,'admin/laws/emp.html')
+
+
+def ip_laws(request):
+    return render (request,'admin/laws/ip.html')
+
+def contract_laws(request):
+    return render (request,'admin/laws/contract.html')
+
+def realestate_laws(request):
+    return render (request,'admin/laws/realestate.html')
+
+def security_laws(request):
+    return render (request,'admin/laws/security.html')
+
+def consumer_laws(request):
+    return render (request,'admin/laws/consumer.html')
+
+def health_laws(request):
+    return render (request,'admin/laws/health.html')
+
+def common(request):
+    return render (request,'common.html')
+
+
+from django.shortcuts import render
+from .models import Internship
+
+def internships(request):
+    # Query all internships and order them by start_date in descending order (latest first)
+    internships = Internship.objects.order_by('-start_date')
+
+    return render(request, 'student/internship_list.html', {'internships': internships})
+
+
+def submit_cgpa(request):
+    if request.method == 'POST':
+        cgpa_str = request.POST.get('cgpa')
+        course = request.POST.get('course')
+        if cgpa_str and course:
+            try:
+                cgpa = float(cgpa_str)
+                if 8 <= cgpa <= 10:
+                    request.session['cgpa'] = cgpa
+                    request.session['course'] = course
+                elif 4 <= cgpa < 8:
+                    request.session['cgpa'] = cgpa
+                    request.session['course'] = course
+            except ValueError:
+                pass
+
+        # Pass the values to step 2 template
+        return render(request, 'student/intern.html', {'cgpa': request.session.get('cgpa', ''), 'course': request.session.get('course', '')})
+
+    return render(request, 'student/submit_cgpa.html')
+
+
+def internship_payment(request, student_id, internship_id):
+    # Retrieve student and internship
+    student = Student.objects.get(id=student_id)
+    internship = Internship.objects.get(id=internship_id)
+
+    # Initialize Razorpay client
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    try:
+        # Create a Razorpay order
+        order_amount = 1000  # You can customize the order amount
+        order_currency = 'INR'
+        order_payload = {
+            'amount': order_amount,
+            'currency': order_currency,
+            'notes': {
+                'student_id': student.id,
+                'internship_id': internship.id
+            },
+            'payment_capture': "1"
+        }
+        order = client.order.create(data=order_payload)
+
+        # Create a StudentPayment entry
+        student_payment = StudentPayment.objects.create(
+            student=student,
+            internship=internship,
+            order_id=order.get('id'),
+            status=PaymentStatus.PENDING  
+        )
+
+        # Render the payment template with necessary details
+        return render(
+            request,
+            "internship_razorpay_payment.html",
+            {
+                "callback_url": f"http://127.0.0.1:8000/internship_payment_callback/{student.id}/",
+                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                "student": student,
+                "internship": internship,
+                "order": order,
+                "student_payment": student_payment,  
+            }
+        )
+
+    except Exception as e:
+        print(str(e))
+        return render(
+            request,
+            "payment_error.html",
+            {
+                "error_message": str(e),
+                
+            }
+        )
+
+@csrf_exempt
+def internship_payment_callback(request, student_id):
+    if request.method == 'POST':
+        try:
+            razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            razorpay_signature = request.POST.get('razorpay_signature', '')
+
+            # Initialize Razorpay client
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+            # Verify the payment signature
+            is_signature_valid = client.utility.verify_payment_signature({
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_signature': razorpay_signature
+            })
+
+            if is_signature_valid:
+                try:
+                    # Retrieve student payment
+                    student_payment = StudentPayment.objects.get(order_id=razorpay_order_id)
+
+                    # Update payment status and details
+                    student_payment.razorpay_payment_id = razorpay_payment_id
+                    student_payment.razorpay_signature = razorpay_signature
+                    student_payment.status = PaymentStatus.SUCCESS
+                    student_payment.save()
+                    
+                    # Create an application with status 'accepted'
+                    application, created = Application.objects.get_or_create(internship=student_payment.internship, student=student_payment.student)
+                    if created:
+                        application.status = 'accepted'
+                        application.save()
+
+
+                    # Render payment confirmation template
+                    return render(request, 'payment_confirm.html', {'student_payment': student_payment})
+                except StudentPayment.DoesNotExist:
+                    return JsonResponse({"error": "Student payment not found"}, status=404)
+            else:
+                return JsonResponse({"status": "failure"})
+
+        except Exception as e:
+            # Handle exceptions
+            logger.error(f"Error in Razorpay callback: {str(e)}")
+            return JsonResponse({"error": "An error occurred during payment processing"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+

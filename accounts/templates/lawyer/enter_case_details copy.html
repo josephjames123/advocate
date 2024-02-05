@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Case Details</title>
+</head>
+<body>
+    <h1>Enter Case Details for {{ client.client_name }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="client_id" value="{{ client.id }}">
+        
+        <label for="incident_place">Incident Place:</label>
+        <input type="text" name="incident_place" required><br><br>
+        
+        <label for="incident_date">Incident Date:</label>
+        <input type="date" name="incident_date" required><br><br>
+        
+        <label for="incident_time">Incident Time:</label>
+        <input type="time" name="incident_time" required><br><br>
+        
+        <label for="witness_name">Witness Name:</label>
+        <input type="text" name="witness_name" required><br><br>
+        
+        <label for="witness_details">Witness Details:</label>
+        <textarea name="witness_details" required></textarea><br><br>
+        
+        <label for="incident_description">Incident Description:</label>
+        <textarea name="incident_description" required></textarea><br><br>
+        
+        <label for="client_adhar">Client Aadhar Number:</label>
+        <input type="text" name="client_adhar" required><br><br>
+        
+        <label for="client_adhar_photo">Upload Client Aadhar Photo:</label>
+        <input type="file" name="client_adhar_photo"><br><br>
+
+        <button type="submit">Save Case</button>
+    </form>
+</body>
+</html>

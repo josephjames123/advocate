@@ -1,0 +1,122 @@
+{% extends 'common.html' %}
+
+{% block title %}Dashboard - Adv Assist{% endblock %}
+
+{% block content %}
+
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+        <!--breadcrumb-->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+            <div class="breadcrumb-title pe-3">Dashboard</div>
+            <div class="ps-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 p-0">
+                        <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="ms-auto">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-6 mx-auto">
+                <div class="card">
+                    <div class="card-header px-4 py-3">
+                        <h5 class="mb-0">Step 1 - Enter Your CGPA</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <center>{% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}</center>
+                        <form id="cgpaForm" class="row g-3 needs-validation" action="#" 
+                            novalidate>
+                            {% csrf_token %}
+                            <div class="col-md-12">
+                                <label for="cgpa" class="form-label">Enter CGPA</label>
+                                <input type="number" class="form-control" step="0.01" min="0" max="10" id="cgpa"
+                                    placeholder="Enter Your CGPA" name = "cgpa" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="course" class="form-label">Select Course</label>
+                                <select id="course" class="form-select" name="course" required>
+                                    <option selected disabled value>...</option>
+                                    <option value="LLB">LLB</option>
+                                    <option value="LLM">LLM</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="d-md-flex d-grid align-items-center gap-3">
+                                    <button type="button" id="nextButton" class="btn btn-primary px-4">Next</button>
+                                    <button type="reset" class="btn btn-light px-4">Reset</button>
+                                </div>
+                            </div>
+                            <!-- Modal -->
+                                <div class="modal fade" id="mark" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modalTitle"></h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" id="modalBody"></div>
+                                            <div class="modal-footer">
+                                                <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" id="submitButton" class="btn btn-primary">Save changes</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end row-->
+
+    </div>
+</main>
+
+<script>
+    document.getElementById('nextButton').addEventListener('click', function () {
+        var cgpa = parseFloat(document.getElementById('cgpa').value);
+        var course = document.getElementById('course').value;
+        var modalTitle = "";
+        var modalBody = ""
+        var disableButton = false;
+
+        if (isNaN(cgpa) || cgpa < 0 || cgpa > 10) {
+            modalTitle = "Invalid CGPA";
+            disableButton = true;
+        } else if ((course === "LLB" && cgpa >= 8) || (course === "LLM" && cgpa > 7)) {
+            modalTitle = "Eligible for free internships";
+            modalBody = "Congrats you are eligible for free internships"
+        } else if ((course === "LLB" && cgpa >= 4 && cgpa < 8) || (course === "LLM" && cgpa >= 4 && cgpa < 8)) {
+            modalTitle = "Eligible for paid internships";
+            modalBody = "Congrats! Based on your marks you are eligible for paid internships"
+        } else {
+            modalTitle = "Sorry";
+            disableButton = true;
+        }
+
+        document.getElementById('modalTitle').innerText = modalTitle;
+        document.getElementById('modalBody').innerText = modalBody;
+        if (disableButton) {
+            document.getElementById('submitButton').style.display = 'none';
+        } else {
+            document.getElementById('submitButton').style.display = 'block';
+        }
+
+        $('#mark').modal('show');
+    });
+
+</script>
+
+{% endblock %}

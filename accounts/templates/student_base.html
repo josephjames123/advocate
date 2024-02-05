@@ -1,0 +1,171 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}My Website{% endblock %}</title>
+  <!--favicon-->
+  <link rel="icon" href="{% static '/img/icon.ico' %}" type="image/png">
+
+  <!--plugins-->
+  <link href="{% static 'new/plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/metismenu/metisMenu.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/metismenu/mm-vertical.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/simplebar/css/simplebar.css' %}">
+  <!--bootstrap css-->
+  <link href="{% static 'new/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="{% static 'new/sass/semi-dark.css' %}" rel="stylesheet">
+  <link href="{% static 'new/sass/bordered-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'new/css/bootstrap-extended.css' %}" rel="stylesheet">
+  <link href="{% static 'new/sass/main.css' %}" rel="stylesheet">
+  <link href="{% static 'new/sass/dark-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'new/sass/responsive.css' %}" rel="stylesheet">
+  
+
+</head>
+
+<style>
+
+  .active {
+    background-color: #E0FCFC;
+    color: #fff; 
+}
+
+</style>
+
+<body>
+
+ <!--start header-->
+ <header class="top-header">
+  <nav class="navbar navbar-expand align-items-center gap-4">
+    <div class="btn-toggle">
+      <a href="javascript:;"><i class="material-icons-outlined">menu</i></a>
+    </div>
+    <div class="search-bar flex-grow-1">
+      <div class="position-relative">
+        <div class="search-popup p-3">
+          <div class="card rounded-4 overflow-hidden">
+            <div class="card-header d-lg-none">
+              <div class="position-relative">
+                <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 mobile-search-close">close</span>
+               </div>
+            </div>
+            <div class="card-body search-content">
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="navbar-nav gap-1 nav-right-links align-items-center">
+      <li class="nav-item d-lg-none mobile-search-btn">
+      </li>
+      
+      
+      <li class="nav-item dropdown">
+          <div class="notify-list">
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a href="javascrpt:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
+           <img src="https://kutt.it/profilepic" class="rounded-circle p-1 border" width="45" height="45">
+        </a>
+        <div class="dropdown-menu dropdown-user dropdown-menu-end shadow">
+          <a class="dropdown-item  gap-2 py-2" href="javascript:;">
+            <div class="text-center">
+              <img src="https://kutt.it/profilepic" class="rounded-circle p-1 shadow mb-3" width="90" height="90"
+                alt="">
+              {% if user.is_authenticated %}
+              <h5 class="user-name mb-0 fw-bold">Hello, {{ user.first_name }}</h5>
+              {% endif %}
+            </div>
+          </a>
+          <hr class="dropdown-divider">
+          <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'logout' %}"><i
+          class="material-icons-outlined">power_settings_new</i>Logout</a>
+        </div>
+      </li>
+    </ul>
+
+  </nav>
+</header>
+<!--end top header-->
+
+
+<!--start sidebar-->
+<aside class="sidebar-wrapper">
+  <div class="sidebar-header">
+    <div class="logo-icon">
+      <img src="assets/images/logo-icon.png" class="logo-img" alt="">
+    </div>
+    <div class="logo-name flex-grow-1">
+      <h5 class="mb-0">Adv Assist</h5>
+    </div>
+    <div class="sidebar-close">
+      <span class="material-icons-outlined">close</span>
+    </div>
+  </div>
+  <div class="sidebar-nav" data-simplebar="true">
+
+      <!--navigation-->
+      <ul class="metismenu" id="sidenav">
+        <li class="{% if request.path == '/accounts/student/dashboard/' %}active{% endif %}">
+          <a href="{% url 'login' %}">
+            <div class="parent-icon"><i class="material-icons-outlined">home</i>
+            </div>
+            <div class="menu-title">Dashboard</div>
+          </a>
+        </li>
+        
+        <li class="{% if request.path == '/work-assignments/' %}active{% endif %}">
+          <a href="{% url 'student_work_assignments' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
+            </div>
+            <div class="menu-title">Assigned Works</div>
+          </a>
+        </li>
+        <li class="{% if request.path == '/internships/' %}active{% endif %}">
+          <a href="{% url 'internships' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
+            </div>
+            <div class="menu-title">Internships</div>
+          </a>
+        </li>
+      </div>
+  
+</aside>
+<!--end sidebar-->
+
+{% block content %}{% endblock %}
+
+
+
+  </div>
+</div>
+</div>
+<!--start switcher-->
+
+<!--bootstrap js-->
+<script src="{% static 'new/js/bootstrap.bundle.min.js' %}"></script>
+
+<!--plugins-->
+<script src="{% static 'new/js/jquery.min.js' %}"></script>
+<!--plugins-->
+<script src="{% static 'new/plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'new/plugins/metismenu/metisMenu.min.js' %}"></script>
+<script src="{% static 'new/plugins/simplebar/js/simplebar.min.js' %}"></script>
+<script src="{% static 'new/js/main.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+</body>
+
+</html>

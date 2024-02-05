@@ -1,0 +1,27 @@
+<!-- accounts/templates/signup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+</head>
+<body>
+    <h1>Signup</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="text" name="email" required><br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required><br>
+        <label for="user_type">User Type:</label>
+        <select name="user_type">
+            <!-- <option value="admin">Admin</option> -->
+            <option value="lawyer">Lawyer</option>
+            <option value="student">Student</option>
+            <option value="client" selected>Client</option>
+        </select><br>
+        <button type="submit">Signup</button>
+    </form>
+</body>
+</html>

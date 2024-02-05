@@ -1,41 +1,15 @@
-{% load static %}
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'admin_base.html' %}
+{% endif %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}Current - Adv Assist{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block content %}
 
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-    
-    <!-- data table links start -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <!-- data table links end -->
-
-    <title>Add User</title>
-</head>
-
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <style>
     *,
     *:focus,
@@ -47,7 +21,7 @@
     }
 
     select {
-        border: 2px solid #f2c64d;
+        border: 1px solid #000;
         min-width: 5em;
         border-radius: 3px;
     }
@@ -59,7 +33,7 @@
     div.dataTables_wrapper div.dataTables_filter input[type=search] {
         height: 2.5em;
         width: 25em;
-        border: 2px solid #f2c64d;
+        border: 1px solid #000;
         border-radius: 3px;
         padding: 0 10px;
         font-size: 14px;
@@ -71,11 +45,11 @@
 
     .table.dataTable.table-striped>tbody>tr.odd>* {
         box-shadow: none;
-        background-color: #f2c64d10;
+        background-color: #eff1f3;
     }
 
     .table.dataTable.table-striped>tbody>tr.odd:hover {
-        background-color: #f2c64d67;
+        background-color: #E0FCFC;
     }
 
     a,
@@ -89,229 +63,156 @@
     }
 
     a.paginate_button.current {
-        background-color: #f2c64d;
+        background-color: #eff1f3;
         padding: 5px 10px;
-        color: #fff;
+        color: #000;
     }
 
     a.paginate_button.previous.disabled,
     a.paginate_button.next.disabled {
-        background-color: #f2c64d17;
+        background-color: #eff1f3;
         cursor: not-allowed;
         opacity: 0.7;
     }
 
     a.paginate_button {
-        border: 1px solid #f2c64d;
+        border: 1px solid #000;
         padding: 5px 10px;
         cursor: pointer;
     }
+</style>
 
-    .profile-pic {
-        width: 15em;
-        height: 15em;
-    }
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
 
-    .profile-pic img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    #navigation {
-                display: flex; /* Use flexbox to create a row layout */
-                align-items: center; /* Vertically center items */
-                list-style: none;
-                padding: 0;
-            }
-        
-            #navigation li {
-                margin: 0;
-                padding: 0;
-                margin-right: 0px; /* Add spacing between navigation items */
-            }
-        
-            #navigation li:last-child {
-                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
-            }
-        </style>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="{% url 'login' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
-                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
-                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
-                                            
-                                        </li> -->
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-                                                
-                                                {% endif %}
-                                                {% if user.user_type == 'lawyer' %}
-                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                                  {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
-                                        
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                    <nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-    <div class="crumbs">
- <!-- Breadcrumb navigation -->
- <nav aria-label="breadcrumb">
-    <ol class="breadcrumb bg-transparent pl-0">
-        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Current Cases</li>
-    </ol>
-</nav>
-</div>
+				<div class="row">
+					<div class="col-xl-6 mx-auto">
+						<div class="card">
+							<div class="card-header px-4 py-3">
+								<h5 class="mb-0">Current Cases</h5>
+							</div>
+							<div class="card-body p-4">
+								{% if messages %}
+									<ul class="messages">
+										{% for message in messages %}
+										<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+										{% endfor %}
+									</ul>
+									{% endif %}
+								{% if current_case_count < max_current_cases %}
+								<form class="row g-3 needs-validation" method = "post" novalidate>
+									{% csrf_token %}
+									<div class="col-md-12">
+										<label for="bsValidation1" class="form-label">First Name</label>
+										<input type="text" class="form-control" id="bsValidation1" placeholder="First Name"  name = "case_number" required>
+									</div>
+									<div class="col-md-12">
+										<label for="bsValidation3" class="form-label">Client Name</label>
+										<input type="text" class="form-control" id="bsValidation3" placeholder="Client Name" name = "client_name" required>
+									</div>
+									<div class="col-md-12">
+										<label for="bsValidation4" class="form-label">Incident_description</label>
+										<textarea name="incident_description" cols="30" rows="10" class="form-control" required></textarea>
+										
+									</div>
+									<div class="col-md-12">
+										<label for="bsValidation5" class="form-label">Incident Place</label>
+										<input type="text" class="form-control" id="bsValidation5" placeholder="Password"name = "incident_place" required>
+										
+									</div>
+									<div class="col-md-6">
+										<label for="bsValidation8" class="form-label">Incident Date</label>
+										<input type="date" class="form-control" id="bsValidation8" name = "incident_place" required>
+									</div>
+									<div class="col-md-6">
+										<label for="bsValidation10" class="form-label">Incident Time</label>
+										<input type="time" class="form-control" id="bsValidation10" placeholder="City" name = "incident_time" required>
+										
+									</div>
+									<div class="col-md-12">
+										<label for="bsValidation5" class="form-label">Witness Name</label>
+										<input type="text" class="form-control" id="bsValidation5" placeholder="Witness Name" name = "witness_name" required>
+										
+									</div>
+									<div class="col-md-12">
+										<label for="bsValidation5" class="form-label">Witness Details</label>
+										<textarea name="witness_details" cols="30" rows="10" class = "form-control"></textarea>
+										
+									</div>
+									<div class="col-md-12">
+										<div class="d-md-flex d-grid align-items-center gap-3">
+											<button type="submit" class="btn btn-primary px-4">Submit</button>
+										</div>
+									</div>
+								</form>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end row-->
 
-<div class="container py-5">
-    <h1 class="text-center">Current Cases For You</h1>
+				<div class="row">
+					<div class="col-12">
+						<h3 class="text-center my-5">Current Cases</h3>
+			
+						<table id="example" class="table table-striped" style="width:100%">
+			
+							<thead>
+								<tr>
+									<th>Case Number</th>
+									<th>Client Name</th>
+									<th>Incident Description</th>
+									<th>Incident Place</th>
+									<th>Incident Date</th>
+									<th>Incident Time</th>
+									<th>Witness Name</th>
+									<th>Witness Details</th>
+								</tr>
+							</thead>
+			
+							<tbody>
+								{% for current_case in current_cases %}
+								<tr>
+									<td>CS/{{ current_case.case_number }}</td>
+									<td>{{ current_case.client_name }}</td>
+									<td>{{ current_case.incident_description }}</td>
+									<td>{{ current_case.incident_place }}</td>
+									<td>{{ current_case.incident_date }}</td>
+									<td>{{ current_case.incident_time }}</td>
+									<td>{{ current_case.witness_name }}</td>
+									<td>{{ current_case.witness_details }}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+			
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+			
+			<script>
+				new DataTable('#example');
+				document.querySelector('div.dataTables_wrapper div.dataTables_filter input').setAttribute('placeholder', 'Search anything')
+			</script>
 
-    <div class="row">
-        <div class="col-12 add-user-col d-flex justify-content-center">
-            {% if current_case_count < max_current_cases %}
-            <form class="add-user-form" method="post">
-                {% csrf_token %}
-                <h3 class="text-center my-4">Add Current Case</h3>
-
-                <div class="input-group">
-                    <label for="case_number">Case Number</label>
-                    <input type="number" name="case_number" required />
-                </div>
-
-                <div class="input-group">
-                    <label for="client_name">Client Name</label>
-                    <input type="text" name="client_name" required />
-                </div>
-
-                <div class="input-group">
-                    <label for="incident_description">Incident Description</label>
-                    <textarea name="incident_description" cols="30" rows="10" required></textarea>
-                </div>
-
-                <div class="input-group">
-                    <label for="incident_place">Incident Place</label>
-                    <input type="text" name="incident_place" required />
-                </div>
-
-                <div class="input-group">
-                    <label for="incident_date">Incident Date</label>
-                    <input type="date" name="incident_date" required />
-                </div>
-
-                <div class="input-group">
-                    <label for="incident_time">Incident Time</label>
-                    <input type="time" name="incident_time" required />
-                </div>
-
-                <div class="input-group">
-                    <label for="witness_name">Witness Name</label>
-                    <input type="text" name="witness_name" />
-                </div>
-
-                <div class="input-group">
-                    <label for="witness_details">Witness Details</label>
-                    <textarea name="witness_details" cols="30" rows="10"></textarea>
-                </div>
-
-                <div class="input-group">
-                    <button class="btn btn-warning" type="submit">Save Case</button>
-                </div>
-            </form>
-            {% endif %}
-        </div>
-    </div>
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    
-    <div class="row">
-        <div class="col-12">
-            <h3 class="text-center my-5">Current Cases</h3>
-
-            <table id="example" class="table table-striped" style="width:100%">
-
-                <thead>
-                    <tr>
-                        <th>Case Number</th>
-                        <th>Client Name</th>
-                        <th>Incident Description</th>
-                        <th>Incident Place</th>
-                        <th>Incident Date</th>
-                        <th>Incident Time</th>
-                        <th>Witness Name</th>
-                        <th>Witness Details</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for current_case in current_cases %}
-                    <tr>
-                        <td>CS/{{ current_case.case_number }}</td>
-                        <td>{{ current_case.client_name }}</td>
-                        <td>{{ current_case.incident_description }}</td>
-                        <td>{{ current_case.incident_place }}</td>
-                        <td>{{ current_case.incident_date }}</td>
-                        <td>{{ current_case.incident_time }}</td>
-                        <td>{{ current_case.witness_name }}</td>
-                        <td>{{ current_case.witness_details }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-    new DataTable('#example');
-    document.querySelector('div.dataTables_wrapper div.dataTables_filter input').setAttribute('placeholder', 'Search anything')
-</script>
-
-</body>
-
-</html>
+			
+{% endblock %}

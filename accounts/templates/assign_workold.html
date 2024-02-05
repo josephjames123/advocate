@@ -1,0 +1,149 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/navigation.css' %}">
+  <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+  <title>Assign Work</title>
+
+  <style>
+    a.btn-outline-warning {
+      border-radius: 1em;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-area ">
+      <div id="sticky-header" class="main-header-area">
+        <div class="container-fluid p-0">
+          <div class="row align-items-center justify-content-between no-gutters">
+            <div class="col-xl-2 col-lg-2">
+              <div class="logo-img">
+                <a href="{% url 'login' %}">
+                  <img src="{% static 'img\icon.ico' %}" alt="" width="120">
+                </a>
+              </div>
+            </div>
+            <div class="col-xl-7 col-lg-8">
+              <div class="main-menu  d-none d-lg-block">
+                <nav>
+                  <ul id="navigation">
+                    <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
+                    <!-- <li><a href="{% url 'about' %}">About</a></li>
+                                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                                    <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
+                    <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                        <ul class="submenu">
+                                            
+                                            
+                                            {% if user.user_type == 'admin' %}
+                                            <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                            {% endif %}
+                                        </ul>
+                                        
+                                    </li> -->
+                    {% if user.is_authenticated %}
+                    <li>
+                      <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                      <ul class="submenu">
+                        {% if user.user_type == 'admin' %}
+
+                        {% endif %}
+                        {% if user.user_type == 'lawyer' %}
+                        <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
+                        {% endif %}
+                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                      </ul>
+                    </li>
+                    {% else %}
+
+                    <li><a href="{% url 'signup' %}">Signup</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                  </ul>
+                  <nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="#">Assign Work</a></li>
+    </ol>
+</nav>
+
+  <div class="container p-5">
+    <h1 class="text-center mb-4">Assign Work To Student</h1>
+    <div class="row">
+      <div class="col-12 add-user-col d-flex justify-content-center">
+
+        <form method="post" class="add-user-form" action="{% url 'assign_work' %}">
+          {% csrf_token %}
+          <div class="input-group">
+            <label for="description">Description</label>
+            <textarea name="description" cols="30" rows="10" required></textarea>
+          </div>
+
+          <div class="input-group">
+            <label for="deadline_date">Deadline Date</label>
+            <input type="date" name="deadline_date" required />
+          </div>
+
+          <div class="input-group">
+            <label for="student_id">Select Student</label>
+            <select name="student_id" required>
+              <option value="1" selected disabled>Choose Student</option>
+              {% for student in hired_students %}
+        <option value="{{ student.id }}">{{ student.user.get_full_name }}</option>
+      {% endfor %}
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="specialization">Select Case</label>
+            <select id="case_id" name="case_id" >
+              <option value="1" selected disabled>Choose Case</option>
+              {% for case in lawyer_cases %}
+        <option value="{{ case.id }}">CS/{{ case.case_number }}</option>
+      {% endfor %}
+            </select>
+          </div>
+          {% if messages %}
+    {% for message in messages %}
+    <p class="text-danger m-0">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+          
+
+          <div class="input-group">
+            <button class="btn btn-warning" type="submit" >Assign Work</button>
+          </div>
+
+          <p class="text-center my-4"><a href="{% url 'login' %}" class="btn btn-sm btn-outline-warning px-4">Go To Dashboard</a></p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

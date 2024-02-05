@@ -146,6 +146,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 AUTHENTICATION_BACKENDS = [
     'accounts.auth_backends.EmailBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
+    'accounts.auth_backends.PhoneBackend',
 ]
 
 # law/settings.py
@@ -169,8 +170,8 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='josejosu10010@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='difk ewsk ssdh eglf')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='edxfr3q@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='rfzkspjabfuqofbh')
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
@@ -188,6 +189,8 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+SOCIALACCOUNT_LOGIN_ON_GET=True
+
 
 MEDIA_URL = ''
 MEDIA_ROOT = os.path.join(BASE_DIR, '')
@@ -198,6 +201,23 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 RAZORPAY_KEY_ID = "rzp_test_QtI3zIbpa2Kcyl"
 RAZORPAY_KEY_SECRET = "TGxT70N3Nw3Si5Ys3RF5MpY0"
+
+
+TWILIO_PHONE_NUMBER = '+447462385460'
+
+TWILIO_AUTH_TOKEN = '47ac0126322deff068f624f07038a8d0'
+
+TWILIO_ACCOUNT_SID = 'AC555316373c97643675e0be3bca2a9431'
+
+
+# ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
+CORS_ORIGIN_WHITELIST = [
+    'https://api.razorpay.com',
+]
+
+CSRF_TRUSTED_ORIGINS = ["https://api.razorpay.com"]
+
 
 
 

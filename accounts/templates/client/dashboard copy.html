@@ -1,0 +1,228 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Advocaate Assist</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <link rel="manifest" href="site.webmanifest"> -->
+    <!-- <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png"> -->
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bookings.css' %}">
+
+</head>
+
+<body>
+    <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+    <!-- header-start -->
+    <style>
+            
+            #navigation {
+                display: flex; /* Use flexbox to create a row layout */
+                align-items: center; /* Vertically center items */
+                list-style: none;
+                padding: 0;
+            }
+        
+            #navigation li {
+                margin: 0;
+                padding: 0;
+                margin-right: 0px; /* Add spacing between navigation items */
+            }
+        
+            #navigation li:last-child {
+                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
+            }
+        </style>
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="index.html">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-8">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a class="active" href="{% url 'home' %}">home</a></li>
+                                        <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                                        <li><a href="{% url 'list_cases' %}">Cases</a></li> 
+                                        <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                
+                                                
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                                {% endif %}
+                                            </ul>
+                                            
+                                        </li>
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>                                       
+                                                         {% endif %}
+                                                         {% if user.user_type == 'lawyer' %}
+                                                         <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                       
+                                                                  {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                        {% else %}
+                                        
+                                        <li><a href="{% url 'signup' %}">Signup</a></li>
+                                        <li><a href="{% url 'login' %}">Login</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- header-end -->
+
+
+    <div class="container pt-5">
+        <h3>Welcome {{ user.first_name }},</h3>
+        <h6 class="my-3">Your bookings,</h6>
+    </div>
+   
+    <div id="exTab1" class="container mt-5">
+        <ul class="nav nav-pills">
+            <li class="active">
+                <a href="#1a" data-toggle="tab">Confirmed</a>
+            </li>
+            <li><a href="#2a" data-toggle="tab">Rescheduled</a>
+            </li>
+            <li><a href="#3a" data-toggle="tab">Pending</a>
+            </li>
+            <li><a href="#4a" data-toggle="tab">Not Paid</a>
+            </li>
+            <li><a href="#5a" data-toggle="tab">Cancelled</a>
+            </li>
+        </ul>
+    
+        <div class="tab-content clearfix">
+           
+            <!-- content of 1st tab start -->
+            <div class="tab-pane active" id="1a">
+                {% for booking in confirmed_bookings %}
+                <article class="article">
+                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                         <span class="show-more">
+                        <a href="#" style="color: #f2c64d;">show more</a>
+                    </span>
+                    {% empty %}
+                    <p>No Confirmed Bookings</p>
+               </article>
+               {% endfor %}
+            </div>
+            <!-- content of 1st tab end -->
+
+            <!-- content of 2nd tab start -->
+            <div class="tab-pane" id="2a">
+                {% for booking in rescheduled_bookings %}
+                <article class="article">
+                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                         <span class="show-more">
+                        <a href="#" style="color: #f2c64d;">show more</a>
+                    </span>
+                    {% empty %}
+                    <p>No Rescheduled Bookings</p>
+               </article>
+               {% endfor %}
+            </div>
+            <!-- content of 2nd tab end -->
+            
+            <!-- content of 3rd tab start -->
+            <div class="tab-pane" id="3a">
+                
+                {% for booking in pending_bookings %}
+                <article class="article">
+                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                         <span class="show-more">
+                        <a href="#" style="color: #f2c64d;">show more</a>
+                    </span>
+                    {% empty %}
+                    <p>No Pending Bookings</p>
+               </article>
+               {% endfor %}
+                
+            </div>
+            <!-- content of 3rd tab end -->
+            
+            <!-- content of 4th tab start -->
+            <div class="tab-pane" id="4a">
+                {% for booking in notpaid_bookings %}
+                <article class="article">
+                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                         <span class="show-more">
+                        <a href="#" style="color: #f2c64d;">show more</a>
+                    </span>
+                    {% empty %}
+                    <p>No Unpaid Bookings</p>
+               </article>
+               {% endfor %}
+            </div>
+            <!-- content of 4th tab end -->
+
+            <!-- content of 5th tab start -->
+            <div class="tab-pane" id="5a">
+                {% for booking in canceled_bookings %}
+                <article class="article">
+                    <p>{{ booking.booking_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                         <span class="show-more">
+                        <a href="#" style="color: #f2c64d;">show more</a>
+                    </span>
+                    {% empty %}
+                    <p>No Cancelled Bookings</p>
+               </article>
+               {% endfor %}
+            </div>
+            <!-- content of 5th tab end -->
+            
+        </div>
+    </div>
+    
+    
+    
+    <!-- Bootstrap core JavaScript
+        ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    
+</body>
+</html>

@@ -16,11 +16,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')), 
     path('accounts/', include('allauth.urls')),
-    path('logout/', LogoutView.as_view(), name='logout'),  # Corrected URL pattern for logout
+    # path('logout/', LogoutView.as_view(), name='logout'), 
     path('error/', views.error, name='error'),
     path('book/', views.book, name='book'),
     path('submit/', views.submit, name='submit'),
     path('book_lawyer/<int:lawyer_id>/', views.book_lawyer, name='book_lawyer'),
+    path('booking/<int:booking_id>/', views.booking_details, name='booking_details'),
     path('internship/<int:internship_id>/', views.internship_detail, name='internship_detail'),
     path('mark_holiday/', views.mark_holiday, name='mark_holiday'),
     path('reschedule/<int:booking_id>/', views.reschedule_appointment, name='reschedule_appointment'),
@@ -53,8 +54,25 @@ urlpatterns = [
     path('hire_student/<int:student_id>/', views.hire_student, name='hire_student'),
     path('assign_work/', views.assign_work, name='assign_work'),
     path('work-assignments/', views.student_work_assignments, name='student_work_assignments'),
-    
-    
+        # path('task-page/', views.task_page, name='task_page'),
+    path('mark_casual_leave/', views.mark_leave_request, {'leave_type': 'casual_leave'}, name='mark_casual_leave'),
+    path('leave_reports/', views.leave_reports, name='leave_reports'),
+    path('download_leave_reports_pdf/', views.download_leave_reports_pdf, name='download_leave_reports_pdf'),
+    path('generate_leave_reports_admin_pdf/', views.generate_leave_reports_admin_pdf, name='generate_leave_reports_admin_pdf'),
+    path('business_laws',views.business_laws, name='business_laws'),
+    path('tax_laws',views.tax_laws, name='tax_laws'),
+    path('emp_laws',views.emp_laws, name='emp_laws'),
+    path('ip_laws',views.ip_laws, name='ip_laws'),
+    path('contract_laws',views.contract_laws, name='contract_laws'),
+    path('realestate_laws',views.realestate_laws, name='realestate_laws'),
+    path('security_laws',views.security_laws, name='security_laws'),
+    path('consumer_laws',views.consumer_laws, name='consumer_laws'),
+    path('health_laws',views.health_laws, name='health_laws'),
+    path('common',views.common, name='common'),
+    path('internship/payment/<int:student_id>/<int:internship_id>/', views.internship_payment, name='internship_payment'),
+    # path('internship_payment_callback/<int:razorpay_order_id>/', views.internship_payment_callback, name='internship_payment_callback'),
+    path('internship_payment_callback/<int:student_id>/', views.internship_payment_callback, name='internship_payment_callback'),
+
 ]
 
 if settings.DEBUG:

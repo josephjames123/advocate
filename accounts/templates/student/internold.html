@@ -1,0 +1,233 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_lawyer.css' %}">
+
+    <title>Add New Intern</title>
+</head>
+    <style>
+            
+        #navigation {
+            display: flex; /* Use flexbox to create a row layout */
+            align-items: center; /* Vertically center items */
+            list-style: none;
+            padding: 0;
+        }
+    
+        #navigation li {
+            margin: 0;
+            padding: 0;
+            margin-right: 0px; /* Add spacing between navigation items */
+        }
+    
+        #navigation li:last-child {
+            margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
+        }
+    </style>
+    <body>
+   
+<header>
+<div class="header-area ">
+    <div id="sticky-header" class="main-header-area">
+        <div class="container-fluid p-0">
+            <div class="row align-items-center justify-content-between no-gutters">
+                <div class="col-xl-2 col-lg-2">
+                    <div class="logo-img">
+                        <a href="{% url 'login' %}">
+                            <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-xl-7 col-lg-8">
+                    <div class="main-menu  d-none d-lg-block">
+                        <nav>
+                            <ul id="navigation">
+                                <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
+                                <!-- <li><a href="{% url 'about' %}">About</a></li>
+                                <li><a href="{% url 'contact' %}">Contact</a></li>
+                                <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
+                                <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                    <ul class="submenu">
+                                        
+                                        
+                                        {% if user.user_type == 'admin' %}
+                                        <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                        {% endif %}
+                                    </ul>
+                                    
+                                </li> -->
+                                {% if user.is_authenticated %}
+                                <li>
+                                    <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                    <ul class="submenu">
+                                        {% if user.user_type == 'admin' %}
+                                        
+                                        {% endif %}
+                                        {% if user.user_type == 'lawyer' %}
+                                                 <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
+                                                          {% endif %}
+                                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                                    </ul>
+                                </li>
+                                {% else %}
+                                
+                                <li><a href="{% url 'signup' %}">Signup</a></li>
+                                <li><a href="{% url 'login' %}">Login</a></li>
+                                {% endif %}
+                            </ul>
+                            <nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</header>
+
+
+    <div class="container pb-5">
+        <h2 class="my-5 text-center">Add New Intern</h2>
+
+        <div class="row">
+            <div class="col-md-12">
+                <center>{% if messages %}
+                          <ul class="messages">
+                              {% for message in messages %}
+                              <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+                              {% endfor %}
+                          </ul>
+                          {% endif %}</center>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- first name and last name -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" name="first_name" placeholder="Your first name" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" name="last_name" placeholder="Your last name" required />
+                        </div>
+                    </div>
+
+                    <!-- email and phone -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" name="email" placeholder="Your email address" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="number" name="phone" placeholder="Your phone number" required />
+                        </div>
+                    </div>
+
+                    <!-- address and dob -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="dob">Date Of Birth</label>
+                            <input type="date" name="dob" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="address">Address</label>
+                            <textarea name="address" id="" placeholder="Your address" cols="30" rows="1" required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- course and course place -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="course">Course</label>
+                            <input type="text" name="course" placeholder="Course you are studying" required />
+                        </div>
+                        <div class="input-group">
+                            <label for="course_place">Course Place</label>
+                            <input type="text" name="course_place" placeholder="Place of course you are studying" required />
+                        </div>
+                    </div>
+               
+                    <!-- duration and specialization -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="duration">Duration</label>
+                            <input type="text" name="duration_of_course" required 
+                                placeholder="Your course duration" />
+                        </div>
+                        <div class="input-group">
+                            <label for="specialization">Specialization(if any)</label>
+                            <select name="specialization" required>
+                                <option selected disabled>Choose Specialization</option>
+                                <option value="family">Family Lawyer</option>
+                                <option value="criminal">Criminal Lawyer</option>
+                                <option value="consumer">Consumer Lawyer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- year of pass and current cgpa -->
+                    <div class="input-row">
+                        <div class="input-group">Year Of passing</label>
+                            <select name="year_of_pass" required>
+                                <option selected disabled>Choose Year</option>
+                                <option value="2019">2019</option>
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="current_cgpa">Current CGPA</label>
+                            <input type="type" name="cgpa" placeholder="Your current CGPA" required />
+                        </div>
+                    </div>
+
+                    <!-- experience and aadhar number -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="address">Experience(if any)</label>
+                            <textarea name="experience" id="" cols="30" rows="1" placeholder="Your experiences" ></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="aadharno">Aadhar Number</label>
+                            <input type="number" name="adhaar_no" placeholder="Your aadhar number" required />
+                        </div>
+                    </div>
+
+                    <!-- profile pricture -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="profile_picture">Upload Adhaar</label>
+                            <input type="file" name="adhaar_pic" accept=".jpg, .jpeg, .png" id="profile_picture"
+                                required />
+                        </div>
+                        <div class="input-group"></div>
+                    </div>
+
+                    <div class="profile-img-preview d-flex justify-content-center mt-2"></div>
+
+                    
+                    <div class="d-flex justify-content-center align-items-center mt-4">
+                        <button type="submit" class="btn rounded bg-warning text-white" style="min-width: 15em;">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+   
+            
+</body>
+</html>

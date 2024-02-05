@@ -1,0 +1,94 @@
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'student_base.html' %}
+{% endif %}
+
+{% block title %}RealEtsate Laws - Adv Assist{% endblock %}
+
+{% block content %}
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+                <div class="">
+					<div class="">
+						<div class="container py-2">
+							<h2 class="font-weight-light text-center text-muted py-3">Real Estate Laws</h2>
+							<!-- timeline item 1 -->
+							<div class="row">
+								
+								<!-- timeline item 1 event content -->
+								<div class="col py-2">
+									<div class="card radius-15">
+										<div class="card-body">
+											<div class="float-end text-muted">Section 406</div>
+											<h4 class="card-title text-muted">Punishment for Criminal Breach of Trust</h4>
+											<p class="card-text">Criminal breach of trust may be relevant in real estate transactions where someone entrusted with property, funds, or documents misappropriates or breaches that trust.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/row-->
+							<!-- timeline item 1 event content -->
+							<div class="col py-2">
+								<div class="card radius-15">
+									<div class="card-body">
+										<div class="float-end text-muted">IPC Section 467</div>
+										<h4 class="card-title text-muted"> Forgery of valuable security, will, etc.: </h4>
+										<p class="card-text">This section deals with the forgery of valuable security, which could be relevant in cases where forged documents related to real estate transactions are used.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--/row-->
+						<!-- timeline item 1 event content -->
+						<div class="col py-2">
+							<div class="card radius-15">
+								<div class="card-body">
+									<div class="float-end text-muted">Section 418:</div>
+									<h4 class="card-title text-muted"> cheating with knowledge </h4>
+									<p class="card-text">Deals with cheating with knowledge that wrongful loss may ensue to a person whose interest the offender is bound to protect.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--/row-->
+					<!-- timeline item 1 event content -->
+					<div class="col py-2">
+						<div class="card radius-15">
+							<div class="card-body">
+								<div class="float-end text-muted"> Act, 2016 (RERA):</div>
+								<h4 class="card-title text-muted"> The Real Estate (Regulation and Development) Act</h4>
+								<p class="card-text">Regulates the real estate sector, promotes transparency, and protects the interests of homebuyers.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/row-->
+                        </div>
+					</div>
+				</div>
+
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    {% endblock %}

@@ -1,0 +1,83 @@
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'student_base.html' %}
+{% endif %}
+
+{% block title %}Security Laws - Adv Assist{% endblock %}
+
+{% block content %}
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+                <div class="">
+					<div class="">
+						<div class="container py-2">
+							<h2 class="font-weight-light text-center text-muted py-3">Security Laws</h2>
+							<!-- timeline item 1 -->
+							<div class="row">
+								
+								<!-- timeline item 1 event content -->
+								<div class="col py-2">
+									<div class="card radius-15">
+										<div class="card-body">
+											<div class="float-end text-muted">SEBI 2015</div>
+											<h4 class="card-title text-muted">Listing Obligations and Disclosure Requirements</h4>
+											<p class="card-text"> These regulations lay down the listing obligations for entities listed on stock exchanges. It includes disclosure requirements, corporate governance norms, and obligations to ensure transparency and protection of investors' interests.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/row-->
+							<!-- timeline item 1 event content -->
+							<div class="col py-2">
+								<div class="card radius-15">
+									<div class="card-body">
+										<div class="float-end text-muted">SEBI 2011</div>
+										<h4 class="card-title text-muted"> Substantial Acquisition of Shares and Takeovers </h4>
+										<p class="card-text"> This regulation is designed to regulate substantial acquisitions of shares and takeovers of companies. It aims to ensure transparency, fair treatment of shareholders, and protection of their interests during such transactions.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--/row-->
+						<!-- timeline item 1 event content -->
+						<div class="col py-2">
+							<div class="card radius-15">
+								<div class="card-body">
+									<div class="float-end text-muted">SEBI 2003</div>
+									<h4 class="card-title text-muted"> Prohibition of Fraudulent and Unfair Trade Practices Relating to Securities Market </h4>
+									<p class="card-text">: These regulations prohibit fraudulent and unfair trade practices in the securities market. They define and penalize activities such as market manipulation, misleading statements, and fraudulent transactions to protect the integrity of the securities market.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--/row-->
+				
+                        </div>
+					</div>
+				</div>
+
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    {% endblock %}

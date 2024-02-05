@@ -1,150 +1,87 @@
-{% load static %}
-<!doctype html>
-<html class="no-js" lang="zxx">
+{% extends 'client_base.html' %}
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Advocaate Assist</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% block title %}Dashboard - Adv Assist{% endblock %}
 
-    <!-- <link rel="manifest" href="site.webmanifest"> -->
-    <!-- <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png"> -->
-    <!-- Place favicon.ico in the root directory -->
+{% block content %}
 
-    <!-- CSS here -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/bookings.css' %}">
+<style>
+    #exTab1 ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-</head>
+    #exTab1 li {
+        border: 1px solid #ddd; /* Add border for each list item */
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
 
-<body>
-    <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
+    #exTab1 li p {
+        margin: 0;
+    }
 
-    <!-- header-start -->
-    <style>
-            
-            #navigation {
-                display: flex; /* Use flexbox to create a row layout */
-                align-items: center; /* Vertically center items */
-                list-style: none;
-                padding: 0;
-            }
-        
-            #navigation li {
-                margin: 0;
-                padding: 0;
-                margin-right: 0px; /* Add spacing between navigation items */
-            }
-        
-            #navigation li:last-child {
-                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
-            }
-        </style>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="{% url 'login' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'login' %}">home</a></li>
-                                        <li><a href="{% url 'client_bookings' client_id=request.user.id %}">Bookings</a></li> 
-                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li> -->
-                                        <li><a href="{% url 'list_cases' %}">Cases</a></li>
-                                        
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>                                       
-                                                         {% endif %}
-                                                         {% if user.user_type == 'lawyer' %}
-                                                         <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                       
-                                                                  {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
-                                        
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                </nav>
+    .show-more {
+        display: block;
+        text-align: right;
+    }
+
+    .show-more a {
+        color: #f2c64d;
+        text-decoration: none;
+    }
+
+    .show-more a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+
+                <div class="container pt-5">
+                    <h3>Welcome {{ user.first_name }},</h3>
+                    <h6 class="my-3">Your bookings,</h6>
+                </div>
+               
+                <div id="exTab1" class="">
+                    <div class="tab-content clearfix">
+                        <div class="tab-pane active">
+                            <div>
+                                <ul>
+                                    {% for booking in all_bookings %}
+                                    <li>
+                                        <p>{{ booking.appointment_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
+                                        <span class="show-more">
+                                        </span>
+                                    </li>
+                                    {% empty %}
+                                    <h3>No bookings available.</h3>
+                                    <p class="h4 text-dark"></p>
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
+                
             </div>
-        </div>
-    </header>
-    <!-- header-end -->
+        </main>
 
-
-    <div class="container pt-5">
-        <h3>Welcome {{ user.first_name }},</h3>
-        <h6 class="my-3">Your bookings,</h6>
-    </div>
-   
-    <div id="exTab1" class="container mt-5">
-        <div class="tab-content clearfix">
-           
-            <!-- Content for displaying bookings -->
-            <div class="tab-pane active" id="1a">
-                <div class="article">
-                    <ul>
-                        {% for booking in all_bookings %}
-                        <li>
-                            <p>{{ booking.appointment_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                            <span class="show-more">
-                                <!-- <a href="#" style="color: #f2c64d;">show more</a> -->
-                            </span>
-                        </li>
-                        {% empty %}
-                        <p>No bookings available.</p>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-            
-        </div>
-    </div>
-    
-    
-    
-    <!-- Bootstrap core JavaScript
-        ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    
-</body>
-</html>
+{% endblock %}

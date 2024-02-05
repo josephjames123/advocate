@@ -23,13 +23,13 @@
     top: 5em;
     right: 0em;
     font-size: 2em;
-    background-color: #f2c64d;
+    background-color: #eff1f3;
     width: 2em;
     height: 2em;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    color: #fff;
+    color: #000;
 }
 
 
@@ -64,7 +64,7 @@
 .working-days-group p input {
     width: 1em;
     margin-right: 5px;
-    accent-color: #f2c64d;
+    accent-color: #eff1f3;
 }
 
 .working-days-group p span {

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add your HTML head content here -->
+</head>
+<body>
+    <h1>Current Cases for {{ lawyer.user.first_name }} {{ lawyer.user.last_name }}</h1>
+
+    {% if current_case_count < max_current_cases %}
+    <h2>Add Current Case</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label for="case_number">Case Number:</label>
+        <input type="text" name="case_number" required><br><br>
+        
+        <label for="client_name">Client Name:</label>
+        <input type="text" name="client_name" required><br><br>
+        
+        <label for="incident_details">Incident Details:</label>
+        <textarea name="incident_description" required></textarea><br><br>
+        
+        <button type="submit">Add Current Case</button>
+    </form>
+    {% endif %}
+
+    <h2>Current Cases</h2>
+    <ul>
+        {% for current_case in current_cases %}
+            <li>{{ current_case.case_number }} - {{ current_case.client_name }} - {{ current_case.incident_details }}</li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>Maximum Current Cases:</strong> {{ lawyer.currendly_handling }}</p>
+    <p><strong>current Cases:</strong> {{ current_case_count }}</p>
+
+    
+    <!-- Add other content as needed -->
+</body>
+</html>

@@ -1,186 +1,90 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'student_base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+{% block title %}Dashboard - Adv Assist{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% block content %}
 
-    <!-- icons -->
-    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
 
-</head>
+				<div class="row row-cols-1 row-cols-lg-3 g-4">
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'business_laws' %}"><img src="https://contiguglia.com/wp-content/uploads/2020/05/AdobeStock_226728389-980x653.jpeg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Business Laws</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'tax_laws' %}"><img src="https://img.freepik.com/premium-photo/calculatorbanknotesgavel-brown-card-with-text-tax-law-wooden-background_406607-2285.jpg?w=900" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Tax Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'emp_laws' %}"><img src="https://www.corridalegal.com/publications/wp-content/uploads/2023/08/Picture_Employment-Law.png" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Employment Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'ip_laws' %}"><img src="https://legalexpertsindia.net/wp-content/uploads/2018/09/IP.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Intellectual Property Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'contract_laws' %}"><img src="https://blog.ipleaders.in/wp-content/uploads/2020/08/unit-5-aspects-of-contract-law-negligence-in-business-assignment-1.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Contract Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'realestate_laws' %}"><img src="https://media.licdn.com/dms/image/D5612AQHFYGlW4KGEtQ/article-cover_image-shrink_720_1280/0/1684570954070?e=1710979200&v=beta&t=8MBySNrFUljTdxPRwKakqHVF5FXqpbKJR7PnBbySfrk" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Real Estate Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'security_laws' %}"><img src="https://cyrilcorporateredesign.lexblogplatform.com/wp-content/uploads/sites/857/2021/07/Blog-Image-3.png" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Securities Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'health_laws' %}"><img src="https://thumbor.forbes.com/thumbor/fit-in/1290x/https://www.forbes.com/advisor/wp-content/uploads/2022/11/Healthcare_Law.jpeg.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Health and Safety Law</h5>
+					  </div>
+					</div>
+					<div class="col">
+					  <div class="text-center">
+						  <a href = "{% url 'consumer_laws' %}"><img src="https://blog.ipleaders.in/wp-content/uploads/2020/08/iStock-1070418964-1-800x533.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+						<h5 class="mb-0 mt-3">Consumer Protection Law</h5>
+					  </div>
+					</div>
+					
+				  </div><!--end row-->
+				</div>
+			  </div>
+			</div>
+		  </div>
+          </div>
+        </div><!--end row-->
 
-<body>
-    <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
-
-    <!-- header-start -->
-    <style>
-            
-            #navigation {
-                display: flex; /* Use flexbox to create a row layout */
-                align-items: center; /* Vertically center items */
-                list-style: none;
-                padding: 0;
-            }
-        
-            #navigation li {
-                margin: 0;
-                padding: 0;
-                margin-right: 0px; /* Add spacing between navigation items */
-            }
-        
-            #navigation li:last-child {
-                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
-            }
-
-            .properties-card {
-            width: 100%;
-            height: 16em;
-            background-color: rgb(58 58 58);
-            text-align: center;
-            color: #fff;
-            padding: 1em;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            row-gap: 1em;
-            margin-top: 10px;
-        }
-        .properties-card * {
-            color: #fff;
-        }
-
-        .properties-card i {
-            color: #f2c64d;
-            font-size: 4em;
-        }
-        </style>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="{% url 'login' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
-                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
-                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
-                                            
-                                        </li> -->
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-                                                
-                                                {% endif %}
-                                                {% if user.user_type == 'lawyer' %}
-                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                                  {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
-                                        
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                    <nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="container-fluid p-5" style="background: whitesmoke; min-height: 90vh;">
-        
-        <p class="mt-3" style="font-weight: 600; color: #ed5f3a;">Dashboard</p>
-
-        <!-- dashboard top buttons start -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mt-3 dashboard-top-buttons">
-                    <i class="fa-solid fa-gavel"></i>
-                    <button>
-                        <a href="{% url 'student_work_assignments' %}"><h6 style="padding: 0; margin: 0;">Assigned Work</h6></a>
-                         </button>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="row">
-                    <div class="col-md-6 mt-1">
-                        <div class="properties-card">
-                            <i class="fa-solid fa-briefcase"></i>
-                            <h4>Business Law</h4>
-                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mt-1">
-                        <div class="properties-card">
-                            <i class="fa-solid fa-building-columns"></i>
-                            <h4>Finance Law</h4>
-                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mt-1">
-                        <div class="properties-card">
-                            <i class="fa-solid fa-people-roof"></i>
-                            <h4>Family Law</h4>
-                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mt-1">
-                        <div class="properties-card">
-                            <i class="fa-solid fa-briefcase"></i>
-                            <h4>Business Law</h4>
-                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- dashboard top buttons end -->
-    </div>
-
-</body>
-
-</html>
+{% endblock %}

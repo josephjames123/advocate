@@ -1,0 +1,82 @@
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'student_base.html' %}
+{% endif %}
+
+{% block title %}Consumer Laws - Adv Assist{% endblock %}
+
+{% block content %}
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+                <div class="">
+					<div class="">
+						<div class="container py-2">
+							<h2 class="font-weight-light text-center text-muted py-3">Consumer Laws</h2>
+							<!-- timeline item 1 -->
+							<div class="row">
+								
+								<!-- timeline item 1 event content -->
+								<div class="col py-2">
+									<div class="card radius-15">
+										<div class="card-body">
+											<div class="float-end text-muted">Consumer Protection Act 2009</div>
+											<h4 class="card-title text-muted">Consumer Protection Act</h4>
+											<p class="card-text">The Consumer Protection Act, 2019, provides for the establishment of the Central Consumer Protection Authority (CCPA) and Consumer Disputes Redressal Commissions. It aims to protect consumers from unfair trade practices, ensure the right to be informed, and provide a mechanism for redressal of consumer grievances.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/row-->
+							<!-- timeline item 1 event content -->
+							<div class="col py-2">
+								<div class="card radius-15">
+									<div class="card-body">
+										<div class="float-end text-muted">IPC Section 420 </div>
+										<h4 class="card-title text-muted"> Cheating and Dishonestly Inducing Delivery of Property </h4>
+										<p class="card-text">This section may be applicable in cases of consumer fraud, where individuals or businesses engage in deceptive practices to cheat consumers and induce them to part with their money or property.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--/row-->
+					<!-- timeline item 1 event content -->
+					<div class="col py-2">
+						<div class="card radius-15">
+							<div class="card-body">
+								<div class="float-end text-muted">Section 486</div>
+								<h4 class="card-title text-muted"> counterfeit property mark.</h4>
+								<p class="card-text">Deals with selling goods marked with a counterfeit property mark.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/row-->
+                        </div>
+					</div>
+				</div>
+
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    {% endblock %}

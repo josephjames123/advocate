@@ -4,6 +4,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 
+
 urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('mail/', views.mail, name='mail'),
     path('update/', views.update, name='update'),
     path('add_internship/', views.add_internship, name='add_internship'),
+    path('internships/', views.internships, name='internships'),
     # path('approve_student/<int:student_id>/', views.approve_student, name='approve_student'),
     path('approve_students/', views.approve_students, name='approve_students'),
     path('student/save/', views.student_save, name='student_save'),
@@ -36,7 +38,12 @@ urlpatterns = [
     path('approve-student/<int:student_id>/', views.approve_student, name='approve_student'),
     path('reject-student/<int:student_id>/', views.reject_student, name='reject_student'),
     path('set_password/<str:uidb64>/<str:token>/', views.password_reset_confirm_student, name='password_reset_confirm_student'),
-    
+    path('otp-verification/', views.otp_verification, name='otp_verification'),
+    path('login-via-otp/', views.login_otp, name='login_via_otp'),
+    path('auth1/', views.auth, name='auth1'),
+    path('create_task/<int:work_assignment_id>/', views.create_task, name='create_task'),
+    path('view_tasks_for_assignment/<int:work_assignment_id>/', views.view_tasks_for_assignment, name='view_tasks_for_assignment'),
+    path('submit_marks/', views.submit_cgpa, name='submit_cgpa'),
 ]
 
 

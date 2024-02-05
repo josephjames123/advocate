@@ -1,0 +1,272 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navigation.css' %}">
+
+    <title>Document</title>
+
+    <style>
+        .container {
+            display: grid;
+            place-items: center;
+        }
+
+        form {
+            width: 35em;
+        }
+
+        .col-md-6 {
+            text-align: center;
+        }
+
+        input[type=checkbox] {
+            accent-color: #ffc107;
+        }
+        .result {
+        padding-top: 3%;
+        align-items: center;
+        text-align: center;
+        color: red;
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center justify-content-between no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="{% url 'login' %}">
+                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-8">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
+                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
+                                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
+                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                
+                                                
+                                                {% if user.user_type == 'admin' %}
+                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                                {% endif %}
+                                            </ul>
+                                            
+                                        </li> -->
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                {% if user.user_type == 'admin' %}
+                                                
+                                                {% endif %}
+                                                {% if user.user_type == 'lawyer' %}
+                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
+                                                                  {% endif %}
+                                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                        {% else %}
+                                        
+                                        <li><a href="{% url 'signup' %}">Signup</a></li>
+                                        <li><a href="{% url 'login' %}">Login</a></li>
+                                        {% endif %}
+                                    </ul>
+                                    <nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Assign Working Hours</li>
+        </ol>
+    </nav>
+    
+    <div class="result">
+        {% if messages %}
+                      
+                        {% for message in messages %}
+                          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                                      {% endif %}</center></div>
+                                      <div class="row">
+                                      <div class="col-md-8">
+    <div class="container py-5">
+        <h1 class="text-center">Assign Your Working Hours</h1>
+        <form method="post" action="{% url 'assign_working_hours' %}">
+            {% csrf_token %}
+            <!-- Loop through days of the week -->
+            <h2>Monday</h2>
+            <div class="row mt-3">
+                <!-- Loop through time slots and display only those for Monday -->
+                {% for time_slot in all_time_slots %}
+                {% if time_slot.day == "Monday" %}
+                <div class="col-md-6">
+                    <label>
+                        <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+                        {{ time_slot }}
+                    </label>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+<!-- Loop through days of the week -->
+<h2>Tuesday</h2>
+<div class="row mt-3">
+    <!-- Loop through time slots and display only those for Monday -->
+    {% for time_slot in all_time_slots %}
+    {% if time_slot.day == "Tuesday" %}
+    <div class="col-md-6">
+        <label>
+            <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+            {{ time_slot }}
+        </label>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Repeat similar code for other days of the week -->
+
+<!-- Loop through days of the week -->
+<h2>Wednesday</h2>
+<div class="row mt-3">
+    <!-- Loop through time slots and display only those for Monday -->
+    {% for time_slot in all_time_slots %}
+    {% if time_slot.day == "Wednesday" %}
+    <div class="col-md-6">
+        <label>
+            <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+            {{ time_slot }}
+        </label>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Repeat similar code for other days of the week -->
+<!-- Loop through days of the week -->
+<h2>Thursday</h2>
+<div class="row mt-3">
+    <!-- Loop through time slots and display only those for Monday -->
+    {% for time_slot in all_time_slots %}
+    {% if time_slot.day == "Thursday" %}
+    <div class="col-md-6">
+        <label>
+            <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+            {{ time_slot }}
+        </label>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Repeat similar code for other days of the week -->
+
+<!-- Loop through days of the week -->
+<h2>Friday</h2>
+<div class="row mt-3">
+    <!-- Loop through time slots and display only those for Monday -->
+    {% for time_slot in all_time_slots %}
+    {% if time_slot.day == "Friday" %}
+    <div class="col-md-6">
+        <label>
+            <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+            {{ time_slot }}
+        </label>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Repeat similar code for other days of the week -->
+<!-- Loop through days of the week -->
+<h2>Saturday</h2>
+<div class="row mt-3">
+    <!-- Loop through time slots and display only those for Monday -->
+    {% for time_slot in all_time_slots %}
+    {% if time_slot.day == "Saturday" %}
+    <div class="col-md-6">
+        <label>
+            <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+            {{ time_slot }}
+        </label>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Loop through days of the week -->
+<h2>Sunday</h2>
+<div class="row mt-3">
+    <!-- Loop through time slots and display only those for Monday -->
+    {% for time_slot in all_time_slots %}
+    {% if time_slot.day == "Sunday" %}
+    <div class="col-md-6">
+        <label>
+            <input type="checkbox" name="selected_time_slots" value="{{ time_slot.id }}" {% if time_slot.id in selected_time_slot_ids %}checked{% endif %}>
+            {{ time_slot }}
+        </label>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Repeat similar code for other days of the week -->
+
+
+            <div class="text-center my-4">
+                <button type="submit" class="btn btn-warning">Assign Working Hours</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-md-4 d-flex align-items-center justify-content-center">
+    <div style=" padding: 20px; text-align: center; ">
+        <h4>Important Information</h4>
+        <li><p>Select at least 4 working days</p></li>
+        <li><p>Minimum one slot a day</p></li>
+        <li><p>Valid for the next 7 days, so choose accordingly</p></li>
+        <li><p>Feel free to change, if you wish to do so</p></li>
+    </div>
+</div>
+
+
+</body>
+
+</html>

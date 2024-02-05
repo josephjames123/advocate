@@ -1,0 +1,25 @@
+<!-- your_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add your HTML head content here -->
+</head>
+<body>
+    <h1>Unassigned Students</h1>
+    <ul>
+        {% for student in unassigned_students %}
+            <li>
+                {{ student.user.first_name }} {{ student.user.last_name }}
+                <form method="post" action="{% url 'hire_student' student.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Hire Student</button>
+                </form>
+            </li>
+            <!-- Display other student details as needed -->
+        {% empty %}
+            <li>No unassigned students found.</li>
+        {% endfor %}
+    </ul>
+    <!-- Add any additional content or formatting as needed -->
+</body>
+</html>

@@ -67,8 +67,8 @@ class CustomUser(AbstractUser):
     # state = models.CharField(max_length=10, choices=STATES, default='kerala')  # Added: State field
     phone = models.CharField(max_length=15,blank=True)  # Added: Phone number field
     
-from django.db import models
-from django.contrib.auth import get_user_model
+    
+
 
 class TimeSlot(models.Model):
     DAY_CHOICES = (
@@ -143,6 +143,9 @@ class LawyerProfile(models.Model):
     court = models.CharField(max_length=200, choices=COURT,blank=True)
     working_hours = models.ManyToManyField(TimeSlot, blank=True)
     time_update = models.DateTimeField(null=True, blank=True)
+    additional_qualification = models.CharField(max_length=255 ,blank=True, null = True) 
+    additional_qualification_documents = models.FileField(blank=True , null=True) 
+
     
     def get_available_time_slots(self, day_of_week):
         # Retrieve the time slots associated with this lawyer for the given day_of_week
@@ -179,7 +182,7 @@ class LawyerProfile(models.Model):
             time_difference = date_to_check - self.time_update.date()
 
             # Check if the difference is within 7 days
-            if 0 <= time_difference.days <= 14:
+            if 0 <= time_difference.days <= 31:
                 return True
 
         return False
@@ -233,10 +236,35 @@ class Day(models.Model):
     
         
         
+class ContactEntry(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=100)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.name
     
 
     
+    
+class Booking(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
+    details = models.TextField()
+    booking_date = models.DateField()
+    time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default="pending")
+    original_booking_date = models.DateField(null=True, blank=True)
+
+    def is_confirmed(self):
+        return self.status == "confirmed"
+
+    def __str__(self):
+        return self.user.email
     
 
 class Student(models.Model):
@@ -251,7 +279,7 @@ class Student(models.Model):
         # Add more specializations as needed
     )
     
-    SPECIALIZATIONS = (
+    YEAR_OF_PASS = (
         ('2019', '2019'),
         ('2020', '2020'),
         ('2021', '2021'),
@@ -266,7 +294,7 @@ class Student(models.Model):
     course_place = models.CharField(max_length=100, blank=True)
     duration_of_course = models.CharField(max_length=20, blank=True)
     specialization = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True,null= True)
-    year_of_pass = models.CharField(max_length=50, choices=SPECIALIZATIONS, blank=True,null=True)
+    year_of_pass = models.CharField(max_length=50, choices=YEAR_OF_PASS, blank=True,null=True)
     cgpa = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     experience = models.TextField(blank=True,null=True)  # You can use a TextField for experience details
     adhaar_no = models.CharField(max_length=12, blank=True, unique=True)
@@ -294,6 +322,26 @@ class Internship(models.Model):
     def __str__(self):
         return self.name
     
+
+class Application(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    )
+
+    id = models.AutoField(primary_key=True)
+    internship = models.ForeignKey('Internship', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    application_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f'{self.student.user.username} - {self.internship.name}'
+    
+# class StudentUser(CustomUser):
+#     is_approved = models.BooleanField(default=False)
+
 class LawyerDayOff(models.Model):
     id = models.AutoField(primary_key=True)
     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
@@ -303,19 +351,51 @@ class LawyerDayOff(models.Model):
         return f"{self.lawyer} - {self.date}"
     
     
+# class HolidayRequest(models.Model):
+#     STATUS_CHOICES = (
+#         ('pending', 'Pending'),
+#         ('accepted', 'Accepted'),
+#         ('rejected', 'Rejected'),
+#     )
+#     id = models.AutoField(primary_key=True)
+#     lawyer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+#     date = models.DateField()
+#     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
+#     def __str__(self):
+#         return f'{self.lawyer.username} - {self.date} ({self.status})'
+
 class HolidayRequest(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
     )
+    TYPE_CHOICES = (
+        ('dutyleave', 'Duty Leave'),
+        ('casual_leave', 'Casual Leave'),
+    )
+    TIMING_CHOICES = (
+        ('full_day', 'Full Day'),
+        ('half_day', 'Half Day'),
+    )
+
     id = models.AutoField(primary_key=True)
     lawyer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    timing = models.CharField(max_length=10, choices=TIMING_CHOICES, default='full_day')
+    reason = models.TextField()
+    supporting_documents = models.FileField(upload_to='supporting_documents/', blank=True, null=True)
 
     def __str__(self):
         return f'{self.lawyer.username} - {self.date} ({self.status})'
+    
+    def is_in_current_month(self):
+        today = timezone.now()
+        return today.month == self.date.month and today.year == self.date.year
+
     
     
 class Case(models.Model):
@@ -412,7 +492,8 @@ class Appointment(models.Model):
         most_recent_working_hours_date = self.lawyer.working_slots.aggregate(models.Max('created_date'))['created_date__max']
         
         if most_recent_working_hours_date:
-            seven_days_ago = most_recent_working_hours_date + timedelta(days=7)            
+            seven_days_ago = most_recent_working_hours_date + timedelta(days=14)  # Changed from 14 to 7
+            
             if self.appointment_date < seven_days_ago.date():
                 raise ValidationError("You can only schedule appointments within 7 days of your most recent working hours assignment.")
 
@@ -446,18 +527,20 @@ class Task(models.Model):
     id = models.AutoField(primary_key=True)
     work_assignment = models.ForeignKey(WorkAssignment, on_delete=models.CASCADE)
     files = models.FileField(upload_to='task_files/', blank=True, null=True)
-    note = models.TextField(blank=True)
+    note = models.TextField()
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Task for Case {self.case.case_number} - Student: {self.student.user.first_name} {self.student.user.last_name}"
+        return f"Task Submission Student: {self.student.user.first_name} {self.student.user.last_name}"
 
-            
-class Application(models.Model):
-    id = models.AutoField(primary_key=True)
-    internship = models.ForeignKey(Internship, on_delete=models.CASCADE)
+class StudentPayment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    application_date = models.DateTimeField(auto_now_add=True)
+    internship = models.ForeignKey(Internship, on_delete=models.CASCADE)
+    order_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=20)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=200, blank=True, null=True)
 
-    def _str_(self):
-        return f'{self.student.user.username} - {self.internship.name}'
+    def __str__(self):
+        return f"Payment for {self.internship.name} by {self.student.user.first_name} {self.student.user.last_name}"            
+            

@@ -1,39 +1,18 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% elif user.user_type == 'client' %}
+    {% include 'client_base.html' %}
+{% else %}
+    {% include 'admin_base.html' %}
+{% endif %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS here -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
-    <link rel="stylesheet" href="{% static 'css/navigation.css' %}">
+{% block title %}Case List - Adv Assist{% endblock %}
 
-    <!-- icons -->
-    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
-
-    <!-- data table links start -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <!-- data table links end -->
-
-    <title>Case List</title>
-</head>
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <style>
     *,
@@ -46,7 +25,7 @@
     }
 
     select {
-        border: 2px solid #f2c64d;
+        border: 1px solid #000;
         min-width: 5em;
         border-radius: 3px;
     }
@@ -58,7 +37,7 @@
     div.dataTables_wrapper div.dataTables_filter input[type=search] {
         height: 2.5em;
         width: 25em;
-        border: 2px solid #f2c64d;
+        border: 1px solid #000;
         border-radius: 3px;
         padding: 0 10px;
         font-size: 14px;
@@ -70,7 +49,11 @@
 
     .table.dataTable.table-striped>tbody>tr.odd>* {
         box-shadow: none;
-        background-color: #f2c64d10;
+        background-color: #eff1f3;
+    }
+
+    .table.dataTable.table-striped>tbody>tr.odd:hover {
+        background-color: #E0FCFC;
     }
 
     a,
@@ -84,163 +67,164 @@
     }
 
     a.paginate_button.current {
-        background-color: #f2c64d;
+        background-color: #eff1f3;
         padding: 5px 10px;
-        color: #fff;
+        color: #000;
     }
 
     a.paginate_button.previous.disabled,
     a.paginate_button.next.disabled {
-        background-color: #f2c64d17;
+        background-color: #eff1f3;
         cursor: not-allowed;
         opacity: 0.7;
     }
 
     a.paginate_button {
-        border: 1px solid #f2c64d;
+        border: 1px solid #000;
         padding: 5px 10px;
         cursor: pointer;
     }
-
-    .profile-pic {
-        width: 15em;
-        height: 15em;
-    }
-
-    .profile-pic img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    tr {
-        text-align: center;
-    }
 </style>
 
-<body>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="index.html">
-                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
-                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
-                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
-                                            
-                                        </li> -->
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-                                                
-                                                {% endif %}
-                                                {% if user.user_type == 'lawyer' %}
-                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                                  {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
-                                        
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                    <nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Start main wrapper -->
+<main class="main-wrapper">
+    <div class="main-content">
+        <!-- Breadcrumb -->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+            <div class="breadcrumb-title pe-3">Dashboard</div>
+            <div class="ps-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 p-0">
+                        <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a></li>
+                    </ol>
+                </nav>
             </div>
+            <div class="ms-auto"></div>
         </div>
-    </header>
-    
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Cases</li>
-        </ol>
-    </nav>
+        <!-- End breadcrumb -->
 
-    <div class="container py-5">
-        <h1 class="text-center">Case List</h1>
+        <div class="container py-5">
+            <h1 class="text-center">Case List</h1>
 
-        <div class="row">
-            <div class="col-12">
-                <table id="example" class="table table-striped" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Case Number</th>
-                            <th class="text-center">
-                                {% if user.user_type == 'client' %}
-                                    Lawyer <!-- Display lawyer's name for clients -->
-                                {% elif user.user_type == 'lawyer' %}
-                                    Client  <!-- Display client's name for lawyers -->
+            <div class="row">
+                <div class="col-12">
+                    <table id="example" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Case Number</th>
+                                <th class="text-center">
+                                    {% if user.user_type == 'client' %}
+                                        Lawyer
+                                    {% elif user.user_type == 'lawyer' %}
+                                        Client
+                                    {% endif %}
+                                </th>
+                                {% if user.user_type == 'lawyer' %}
+                                    <th class="text-center">Handled By</th>
                                 {% endif %}
-                            </th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center"></th>
-                        </tr>
-                    </thead>
+                                <th class="text-center">Status</th>
+                                <th class="text-center"></th>
+                                <th class="text-center"></th>
+                            </tr>
+                        </thead>
+                
+                        <tbody>
+    {% for case in cases %}
+    <tr>
+        <td class="text-center">CS/{{ case.case_number }}</td>
+        <td class="text-center">
+            {% if user.user_type == 'client' %}
+            {{ case.lawyer.user.get_full_name }}
+            {% elif user.user_type == 'lawyer' %}
+            {{ case.client_name }}
+            {% endif %}
+        </td>
+        {% if user.user_type == 'lawyer' %}
+    <td class="text-center">
+        {% if case.work_assignments.all %}
+            {% for work_assignment in case.work_assignments.all %}
+                {% if work_assignment.student %}
+                    {{ work_assignment.student.user.get_full_name }}
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            {{ request.user.get_full_name }}
+        {% endif %}
+    </td>
+{% endif %}
 
-                    <tbody>
-                        {% for case in cases %} 
-                        <tr>
-                            <td>cs\{{ case.case_number }} </td>
-                            <td>
-                                {% if user.user_type == 'client' %}
-                                {{ case.lawyer.user.get_full_name }} <!-- Display lawyer's name for clients -->
-                                {% elif user.user_type == 'lawyer' %}
-                                    {{ case.client_name }} <!-- Display client's name for lawyers -->
-                                {% endif %}
-                            </td>
-                            <td>{{ case.status }}</td>
-                            <td>
-                                
-                                <a href="{% url 'case_detail' case.id %}"><button class="btn btn-success" type="submit" >Show More</button></a>
-                                
-                            </td>
-                        </tr>
-                        {% endfor %}  
-                    </tbody>
+        <td class="text-center">{{ case.status }}</td>
+        <td class="text-center">
+            <a href="{% url 'case_detail' case.id %}">
+                <button class="btn btn-success" type="submit">Show More</button>
+            </a>
+        </td>
+        <td class="text-center">
+            {% comment %} {% for work_assignment in case.work_assignments %}
+                <a href="{% url 'view_tasks_for_assignment' work_assignment.id %}">
+                    <button class="btn btn-success" type="submit">View Tasks</button>
+                </a>
+            {% endfor %} {% endcomment %}
+            <div class="col">
+                <!-- Button trigger modal -->
+                {% for work_assignment in case.work_assignments %}
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Report</button>
+            </td>
+                <!-- Modal -->
+<div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tasks for {{ work_assignment.description }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% for task in work_assignment.tasks %}
+                    <div class="modal-body">Note: {{ task.note }}</div>
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-info px-4 raised" id="viewButton">
+                            <i class="material-icons-outlined">cloud_download</i>View
+                        </button>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var viewButton = document.getElementById('viewButton');
 
-                    
-                </table>
+                            viewButton.addEventListener('click', function () {
+                                window.open("{{ task.files.url }}", "_blank");
+                            });
+                        });
+                    </script>
+                {% endfor %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-    
-                
-                    
-    <script>
-        new DataTable('#example');
+</div>
+              {% endfor %}
+    </tr>
+    {% endfor %}
+</tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 
-        document.querySelector('div.dataTables_wrapper div.dataTables_filter input').setAttribute('placeholder', 'Search anything')
-    </script>
-</body>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var table = $('#example').DataTable({
+            "paging": true,
+            "ordering": true,
+            "info": true,
+            "searching": true
+        });
+    });
+</script>
 
-</html>
+
+{% endblock %}

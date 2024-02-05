@@ -1,0 +1,97 @@
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% else %}
+    {% include 'student_base.html' %}
+{% endif %}
+{% block title %}Business Laws - Adv Assist{% endblock %}
+
+{% block content %}
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+                <div class="">
+					<div class="">
+						<div class="container py-2">
+							<h2 class="font-weight-light text-center text-muted py-3">Employment Laws</h2>
+							<!-- timeline item 1 -->
+							<div class="row">
+								
+								<!-- timeline item 1 event content -->
+								<div class="col py-2">
+									<div class="card radius-15">
+										<div class="card-body">
+											<div class="float-end text-muted">Section 499 </div>
+											<h4 class="card-title text-muted">Defamation</h4>
+											<p class="card-text">Defamation laws could be applicable in situations where false statements or publications harm the reputation of an individual or an organization, impacting employment relationships.
+                                            </p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/row-->
+							<!-- timeline item 1 event content -->
+							<div class="col py-2">
+								<div class="card radius-15">
+									<div class="card-body">
+										<div class="float-end text-muted">Section 503 </div>
+										<h4 class="card-title text-muted">Criminal Intimidation </h4>
+										<p class="card-text">Deals with criminal intimidation, which might be relevant in cases of threats or intimidation in the employment context.
+                                        </p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--/row-->
+						<!-- timeline item 1 event content -->
+						<div class="col py-2">
+							<div class="card radius-15">
+								<div class="card-body">
+									<div class="float-end text-muted">Section 383</div>
+									<h4 class="card-title text-muted">  Extortion</h4>
+									<p class="card-text">This section deals with the offense of extortion, which may be applicable if an employee uses force, threats, or intimidation to obtain something of value from the employer or a colleague.
+                                    </p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--/row-->
+					<!-- timeline item 1 event content -->
+					<div class="col py-2">
+						<div class="card radius-15">
+							<div class="card-body">
+								<div class="float-end text-muted">Section 406</div>
+								<h4 class="card-title text-muted"> Punishment for Criminal Breach of Trust</h4>
+								<p class="card-text">n an employment context, it may be applicable if an employee, entrusted with property or finances, breaches that trust by misusing or misappropriating the assets of the employer.
+                                </p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/row-->
+                        </div>
+					</div>
+				</div>
+
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    {% endblock %}
