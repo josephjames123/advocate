@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
-from .models import CustomUser, LawyerProfile , CurrentCase, StudentPayment  
+from .models import CustomUser, LawyerProfile , CurrentCase, Notification, StudentPayment  
 from django.http import HttpResponseForbidden , Http404,HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
@@ -61,6 +61,7 @@ from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
 from twilio.rest import Client
 import random
+from .models import FinePayment
 
 
 
@@ -771,13 +772,24 @@ def student_dashboard(request):
         if student.is_approved:
             if student.course and student.cgpa is not None:
                 work_assignment_count = WorkAssignment.objects.filter(student=student).count()
-                
                 recent_internships = Internship.objects.order_by('-pk')[:5]
+
+                # Get the lawyer in which the student is enrolled
+                enrolled_lawyer = None
+                if student.lawyer:
+                    enrolled_lawyer = student.lawyer.user
+                    lawyer_profile = student.lawyer
+
+                # Get upcoming tasks for the student
+                upcoming_tasks = WorkAssignment.objects.filter(student=student, deadline_date__gt=timezone.now())
 
                 return render(request, 'student/dashboard.html', {
                     'user': request.user,
                     'recent_internships': recent_internships,
-                    'work_assignment_count': work_assignment_count,  
+                    'work_assignment_count': work_assignment_count,
+                    'enrolled_lawyer': enrolled_lawyer,
+                    'upcoming_tasks': upcoming_tasks,
+                    'lawyer_profile':lawyer_profile,
                 })
             else:
                 return render(request, 'student/student_details.html')
@@ -786,6 +798,7 @@ def student_dashboard(request):
             return render(request, 'student/not_approved.html')
 
     return render(request, '404.html')
+
 
 @login_required
 def approve_students(request):
@@ -1901,12 +1914,12 @@ def generate_appointment_pdf(request, appointment_id):
     return HttpResponse('PDF generation error')
 
 
-def student_detail(request, student_id):
-    student = get_object_or_404(Student, id=student_id)
-    context = {
-        'student': student,
-    }
-    return render(request, 'student_detail.html', context)
+# def student_detail(request, student_id):
+#     student = get_object_or_404(Student, id=student_id)
+#     context = {
+#         'student': student,
+#     }
+#     return render(request, 'student_detail.html', context)
 
 
 def add_case_update(request, case_number):
@@ -1941,16 +1954,16 @@ def add_case_update(request, case_number):
 #     return render(request, 'unassigned_students.html', {'unassigned_students': unassigned_students})
 
 @login_required
-def unassigned_students(request):
+def students(request):
     # Retrieve the currently logged-in lawyer
     lawyer_profile = request.user.lawyer_profile
     # Filter students who have applied for internships under the logged-in lawyer
-    applied_students = Student.objects.filter(is_approved=True, application__internship__lawyer_profile=lawyer_profile)
+    applied_students = Student.objects.filter(is_approved=True, application__internship__lawyer_profile=lawyer_profile, lawyer__isnull=True,)
 
     # Filter students who are already enrolled in internships under the logged-in lawyer
     enrolled_students = Student.objects.filter(is_approved=True, lawyer=lawyer_profile)
 
-    return render(request, 'unassigned_students.html', {'applied_students': applied_students, 'enrolled_students': enrolled_students})
+    return render(request, 'students.html', {'applied_students': applied_students, 'enrolled_students': enrolled_students})
 
 # def hire_student(request, student_id):
 #     if request.method == 'POST':
@@ -2458,5 +2471,144 @@ def internship_payment_callback(request, student_id):
             return JsonResponse({"error": "An error occurred during payment processing"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+logger = logging.getLogger(__name__)
+
+def students_info(request, student_id):
+    print("clicked")
+    student = get_object_or_404(Student, pk=student_id)
+    tasks = Task.objects.filter(student=student)
+
+    if tasks.exists():
+        logger.debug("Tasks found for this student:")
+        for task in tasks:
+            logger.debug(f"Task ID: {task.id}")
+            logger.debug(f"Description: {task.work_assignment.description}")
+            logger.debug(f"Deadline Date: {task.work_assignment.deadline_date}")
+            logger.debug(f"Note: {task.note}")
+            logger.debug("-------------------")
+    else:
+        logger.debug("No tasks found for this student.")
+
+    return render(request, 'student/student_info.html', {'student': student, 'tasks': tasks})
+
+
+def pay_fine(request, student_id, workassignment_id):
+    # Retrieve student and internship
+    student = Student.objects.get(id=student_id)
+    workassignment = WorkAssignment.objects.get(id=workassignment_id)
+
+    # Initialize Razorpay client
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    try:
+        # Create a Razorpay order
+        order_amount = 1000  # You can customize the order amount
+        order_currency = 'INR'
+        order_payload = {
+            'amount': order_amount,
+            'currency': order_currency,
+            'notes': {
+                'student_id': student.id,
+                'workassignment_id': workassignment.id
+            },
+            'payment_capture': "1"
+        }
+        order = client.order.create(data=order_payload)
+
+        # Create a StudentPayment entry
+        fine_payment = FinePayment.objects.create(
+            student=student,
+            workassignment=workassignment,
+            order_id=order.get('id'),
+            status=PaymentStatus.PENDING  
+        )
+
+        # Render the payment template with necessary details
+        return render(
+            request,
+            "fine_razorpay_payment.html",
+            {
+                "callback_url": f"http://127.0.0.1:8000/fine_payment_callback/{student.id}/",
+                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                "student": student,
+                "workassignment": workassignment,
+                "order": order,
+                "fine_payment": fine_payment,  
+            }
+        )
+
+    except Exception as e:
+        print(str(e))
+        return render(
+            request,
+            "payment_error.html",
+            {
+                "error_message": str(e),
+                
+            }
+        )
+
+@csrf_exempt
+def fine_payment_callback(request, student_id):
+    if request.method == 'POST':
+        try:
+            razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            razorpay_signature = request.POST.get('razorpay_signature', '')
+
+            # Initialize Razorpay client
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+            # Verify the payment signature
+            is_signature_valid = client.utility.verify_payment_signature({
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_signature': razorpay_signature
+            })
+
+            if is_signature_valid:
+                try:
+                    # Retrieve student payment
+                    fine_payment = FinePayment.objects.get(order_id=razorpay_order_id)
+
+                    # Update payment status and details
+                    fine_payment.razorpay_payment_id = razorpay_payment_id
+                    fine_payment.razorpay_signature = razorpay_signature
+                    fine_payment.status = PaymentStatus.SUCCESS
+                    fine_payment.save()
+
+                    # Update WorkAssignment charge_fine to False
+                    fine_payment.workassignment.charge_fine = False
+                    fine_payment.workassignment.save()
+
+                    # Extend deadline by 3 days
+                    fine_payment.workassignment.deadline_date += timedelta(days=3)
+                    fine_payment.workassignment.save()
+
+                    # Render payment confirmation template
+                    return render(request, 'payment_confirm.html', {'fine_payment': fine_payment})
+                except StudentPayment.DoesNotExist:
+                    return JsonResponse({"error": "Student payment not found"}, status=404)
+            else:
+                return JsonResponse({"status": "failure"})
+
+        except Exception as e:
+            # Handle exceptions
+            logger.error(f"Error in Razorpay callback: {str(e)}")
+            return JsonResponse({"error": "An error occurred during payment processing"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+def request_fine(request, work_assignment_id):
+    work_assignment = get_object_or_404(WorkAssignment, pk=work_assignment_id)
+    work_assignment.charge_fine = True
+    work_assignment.save()
+    
+    Notification.objects.filter(work_assignment=work_assignment).delete()
+    
+    return redirect('login')
+
+
 
 

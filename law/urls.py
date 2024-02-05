@@ -1,7 +1,7 @@
 # law/urls.py
 from django.contrib import admin
 from django.urls import path, include 
-from accounts import views  # Import the include function
+from accounts import views  
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -45,12 +45,12 @@ urlpatterns = [
     path('google', TemplateView.as_view(template_name="auth.html")),
     path('intern/', views.intern, name='intern'),
     path('generate-pdf/<int:appointment_id>/', views.generate_appointment_pdf, name='generate_appointment_pdf'),
-    path('student/<int:student_id>/', views.student_detail, name='student_detail'),
+    # path('student/<int:student_id>/', views.student_detail, name='student_detail'),
     # path("callback/", views.callback, name="callback"),
     path('callback/<int:appointment_id>/', views.callback, name='callback'),
     path('case_detail/<int:case_number>/', views.case_detail, name='case_detail'),
     path('cases/<int:case_number>/add-update/', views.add_case_update, name='add_case_update'),
-    path('unassigned_students/', views.unassigned_students, name='unassigned_students'),
+    path('students/', views.students, name='students'),
     path('hire_student/<int:student_id>/', views.hire_student, name='hire_student'),
     path('assign_work/', views.assign_work, name='assign_work'),
     path('work-assignments/', views.student_work_assignments, name='student_work_assignments'),
@@ -72,6 +72,10 @@ urlpatterns = [
     path('internship/payment/<int:student_id>/<int:internship_id>/', views.internship_payment, name='internship_payment'),
     # path('internship_payment_callback/<int:razorpay_order_id>/', views.internship_payment_callback, name='internship_payment_callback'),
     path('internship_payment_callback/<int:student_id>/', views.internship_payment_callback, name='internship_payment_callback'),
+    path('student/<int:student_id>/', views.students_info, name='students_info'),
+    path('fine/payment/<int:student_id>/<int:workassignment_id>/', views.pay_fine, name='pay_fine'),
+    path('fine_payment_callback/<int:student_id>/', views.fine_payment_callback, name='fine_payment_callback'),
+
 
 ]
 

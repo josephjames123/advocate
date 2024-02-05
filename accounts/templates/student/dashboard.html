@@ -22,7 +22,64 @@
 					</div>
 				</div>
 				<!--end breadcrumb-->
-
+				<div class="row">
+					<div class="col-12 col-lg-4 d-flex">
+					  <div class="card w-100">
+						<div class="card-body">
+						  <div class="position-relative">
+							<div class="position-absolute top-150 start-50 translate-middle">
+							  
+							</div>
+						  </div>
+						  <div class="text-center mt-5 pt-4">
+							<h4 class="mb-1">{{ enrolled_lawyer.first_name }} {{ enrolled_lawyer.last_name }}</h4>
+							<p class="mb-0">{{ lawyer_profile.court }} </p>
+							<p class="mb-0">{{ lawyer_profile.specialization }} Lawyer </p>
+						  </div>	
+						</div>
+						<ul class="list-group list-group-flush">
+						  <li class="list-group-item border-top">
+							<b>Address</b>
+							<br>
+							{{enrolled_lawyer.address}}
+						  </li>
+						  <li class="list-group-item">
+							<b>Email</b>
+							<br>
+							{{enrolled_lawyer.email}}
+						  </li>
+						  <li class="list-group-item">
+							<b>Phone</b>
+							<br>
+							{{enrolled_lawyer.phone}}
+						  </li>
+						</ul>
+					  </div>
+					</div>
+			
+					<div class="col-12 col-lg-8 d-flex">
+					  <div class="card w-100">
+						<center><h4> Assigned Works!</h4></center>
+						<div class="customer-notes mb-3">
+						  <div class="bg-light mx-3 my-0 rounded-3 p-3">
+							{% for task in upcoming_tasks %}
+							<div class="notes-item">
+							  <p class="mb-2">{{ task.description }}</p>
+							  <p class="mb-2"><a href="{% url 'case_detail' task.case.id %}">{{ task.case }}</a></p>
+							  <p class="mb-0 text-end fst-italic text-secondary">{{ task.deadline_date }}</p>
+							  {% if task.charge_fine %}
+							  <a href="{% url 'pay_fine' task.student.id task.id %}" class="btn btn-danger">Pay Fine</a>
+						  {% else %}
+							  <a href="{% url 'create_task' task.id %}" class="btn btn-primary">Submit Task</a>
+						  {% endif %}
+							</div>
+							<hr class="border-dotted">
+							{% endfor %}
+						  </div>
+						</div>
+					  </div>
+					</div>
+				  </div><!--end row-->
 				<div class="row row-cols-1 row-cols-lg-3 g-4">
 					<div class="col">
 					  <div class="text-center">

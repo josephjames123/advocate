@@ -451,9 +451,11 @@ class WorkAssignment(models.Model):
     deadline_date = models.DateField()
     case = models.ForeignKey('Case', on_delete=models.CASCADE)
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    charge_fine = models.BooleanField(default=False)  
 
     def __str__(self):
         return f"Work Assignment for Case {self.case.case_number}"
+
     
 
 
@@ -543,4 +545,25 @@ class StudentPayment(models.Model):
 
     def __str__(self):
         return f"Payment for {self.internship.name} by {self.student.user.first_name} {self.student.user.last_name}"            
-            
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True)
+    work_assignment = models.ForeignKey(WorkAssignment, on_delete=models.CASCADE, blank=True, null=True)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.recipient.first_name} - {self.message}"
+    
+    
+class FinePayment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    workassignment = models.ForeignKey(WorkAssignment, on_delete=models.CASCADE)
+    order_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=20)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return f"Payment for {self.workassignment} by {self.student.user.first_name} {self.student.user.last_name}"            

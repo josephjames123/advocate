@@ -60,9 +60,7 @@
           </div>
         </div>
       </div>
-    </div>
-    {% if lawyer_profile.time_update %}
-          {% if time_update.month != current_month %}       
+    </div>     
     <ul class="navbar-nav gap-1 nav-right-links align-items-center">
       <li class="nav-item d-lg-none mobile-search-btn">
       </li>
@@ -85,6 +83,34 @@
             </div>
           </div>
           <div class="notify-list">
+            {% for notification in notifications %}
+            <div>
+                <a class="dropdown-item border-bottom py-2" href="javascript:;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="">
+                            <!-- Your image code goes here -->
+                        </div>
+                        <div class="">
+                            <h5 class="notify-title">{{ notification.message }}</h5>
+                            <p class="mb-0 notify-time">{{ notification.timestamp }}</p>
+                            {% if "The deadline for the task assigned to" in notification.message %}
+                                {% if notification.student %}
+                                    {% if notification.student.course == "LLB" and notification.student.cgpa >= 8 or notification.student.course == "LLM" and notification.student.cgpa > 7 %}
+                                        <button class="btn btn-primary" onclick="window.location.href='{% url 'assign_work' %}'">Submit Another Work</button>
+                                    {% else %}
+                                        <a href="{% url 'request_fine' notification.work_assignment.id %}" class="btn btn-danger">Request Fine</a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+        
+
+            {% if lawyer_profile.time_update %}
+          {% if time_update.month != current_month %}  
             <div>
               <a class="dropdown-item border-bottom py-2" href="javascript:;">
                 <div class="d-flex align-items-center gap-3">
@@ -99,12 +125,12 @@
                 </div>
               </a>
             </div>
-            
+            {% endif %}
+    {% endif %}
           </div>
         </div>
       </li>
-      {% endif %}
-    {% endif %}
+      
       <li class="nav-item dropdown">
           <div class="notify-list">
               </a>
@@ -203,8 +229,8 @@
             <div class="menu-title">Current cases</div>
           </a>
         </li>
-        <li class="{% if request.path == '/unassigned_students/' %}active{% endif %}">
-          <a href="{% url 'unassigned_students' %}" class="has-arrow">
+        <li class="{% if request.path == '/students/' %}active{% endif %}">
+          <a href="{% url 'students' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
             <div class="menu-title">Students</div>

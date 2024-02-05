@@ -22,30 +22,32 @@
             </div>
         </div>
         <!--end breadcrumb-->
-
-        <div class="container py-5">
-            <h2 class="text-center mb-">Your Work Assignments</h2>
-            <div class="row">
-                {% for assignment in work_assignments %}
-                <div class="col-md-3">
-                    <div class="work-cards p-3">
-                        <h5>{{ assignment.description }} </h5>
-                        <p>Deadline:  {{ assignment.deadline_date }}</p>
-                        <p>Case:  {{ assignment.case }}</p>
-
+        <h2 class="text-center mb-">Your Work Assignments</h2>
+        <div class="row row-cols-1 row-cols-xl-2">
+            {% for assignment in work_assignments %}
+            <div class="col">
+              <div class="card">
+                <div class="row g-0">
+                  <div class="col-md-12">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ assignment.description }}</h5>
+                      <p class="card-text">Deadline:  {{ assignment.deadline_date }}</p>
+                      <p class="card-text">Case:  {{ assignment.case }}</p>
+                      <div class="mt-4 d-flex align-items-center justify-content-between">
                         <!-- Add a form for submitting a task -->
                         <form method="post" action="{% url 'create_task' assignment.id %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary">Submit Task</button>
                         </form>
+                        
+                      </div>
                     </div>
+                  </div>
                 </div>
-                {% empty %}
-                <li>No work assignments found.</li>
-                {% endfor %}
+              </div>
             </div>
-        </div>
-    </div>
+            {% endfor %}
+          </div>
     </div><!--end row-->
 </main>
 {% endblock %}

@@ -1,11 +1,3 @@
-
-not able to submit report ontime , if paid ( fine)
-unpaid  - assign another work
-notification - not done
-students - tasks in students tab
-student (dashboard) - detaisl lawyer , task - in a box
-case history - both lawyers and students
-
 feedback - only last 
 lawyer
 Google authentication
@@ -14,3 +6,9 @@ paid and unpaid
 LLB  - 8.0 and above ( free)
 LLM - 7.0 and above ( free)
 proof
+students - tasks in students tab
+student (dashboard) - detaisl lawyer , task - in a box
+notification - not done
+not able to submit report ontime , if paid ( fine)
+unpaid  - assign another work
+case history -  lawyers 

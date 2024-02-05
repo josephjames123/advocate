@@ -44,6 +44,8 @@ urlpatterns = [
     path('create_task/<int:work_assignment_id>/', views.create_task, name='create_task'),
     path('view_tasks_for_assignment/<int:work_assignment_id>/', views.view_tasks_for_assignment, name='view_tasks_for_assignment'),
     path('submit_marks/', views.submit_cgpa, name='submit_cgpa'),
+    path('work_assignment/<int:work_assignment_id>/pay_fine/', views.request_fine, name='request_fine'),
+
 ]
 
 

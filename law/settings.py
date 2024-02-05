@@ -77,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.notifications',
             ],
         },
     },
@@ -210,14 +211,15 @@ TWILIO_AUTH_TOKEN = '47ac0126322deff068f624f07038a8d0'
 TWILIO_ACCOUNT_SID = 'AC555316373c97643675e0be3bca2a9431'
 
 
+
 # ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
 
 CORS_ORIGIN_WHITELIST = [
     'https://api.razorpay.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://api.razorpay.com"]
-
 
 
 

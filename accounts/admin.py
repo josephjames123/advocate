@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CurrentCase , HolidayRequest,Payment, Task
 from .models import CustomUser, LawyerProfile , ContactEntry , Booking , Student, Internship, Application ,TimeSlot , Day , LawyerDayOff , Case, Appointment, CaseTracking , WorkAssignment
-from .models import StudentPayment
+from .models import StudentPayment,Notification,FinePayment
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -48,6 +48,8 @@ class InternshipAdmin(admin.ModelAdmin):
 admin.site.register(Internship, InternshipAdmin)
 admin.site.register(Task)
 admin.site.register(StudentPayment)
+admin.site.register(Notification)
+admin.site.register(FinePayment)
 
 
 
