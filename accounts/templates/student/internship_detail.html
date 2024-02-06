@@ -56,7 +56,7 @@
                                   </form> {% endcomment %}
                                   <form method="post" action="{% url 'internship_payment' student.id internship.id %}">
                                     {% csrf_token %}
-                                    <button type="button" class="btn btn-success">Pay</button>
+                                    <button type="submit" class="btn btn-success">Pay</button>
                                 </form>
                               {% else %}
                                   <form method="post">
