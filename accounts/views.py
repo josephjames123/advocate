@@ -431,16 +431,18 @@ def lawyer_dashboard(request):
         # Count the number of bookings for this lawyer
         booking_count = Booking.objects.filter(lawyer=lawyer_profile).count()
         case_count = Case.objects.filter(lawyer=lawyer_profile).count()
-        current_month = timezone.now().month
-        time_update = lawyer_profile.time_update  
+        # current_month = timezone.now().month
+        # # current_month = '03'
+        # time_update = lawyer_profile.time_update  
+        # print(time_update)
 
         context = {
             'user': request.user,
             'booking_count': booking_count,
             'bookings': bookings,
             'case_count': case_count,
-            'current_month': current_month,
-            'time_update': time_update,
+            # 'current_month': current_month,
+            # 'time_update': time_update,
             'student_count':student_count
         }
 
@@ -783,7 +785,7 @@ def student_dashboard(request):
                     lawyer_profile = student.lawyer
 
                 # Get upcoming tasks for the student
-                upcoming_tasks = WorkAssignment.objects.filter(student=student, deadline_date__gt=timezone.now())
+                upcoming_tasks = WorkAssignment.objects.filter(student=student)
 
                 return render(request, 'student/dashboard.html', {
                     'user': request.user,
@@ -800,6 +802,7 @@ def student_dashboard(request):
             return render(request, 'student/not_approved.html')
 
     return render(request, '404.html')
+
 
 
 @login_required
@@ -1916,12 +1919,12 @@ def generate_appointment_pdf(request, appointment_id):
     return HttpResponse('PDF generation error')
 
 
-def student_detail(request, student_id):
-    student = get_object_or_404(Student, id=student_id)
-    context = {
-        'student': student,
-    }
-    return render(request, 'student_detail.html', context)
+# def student_detail(request, student_id):
+#     student = get_object_or_404(Student, id=student_id)
+#     context = {
+#         'student': student,
+#     }
+#     return render(request, 'student_detail.html', context)
 
 
 def add_case_update(request, case_number):
@@ -2345,7 +2348,6 @@ def internships(request):
 
     return render(request, 'student/internship_list.html', {'internships': internships})
 
-
 def submit_cgpa(request):
     if request.method == 'POST':
         cgpa_str = request.POST.get('cgpa')
@@ -2366,6 +2368,27 @@ def submit_cgpa(request):
         return render(request, 'student/intern.html', {'cgpa': request.session.get('cgpa', ''), 'course': request.session.get('course', '')})
 
     return render(request, 'student/submit_cgpa.html')
+
+# def submit_cgpa(request):
+#     if request.method == 'POST':
+#         cgpa_str = request.POST.get('cgpa')
+#         course = request.POST.get('course')
+#         if cgpa_str and course:
+#             try:
+#                 cgpa = float(cgpa_str)
+#                 if 8 <= cgpa <= 10:
+#                     request.session['cgpa'] = cgpa
+#                     request.session['course'] = course
+#                 elif 4 <= cgpa < 8:
+#                     request.session['cgpa'] = cgpa
+#                     request.session['course'] = course
+#             except ValueError:
+#                 pass
+
+#         # Pass the values to step 2 template
+#         return render(request, 'student/intern.html', {'cgpa': request.session.get('cgpa', ''), 'course': request.session.get('course', '')})
+
+#     return render(request, 'student/submit_cgpa.html')
 
 
 def internship_payment(request, student_id, internship_id):

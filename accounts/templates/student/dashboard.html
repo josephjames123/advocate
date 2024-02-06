@@ -23,6 +23,7 @@
         </div>
         <!--end breadcrumb-->
         <div class="row">
+            {% if enrolled_lawyer %}
             <div class="col-12 col-lg-4 d-flex">
                 <div class="card w-100">
                     <div class="card-body">
@@ -32,15 +33,12 @@
                             </div>
                         </div>
                         <div class="text-center mt-5 pt-4">
-                            {% if enrolled_lawyer %}
                             <h4 class="mb-1">{{ enrolled_lawyer.first_name }} {{ enrolled_lawyer.last_name }}</h4>
                             <p class="mb-0">{{ lawyer_profile.court }} </p>
                             <p class="mb-0">{{ lawyer_profile.specialization }} Lawyer </p>
-                            {% endif %}
                         </div>
                     </div>
                     <ul class="list-group list-group-flush">
-                        {% if enrolled_lawyer %}
                         <li class="list-group-item border-top">
                             <b>Address</b>
                             <br>
@@ -56,11 +54,9 @@
                             <br>
                             {{enrolled_lawyer.phone}}
                         </li>
-                        {% endif %}
                     </ul>
                 </div>
             </div>
-
             <div class="col-12 col-lg-8 d-flex">
                 <div class="card w-100">
                     <center>
@@ -85,69 +81,65 @@
                     </div>
                 </div>
             </div>
-        </div><!--end row-->
-				<div class="row row-cols-1 row-cols-lg-3 g-4">
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'business_laws' %}"><img src="https://contiguglia.com/wp-content/uploads/2020/05/AdobeStock_226728389-980x653.jpeg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Business Laws</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'tax_laws' %}"><img src="https://img.freepik.com/premium-photo/calculatorbanknotesgavel-brown-card-with-text-tax-law-wooden-background_406607-2285.jpg?w=900" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Tax Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'emp_laws' %}"><img src="https://www.corridalegal.com/publications/wp-content/uploads/2023/08/Picture_Employment-Law.png" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Employment Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'ip_laws' %}"><img src="https://legalexpertsindia.net/wp-content/uploads/2018/09/IP.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Intellectual Property Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'contract_laws' %}"><img src="https://blog.ipleaders.in/wp-content/uploads/2020/08/unit-5-aspects-of-contract-law-negligence-in-business-assignment-1.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Contract Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'realestate_laws' %}"><img src="https://media.licdn.com/dms/image/D5612AQHFYGlW4KGEtQ/article-cover_image-shrink_720_1280/0/1684570954070?e=1710979200&v=beta&t=8MBySNrFUljTdxPRwKakqHVF5FXqpbKJR7PnBbySfrk" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Real Estate Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'security_laws' %}"><img src="https://cyrilcorporateredesign.lexblogplatform.com/wp-content/uploads/sites/857/2021/07/Blog-Image-3.png" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Securities Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'health_laws' %}"><img src="https://thumbor.forbes.com/thumbor/fit-in/1290x/https://www.forbes.com/advisor/wp-content/uploads/2022/11/Healthcare_Law.jpeg.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Health and Safety Law</h5>
-					  </div>
-					</div>
-					<div class="col">
-					  <div class="text-center">
-						  <a href = "{% url 'consumer_laws' %}"><img src="https://blog.ipleaders.in/wp-content/uploads/2020/08/iStock-1070418964-1-800x533.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
-						<h5 class="mb-0 mt-3">Consumer Protection Law</h5>
-					  </div>
-					</div>
-					
-				  </div><!--end row-->
+            {% endif %}
+            <div class="row row-cols-1 row-cols-lg-3 g-4">
+                <div class="col">
+                    <div class="text-center">
+                        <a href="{% url 'business_laws' %}"><img src="https://contiguglia.com/wp-content/uploads/2020/05/AdobeStock_226728389-980x653.jpeg" class="img-fluid rounded" alt="" width="70%" height="70%"></a>
+                        <h5 class="mb-0 mt-3">Business Laws</h5>
+                    </div>
+                </div>
+				<div class="col">
+				<div class="text-center">
+					<a href = "{% url 'tax_laws' %}"><img src="https://img.freepik.com/premium-photo/calculatorbanknotesgavel-brown-card-with-text-tax-law-wooden-background_406607-2285.jpg?w=900" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Tax Law</h5>
 				</div>
 			  </div>
-			</div>
-		  </div>
-          </div>
-        </div><!--end row-->
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'emp_laws' %}"><img src="https://www.corridalegal.com/publications/wp-content/uploads/2023/08/Picture_Employment-Law.png" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Employment Law</h5>
+				</div>
+			  </div>
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'ip_laws' %}"><img src="https://legalexpertsindia.net/wp-content/uploads/2018/09/IP.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Intellectual Property Law</h5>
+				</div>
+			  </div>
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'contract_laws' %}"><img src="https://blog.ipleaders.in/wp-content/uploads/2020/08/unit-5-aspects-of-contract-law-negligence-in-business-assignment-1.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Contract Law</h5>
+				</div>
+			  </div>
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'realestate_laws' %}"><img src="https://media.licdn.com/dms/image/D5612AQHFYGlW4KGEtQ/article-cover_image-shrink_720_1280/0/1684570954070?e=1710979200&v=beta&t=8MBySNrFUljTdxPRwKakqHVF5FXqpbKJR7PnBbySfrk" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Real Estate Law</h5>
+				</div>
+			  </div>
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'security_laws' %}"><img src="https://cyrilcorporateredesign.lexblogplatform.com/wp-content/uploads/sites/857/2021/07/Blog-Image-3.png" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Securities Law</h5>
+				</div>
+			  </div>
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'health_laws' %}"><img src="https://thumbor.forbes.com/thumbor/fit-in/1290x/https://www.forbes.com/advisor/wp-content/uploads/2022/11/Healthcare_Law.jpeg.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Health and Safety Law</h5>
+				</div>
+			  </div>
+			  <div class="col">
+				<div class="text-center">
+					<a href = "{% url 'consumer_laws' %}"><img src="https://blog.ipleaders.in/wp-content/uploads/2020/08/iStock-1070418964-1-800x533.jpg" class="img-fluid rounded" alt="" width = "70%" height = "70%"></a>
+				  <h5 class="mb-0 mt-3">Consumer Protection Law</h5>
+				</div>
+			  </div>
+            </div><!--end row-->
+        </div>
+    </div>
+</main>
 
 {% endblock %}

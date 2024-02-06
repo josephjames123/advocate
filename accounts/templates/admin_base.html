@@ -173,6 +173,13 @@
             <div class="menu-title">Cases</div>
           </a>
         </li>
+        <li class="{% if request.path == '/accounts/add_internship/' %}active{% endif %}">
+          <a href="{% url 'add_internship' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">cases</i>
+            </div>
+            <div class="menu-title">Add Internship</div>
+          </a>
+        </li>
       </div>
   
 </aside>

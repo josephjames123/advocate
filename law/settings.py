@@ -61,8 +61,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'accounts.middleware.RedirectAuthenticatedUserMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    
-
 ]
 
 ROOT_URLCONF = 'law.urls'
@@ -209,7 +207,6 @@ TWILIO_PHONE_NUMBER = '+447462385460'
 TWILIO_AUTH_TOKEN = '47ac0126322deff068f624f07038a8d0'
 
 TWILIO_ACCOUNT_SID = 'AC555316373c97643675e0be3bca2a9431'
-
 
 
 
