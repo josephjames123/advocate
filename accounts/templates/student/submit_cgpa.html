@@ -29,14 +29,7 @@
                         <h5 class="mb-0">Step 1 - Enter Your CGPA</h5>
                     </div>
                     <div class="card-body p-4">
-                        <center>{% if messages %}
-                            <ul class="messages">
-                                {% for message in messages %}
-                                <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}</center>
-                        <form id="cgpaForm" class="row g-3 needs-validation" action="#" 
+                        <form id="cgpaForm" class="row g-3 needs-validation" action="#" method="post"
                             novalidate>
                             {% csrf_token %}
                             <div class="col-md-12">
@@ -68,7 +61,7 @@
                                             </div>
                                             <div class="modal-body" id="modalBody"></div>
                                             <div class="modal-footer">
-                                                <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 <button type="submit" id="submitButton" class="btn btn-primary">Save changes</button>
                                             </div>
                                         </div>

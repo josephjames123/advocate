@@ -767,7 +767,7 @@ def student_dashboard(request):
         try:
             student = Student.objects.get(user=request.user)
         except Student.DoesNotExist:
-            return render(request, 'student/student_details.html')  
+            return render(request, 'student/student_details.html')
 
         if student.is_approved:
             if student.course and student.cgpa is not None:
@@ -776,6 +776,8 @@ def student_dashboard(request):
 
                 # Get the lawyer in which the student is enrolled
                 enrolled_lawyer = None
+                lawyer_profile = None  # Initialize lawyer_profile here
+
                 if student.lawyer:
                     enrolled_lawyer = student.lawyer.user
                     lawyer_profile = student.lawyer
@@ -789,7 +791,7 @@ def student_dashboard(request):
                     'work_assignment_count': work_assignment_count,
                     'enrolled_lawyer': enrolled_lawyer,
                     'upcoming_tasks': upcoming_tasks,
-                    'lawyer_profile':lawyer_profile,
+                    'lawyer_profile': lawyer_profile,
                 })
             else:
                 return render(request, 'student/student_details.html')
@@ -1914,12 +1916,12 @@ def generate_appointment_pdf(request, appointment_id):
     return HttpResponse('PDF generation error')
 
 
-# def student_detail(request, student_id):
-#     student = get_object_or_404(Student, id=student_id)
-#     context = {
-#         'student': student,
-#     }
-#     return render(request, 'student_detail.html', context)
+def student_detail(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    context = {
+        'student': student,
+    }
+    return render(request, 'student_detail.html', context)
 
 
 def add_case_update(request, case_number):
