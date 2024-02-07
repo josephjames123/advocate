@@ -29,13 +29,15 @@
 								<h5 class="mb-0">Step 2 - Add Intern</h5>
 							</div>
 							<div class="card-body p-4">
-                                <center>{% if messages %}
-                                    <ul class="messages">
-                                        {% for message in messages %}
-                                        <p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
-                                        {% endfor %}
-                                    </ul>
-                                    {% endif %}</center>
+                                <center>
+									{% if messages %}
+										<ul class="messages">
+										{% for message in messages %}
+											<p class="text-danger font-weight-bold{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+											{% endfor %}
+											</ul>
+										{% endif %}
+								</center>
 								<form class="row g-3 needs-validation" method = "POST" enctype="multipart/form-data" action = "{% url 'intern' %}" novalidate>
                                     {% csrf_token %}
 									<div class="col-md-6">
@@ -82,13 +84,13 @@
 										<label for="bsValidation10" class="form-label">Course Place</label>
 										<input type="text" class="form-control" name = "course_place" id="bsValidation10" placeholder="Course Place" required>
 									</div>
-									<div class="col-md-12">
+									{% comment %} <div class="col-md-12">
 										<label for="bsValidation13" class="form-label">Address</label>
 										<textarea class="form-control" id="bsValidation13" placeholder="Address ..." rows="3" required></textarea>
 										<div class="invalid-feedback">
 											Please enter a valid address.
 										</div>
-									</div>
+									</div> {% endcomment %}
                                     <!-- duration and specialization -->
                                     <div class="col-md-12">
 										<label for="bsValidation13" class="form-label">Duration</label>
@@ -107,7 +109,7 @@
 
                                     <!-- year of pass and current cgpa -->
                                     <div class="col-md-6">
-										<label for="bsValidation13" class="form-label">Address</label>
+										<label for="bsValidation13" class="form-label">Year Of Pass</label>
                                             <select name="year_of_pass" class="form-control" required>
                                                 <option selected disabled>Choose Year</option>
                                                 <option value="2019">2019</option>

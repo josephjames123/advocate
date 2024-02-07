@@ -786,6 +786,8 @@ def student_dashboard(request):
 
                 # Get upcoming tasks for the student
                 upcoming_tasks = WorkAssignment.objects.filter(student=student)
+                upcoming_tasks = upcoming_tasks.exclude(task__files__isnull=False, task__note__isnull=False)
+
 
                 return render(request, 'student/dashboard.html', {
                     'user': request.user,
@@ -1696,18 +1698,18 @@ def intern(request):
         # Check if email, adhaar number, and phone are already in use
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists.')
-            return render(request, 'student/submit_cgpa.html')
+            return render(request, 'student/intern.html')
         if Student.objects.filter(adhaar_no=adhaar_no).exists():
             messages.error(request, 'Adhar Number already exists.')
-            return render(request, 'student/submit_cgpa.html')
+            return render(request, 'student/intern.html')
         if CustomUser.objects.filter(phone=phnno).exists():
             messages.error(request, 'Phone already exists.')
-            return render(request, 'student/submit_cgpa.html')
+            return render(request, 'student/intern.html')
 
         # Check if phnno contains only numeric digits
         if not re.match("^[0-9]+$", phnno):
             messages.error(request, 'Phone should only contain numeric digits.')
-            return render(request, 'student/submit_cgpa.html')
+            return render(request, 'student/intern.html')
 
         # Calculate age based on the provided DOB
         try:
@@ -1716,12 +1718,12 @@ def intern(request):
             age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
         except ValueError:
             messages.error(request, 'Invalid date format. Please use YYYY-MM-DD.')
-            return render(request, 'student/submit_cgpa.html')
+            return render(request, 'student/intern.html')
 
         # Check if the age is less than 18
         if age < 18:
             messages.error(request, 'You must be at least 18 years old to sign up.')
-            return render(request, 'student/submit_cgpa.html')
+            return render(request, 'student/intern.html')
 
         # Create a new CustomUser instance
         user = CustomUser.objects.create_user(username=email, email=email)
@@ -2174,7 +2176,6 @@ def mark_leave_request(request, leave_type):
                         date__month=leave_request.date.month
                     ).count()
 
-                    # Allow only three casual leave days in the specific month
                     if total_leave_days >= 3:
                         messages.warning(request, 'You can only request a maximum of 3 casual leave days in this month.')
                         return redirect('mark_casual_leave', leave_type=leave_type)
@@ -2182,17 +2183,17 @@ def mark_leave_request(request, leave_type):
                 leave_request.save()
 
                 messages.success(request, 'Leave request sent')
-                return redirect('mark_casual_leave', leave_type=leave_type)
+                return redirect('login') 
 
         form = LeaveRequestForm()
 
-        # Retrieve leave requests and their statuses for the logged-in lawyer
         leave_requests = HolidayRequest.objects.filter(lawyer=user, type=leave_type)
 
         context = {
             'leave_requests': leave_requests,
             'form': form,
             'leave_type': leave_type,
+            'messages': messages.get_messages(request), 
         }
         return render(request, 'lawyer/mark_leave_request.html', context)
 
@@ -2392,6 +2393,7 @@ def submit_cgpa(request):
 
 
 def internship_payment(request, student_id, internship_id):
+    print("view clicked")
     # Retrieve student and internship
     student = Student.objects.get(id=student_id)
     internship = Internship.objects.get(id=internship_id)
@@ -2634,6 +2636,28 @@ def request_fine(request, work_assignment_id):
     
     return redirect('login')
 
+def notifications_view(request):
+    notifications = None
+    lawyer_profile = None
+    current_month = None
+    time_update = None
+
+    if request.user.is_authenticated:
+        notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
+        if request.user.user_type == 'lawyer':
+            try:
+                lawyer_profile = LawyerProfile.objects.get(user=request.user)
+                current_month = timezone.now().month
+                time_update = lawyer_profile.time_update  
+            except LawyerProfile.DoesNotExist:
+                pass
+
+    return render(request, 'lawyer/notifications.html', {
+        'notifications': notifications,
+        'lawyer_profile': lawyer_profile,
+        'current_month': current_month,
+        'time_update': time_update,
+    })
 
 
 

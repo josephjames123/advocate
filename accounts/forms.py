@@ -87,7 +87,7 @@ class BookingStatusForm(forms.ModelForm):
 class UserProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['address', 'pin', 'state']  # Add other fields as needed
+        fields = ['address', 'pin', 'state']  
         
         
 class CustomUserUpdateForm(forms.ModelForm):
@@ -120,13 +120,14 @@ class TaskForm(forms.ModelForm):
 class LeaveRequestForm(forms.ModelForm):
     class Meta:
         model = HolidayRequest
-        fields = ['date', 'timing', 'reason', 'supporting_documents']
+        fields = ['date', 'timing', 'reason', ]
 
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'timing': forms.Select(attrs={'class': 'form-control'}),
-            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'supporting_documents': forms.FileInput(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'required': True}),
+            'timing': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
+            'supporting_documents': forms.FileInput(attrs={'class': 'form-control', 'required': True}),
+
         }
 
     def clean(self):
@@ -134,7 +135,6 @@ class LeaveRequestForm(forms.ModelForm):
         date = cleaned_data.get('date')
         timing = cleaned_data.get('timing')
 
-        # Check maximum casual leave days for the current month
         if cleaned_data.get('type') == 'casual_leave' and timing == 'full_day':
             current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             current_month_end = (current_month_start + relativedelta(months=1)).replace(microsecond=0) - timedelta(days=1)

@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'taggit'
+    'taggit',
+    'widget_tweaks',
 
 ]
 
@@ -198,16 +199,14 @@ SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 
 
-RAZORPAY_KEY_ID = "rzp_test_QtI3zIbpa2Kcyl"
-RAZORPAY_KEY_SECRET = "TGxT70N3Nw3Si5Ys3RF5MpY0"
+RAZORPAY_KEY_ID = "rzp_test_cvGs8NAQTlqQrP"
+RAZORPAY_KEY_SECRET = "hNPvcoyR5F1mKYlgG60C2GW6"
 
+TWILIO_PHONE_NUMBER = '+447360273978'
 
-TWILIO_PHONE_NUMBER = '+447462385460'
+TWILIO_AUTH_TOKEN = '8b00ba49e9d7a6ba60c0890e70f38e1c'
 
-TWILIO_AUTH_TOKEN = '47ac0126322deff068f624f07038a8d0'
-
-TWILIO_ACCOUNT_SID = 'AC555316373c97643675e0be3bca2a9431'
-
+TWILIO_ACCOUNT_SID = 'AC1a93b168e58f46323a25cdbd950ba26f'
 
 
 # ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'

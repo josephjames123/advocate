@@ -1,0 +1,79 @@
+{% extends 'lawyer_base.html' %}
+
+{% block content %}
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <div class="card mt-5">
+                                <div class="card-header">
+                                    <h5 class="card-title">Notifications</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for notification in notifications %}
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="">
+                                                    <!-- Your image code goes here -->
+                                                </div>
+                                                <div class="">
+                                                    <h5 class="notify-title">{{ notification.message }}</h5>
+                                                    <p class="mb-0 notify-time">{{ notification.timestamp }}</p>
+                                                    {% if "The deadline for the task assigned to" in notification.message %}
+                                                        {% if notification.student %}
+                                                            {% if notification.student.course == "LLB" and notification.student.cgpa >= 8 or notification.student.course == "LLM" and notification.student.cgpa > 7 %}
+                                                                <button class="btn btn-primary" onclick="window.location.href='{% url 'assign_work' %}'">Submit Another Work</button>
+                                                            {% else %}
+                                                                <a href="{% url 'request_fine' notification.work_assignment.id %}" class="btn btn-danger">Request Fine</a>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    {% if "A task has been submitted by" in notification.message %}
+                                                        <a href="{% url 'students_info' notification.student_id %}" class="btn btn-info">View More</a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+            
+                                    {% if lawyer_profile.time_update %}
+                                        {% if time_update.month != current_month %}
+                                            <div class="mb-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="">
+                                                        <img src="assets/images/avatars/01.png" class="rounded-circle" width="45" height="45" alt="">
+                                                    </div>
+                                                    <div class="">
+                                                        <h5 class="notify-title">Assign Work</h5>
+                                                        <p class="mb-0 notify-desc">Kindly Assign Your Working Hours, In order to Take Registrations</p>
+                                                        <p class="mb-0 notify-time">{{ time_update|date:"F d, Y" }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+            {% endblock %}

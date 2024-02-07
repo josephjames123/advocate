@@ -49,11 +49,50 @@
 							<h3 class="mb-0">{{booking_count}}</h3>
 							<p class="mb-0">Total Booking</p>
 						  </div>
+						  <div class="vr"></div>
+						  <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+							<a href="{% url 'notifications' %}" class="mb-2 wh-48 bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center">
+							  <i class="material-icons-outlined">print</i>
+							</a>
+							<p class="mb-0">Notification</p>
+						  </div>
 						</div>
 					  </div>
 					</div>
 				  </div>
 				</div><!--end row-->
+				{% if lawyer_profile.time_update %}
+    {% if time_update.month != current_month %}
+        <div class="modal fade show" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true" style="display: block;">
+			<div class="modal-dialog modal-lg modal-dialog-centered">
+				<div class="modal-content bg-black">
+				  <div class="modal-header border-dark">
+					<h5 class="modal-title text-white">Assign Working Hours</h5>
+					{% comment %} <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+				  </div>
+				  <div class="modal-body text-white">
+					<p>Unfortunaltly You Have not Assigned Working Hours for this Month</p>
+					<p>Kindly Update the Working Hours inorder to resume your servies</p>
+					<p>Failure to do so while Stop you from accessing the Website and its servies</p>
+				  </div>
+				  <div class="modal-footer border-dark">
+					<button type="button" class="btn btn-dark" id="assign-working-hours-btn">Assign Working Hours</button>
+				</div>
+				</div>
+			  </div>
+			</div>
+        </div>
+        <script>
+			document.getElementById('assign-working-hours-btn').onclick = function() {
+				window.location.href = "{% url 'assign_working_hours' %}";
+			};
+            $(document).ready(function () {
+                $('#exampleVerticallycenteredModal').modal('show');
+            });
+        </script>
+    {% endif %}
+{% endif %}
+
 
 					<div class="row row-cols-1 row-cols-lg-3 g-4">
 					  <div class="col">

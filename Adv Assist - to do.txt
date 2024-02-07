@@ -1,14 +1,11 @@
-feedback - only last 
-lawyer
-Google authentication
-dashboard images 
-paid and unpaid 
-LLB  - 8.0 and above ( free)
-LLM - 7.0 and above ( free)
-proof
-students - tasks in students tab
-student (dashboard) - detaisl lawyer , task - in a box
-notification - not done
-not able to submit report ontime , if paid ( fine)
-unpaid  - assign another work
-case history -  lawyers 
+
+
+student - template
+
+
+
+mark_casual leave  - validation
+assign document - validation - blank
+submit task - validation
+notification - click
+notification = see task

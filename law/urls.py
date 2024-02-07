@@ -75,7 +75,7 @@ urlpatterns = [
     path('student/<int:student_id>/', views.students_info, name='students_info'),
     path('fine/payment/<int:student_id>/<int:workassignment_id>/', views.pay_fine, name='pay_fine'),
     path('fine_payment_callback/<int:student_id>/', views.fine_payment_callback, name='fine_payment_callback'),
-
+    path('notifications/', views.notifications_view, name='notifications'),
 
 ]
 
