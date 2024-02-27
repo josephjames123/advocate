@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import Task, Notification
+from .models import Task, Notification ,  CaseTracking, TrackerPayment
+from .constants import PaymentStatus
 
 @receiver(post_save, sender=Task)
 def task_notification(sender, instance, created, **kwargs):
@@ -23,3 +24,20 @@ def task_notification(sender, instance, created, **kwargs):
                 work_assignment=instance.work_assignment,
                 message=message
             )
+            
+            
+
+
+@receiver(post_save, sender=CaseTracking)
+def create_tracker_payment(sender, instance, created, **kwargs):
+    """
+    Signal receiver function to create a TrackerPayment object when a CaseTracking object is created.
+    """
+    if created:
+        TrackerPayment.objects.create(
+            client=instance.case.client,  
+            casetracker=instance,
+            status=PaymentStatus.PENDING  
+            
+        )
+

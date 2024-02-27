@@ -1,27 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Case Update</title>
-</head>
-<body>
-    <h1>Add Case Update</h1>
+{% extends 'lawyer_base.html' %}
 
-    <form method="post" action="{% url 'add_case_update' case_number=case.case_number %}">
+{% block title %}Dashboard - Adv Assist{% endblock %}
 
-        {% csrf_token %}
-        
-        <label for="activity">Activity:</label>
-        <input type="text" id="activity" name="activity" required>
-        
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
-        
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
-        
-        <button type="submit" class="btn btn-primary">Add Case Update</button>
-    </form>
-</body>
-</html>
+{% block content %}
+
+ <!--start main wrapper-->
+ <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Components</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary">Settings</button>
+							<button type="button" class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">	<span class="visually-hidden">Toggle Dropdown</span>
+							</button>
+							<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">	<a class="dropdown-item" href="javascript:;">Action</a>
+								<a class="dropdown-item" href="javascript:;">Another action</a>
+								<a class="dropdown-item" href="javascript:;">Something else here</a>
+								<div class="dropdown-divider"></div>	<a class="dropdown-item" href="javascript:;">Separated link</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end breadcrumb-->
+      
+
+        <div class="row">
+					<div class="col-xl-6 mx-auto">
+						<div class="card">
+							<div class="card-header px-4 py-3">
+								<h5 class="mb-0">Add Case Update</h5>
+							</div>
+							<div class="card-body p-4">
+								<form class="row g-3 needs-validation" method="post" action="{% url 'add_case_update' case_number=case.case_number %}" novalidate>
+								   {% csrf_token %}
+								   <div class="col-md-12">
+									<label for="bsValidation1" class="form-label">Activity:</label>
+									<select class="form-select" id="activity" name="activity" required>
+										<option value="" selected disabled>Choose Activity</option>
+										<option value="Registration">Registration</option>
+										<option value="Hearing">Hearing</option>
+										<option value="Appeal to Higher Court">Appeal to Higher Court</option>
+										<option value="Appellate Proceedings">Appellate Proceedings</option>
+										<option value="Enforcement of Judgment">Enforcement of Judgment</option>
+										<option value="Final Appeal">Final Appeal</option>
+										<option value="Other">Other</option>
+									</select>
+								</div>
+								
+									<div class="col-md-12">
+										<label for="bsValidation2" class="form-label">Description</label>
+										<textarea class="form-control" id="description" name="description" rows="4" required>
+                                        </textarea>
+									</div>
+									<div class="col-md-12">
+										<label for="bsValidation3" class="form-label">Date</label>
+										<input type="date" class="form-control" id="date" name="date"  required>
+									</div>
+                                    <div class="col-md-12">
+										<label for="bsValidation3" class="form-label">Amount</label>
+										<input type="text" class="form-control" id="amount" name="amount"  required>
+									</div>
+									<div class="col-md-12">
+										<div class="d-md-flex d-grid align-items-center gap-3">
+											<button type="submit" class="btn btn-primary px-4">Add Case Update</button>
+											<button type="reset" class="btn btn-light px-4">Reset</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end row-->
+            </div>
+        </main>
+
+{% endblock %}

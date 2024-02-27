@@ -54,6 +54,36 @@
 					<div class="ms-auto">
 					</div>
 				</div>
+                <div class="col-12 col-xl-12 d-flex">
+					<div class="card rounded-4 w-100">
+					  <div class="card-body">
+						<div class="d-flex align-items-center justify-content-around flex-wrap gap-4 p-4">
+						  <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+							<a href="{% url 'list_cases' %}" class="mb-2 wh-48 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center">
+								<i class="material-icons-outlined">shopping_cart</i>
+							</a>
+							<h3 class="mb-0">{{ case_count }}</h3>
+							<p class="mb-0">Cases</p>
+						</div>
+						  <div class="vr"></div>
+						  <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+							<a href="" class="mb-2 wh-48 bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center">
+							  <i class="material-icons-outlined">print</i>
+							</a>
+							<h3 class="mb-0">{{booking_count}}</h3>
+							<p class="mb-0">Total Booking</p>
+						  </div>
+						  <div class="vr"></div>
+						  <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+							<a href="" class="mb-2 wh-48 bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center">
+							  <i class="material-icons-outlined">notifications</i>
+							</a>
+							<p class="mb-0">Lawyers</p>
+						  </div>
+						</div>
+					  </div>
+					</div>
+				  </div>
 
                 <div class="container pt-5">
                     <h3>Welcome {{ user.first_name }},</h3>
@@ -84,4 +114,49 @@
             </div>
         </main>
 
+<!-- Modal -->
+<div class="modal fade" id="exampleSuccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-success">
+            <div class="modal-header">
+                {% if case_tracker_details %}
+                <h5 class="modal-title text-white">Case Detail for CS/{{ case_tracker_details.case_number }}</h5>
+                {% endif %}
+            </div>
+            <div class="modal-body text-white">
+                {% if case_tracker_details %}
+                    <p><strong>Case Number:</strong> CS/{{ case_tracker_details.case_number }}</p>
+                    <p><strong>Posted Date:</strong> {{ case_tracker_details.posted_date }}</p>
+                    <p><strong>Activity:</strong> {{ case_tracker_details.activity }}</p>
+                    <p><strong>Description:</strong> {{ case_tracker_details.description }}</p>
+                    <p><strong>Date:</strong> {{ case_tracker_details.date }}</p>
+                    <p><strong>Amount:</strong> {{ case_tracker_details.amount }}</p>
+                {% endif %}
+                <div class="modal-footer">
+                    {% if unconfirmed_payment %}
+                        <a href="{% url 'case_fine' unconfirmed_payment.casetracker.id %}" class="btn btn-dark">Pay</a>
+                    {% endif %}
+                </div>
+                
+                
+            </div>
+            
+        </div>
+    </div>
+
+    {% if has_unconfirmed_payments %}
+    <script>
+        window.onload = function() {
+            var modal = new bootstrap.Modal(document.getElementById('exampleSuccessModal'));
+            modal.show();
+    
+            document.getElementById('exampleSuccessModal').addEventListener('keydown', function(event) {
+                if (event.keyCode === 27) { 
+                    event.preventDefault();
+                }
+            });
+        };
+    </script>
+    {% endif %}
+    
 {% endblock %}

@@ -118,16 +118,21 @@ class TaskForm(forms.ModelForm):
             
             
 class LeaveRequestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(LeaveRequestForm, self).__init__(*args, **kwargs)
+        self.fields['date'].widget.attrs['required'] = 'required'
+        self.fields['timing'].widget.attrs['required'] = 'required'
+        self.fields['reason'].widget.attrs['required'] = 'required'
+
     class Meta:
         model = HolidayRequest
-        fields = ['date', 'timing', 'reason', ]
+        fields = ['date', 'timing', 'reason']
 
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'required': True}),
-            'timing': forms.Select(attrs={'class': 'form-control', 'required': True}),
-            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
-            'supporting_documents': forms.FileInput(attrs={'class': 'form-control', 'required': True}),
-
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'timing': forms.Select(attrs={'class': 'form-control'}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'supporting_documents': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
     def clean(self):

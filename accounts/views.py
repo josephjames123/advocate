@@ -18,9 +18,10 @@ from django.utils.http import urlsafe_base64_decode
 from .forms import CustomPasswordResetForm, LeaveReportsFilterForm, LeaveRequestForm, TaskForm  
 from django.core.exceptions import ValidationError
 from datetime import datetime
-from .models import LawyerProfile , ContactEntry , Internship , Task , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment , CaseTracking , WorkAssignment , Payment
+from .models import LawyerProfile , ContactEntry , Internship , Task , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment , CaseTracking , WorkAssignment , Payment,TrackerPayment
 from .forms import ContactForm , BookingForm , InternshipForm , BookingStatusForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
 import markdown
+from django.db.models import Count
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm  # Import AuthenticationForm
@@ -390,19 +391,38 @@ def admin_dashboard(request):
         return render(request, 'admin/dashboard.html', context)
     else:
         return render(request, '404.html')
+
 @login_required
 def client_dashboard(request):
     user = request.user
 
-    # Get all bookings by the client
     all_bookings = Appointment.objects.filter(client=user)
 
+    has_unconfirmed_payments = TrackerPayment.objects.filter(client=user).exclude(status='confirmed').exists()
+    case_tracker_details = None
+    unconfirmed_payment = None
+
+    if has_unconfirmed_payments:
+        unconfirmed_payment = TrackerPayment.objects.filter(client=user, status__in=['pending', 'failed','not_paid']).first()
+        casetracker = unconfirmed_payment.casetracker
+        case_tracker_details = {
+            'case_number': casetracker.case.case_number,
+            'posted_date': casetracker.posted_date,
+            'activity': casetracker.activity,
+            'description': casetracker.description,
+            'date': casetracker.date,
+            'amount': casetracker.amount
+        }
 
     context = {
         'all_bookings': all_bookings,
+        'has_unconfirmed_payments': has_unconfirmed_payments,
+        'case_tracker_details': case_tracker_details,
+        'unconfirmed_payment': unconfirmed_payment,
     }
-
+    print(case_tracker_details)
     return render(request, 'client/dashboard.html', context)
+
 
 
 @login_required
@@ -1376,13 +1396,19 @@ def list_cases(request):
         # Fetch cases for the lawyer
         cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
 
-        # Fetch work assignments and tasks for each case
         for case in cases:
             case.work_assignments = WorkAssignment.objects.filter(case=case)
             for work_assignment in case.work_assignments:
                 work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
     elif user_type == 'client':
+        # Fetch cases for the client and related work assignments and tasks
         cases = Case.objects.filter(client=request.user)
+        for case in cases:
+            case.work_assignments = WorkAssignment.objects.filter(case=case)
+            for work_assignment in case.work_assignments:
+                work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+        
+        
     elif user_type == 'admin':
         cases = Case.objects.all()
         
@@ -1938,14 +1964,16 @@ def add_case_update(request, case_number):
         activity = request.POST.get('activity')
         description = request.POST.get('description')
         date = request.POST.get('date')
+        amount = request.POST.get('amount')
         
-        # Create a new CaseUpdate object associated with the Case
         case_update = CaseTracking.objects.create(
             case=case,
             activity=activity,
             description=description,
-            date=date
+            date=date,
+            amount = amount
         )
+        
         
         # Save the case update
         case_update.save()
@@ -2009,6 +2037,48 @@ def hire_student(request, student_id):
 
     return redirect('unassigned_students')
 
+# def assign_work(request):
+#     # Get the currently logged-in lawyer
+#     current_lawyer = request.user.lawyer_profile
+
+#     # Query students who are hired by the current lawyer
+#     hired_students = Student.objects.filter(lawyer=current_lawyer, is_approved=True)
+
+#     # Query cases associated with the current lawyer
+#     lawyer_cases = Case.objects.filter(lawyer=current_lawyer)
+
+#     if request.method == 'POST':
+#         description = request.POST.get('description')
+#         deadline_date = request.POST.get('deadline_date')
+#         student_id = request.POST.get('student_id')
+#         case_id = request.POST.get('case_id')  
+
+#         try:
+#             # Check if the student_id exists and is eligible for work assignment
+#             student = Student.objects.get(id=student_id, is_approved=True, lawyer=current_lawyer)
+#         except Student.DoesNotExist:
+#             return render(request, 'assign_work.html', {'error_message': 'Invalid student selection'})
+
+#         # Create a new WorkAssignment object and assign it to the current lawyer
+#         work_assignment = WorkAssignment(
+#             description=description,
+#             deadline_date=deadline_date,
+#             student=student,
+#             case_id=case_id  # Assign the selected case (optional)
+#         )
+#         work_assignment.save()
+        
+#         # Redirect to a success page or another appropriate view
+#         return render(request, 'work_assigned.html')
+
+#     context = {
+#         'hired_students': hired_students,
+#         'lawyer_cases': lawyer_cases,
+#     }
+
+#     return render(request, 'assign_work.html', context)
+
+
 def assign_work(request):
     # Get the currently logged-in lawyer
     current_lawyer = request.user.lawyer_profile
@@ -2017,13 +2087,28 @@ def assign_work(request):
     hired_students = Student.objects.filter(lawyer=current_lawyer, is_approved=True)
 
     # Query cases associated with the current lawyer
-    lawyer_cases = Case.objects.filter(lawyer=current_lawyer)
+    lawyer_cases = current_lawyer.cases.annotate(
+        num_work_assignments=Count('workassignment')
+    ).filter(num_work_assignments=0)  #
+    
+    print(lawyer_cases)
+
+    # Check if there are existing work assignments meeting the specified conditions
+    existing_work_assignment = WorkAssignment.objects.filter(
+        student__lawyer=current_lawyer,
+        deadline_date__gt=date.today()  
+    ).exists()
+    
+    print(existing_work_assignment)
+
+    # Determine whether to show the select input for choosing a case
+    show_case_select = not existing_work_assignment
 
     if request.method == 'POST':
         description = request.POST.get('description')
         deadline_date = request.POST.get('deadline_date')
         student_id = request.POST.get('student_id')
-        case_id = request.POST.get('case_id')  # Get the selected case (optional)
+        case_id = request.POST.get('case_id')  
 
         try:
             # Check if the student_id exists and is eligible for work assignment
@@ -2046,6 +2131,7 @@ def assign_work(request):
     context = {
         'hired_students': hired_students,
         'lawyer_cases': lawyer_cases,
+        'show_case_select': show_case_select,
     }
 
     return render(request, 'assign_work.html', context)
@@ -2658,6 +2744,115 @@ def notifications_view(request):
         'current_month': current_month,
         'time_update': time_update,
     })
+    
+    
+def case_fine(request, case_tracking_id):
+    user_id = request.user.id  
+    client = CustomUser.objects.get(id=user_id) 
+    case_tracking = CaseTracking.objects.get(id=case_tracking_id)
+
+    razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    try:
+        order_amount = case_tracking.amount 
+        order_currency = 'INR'
+        order_payload = {
+            'amount': order_amount,
+            'currency': order_currency,
+            'notes': {
+                'client_id': client.id,  
+                'case_tracking': case_tracking.id
+            },
+            'payment_capture': "1"
+        }
+        order = razorpay_client.order.create(data=order_payload)
+
+        track_payment, created = TrackerPayment.objects.get_or_create(
+    Q(client=client) & Q(casetracker=case_tracking) & Q(status=PaymentStatus.PENDING),
+)
+
+        track_payment.order_id = order['id']
+        track_payment.save()
+
+        print(track_payment, created)
+        return render(
+            request,
+            "client/case_tracker_payment.html",
+            {
+                "callback_url": f"http://127.0.0.1:8000/case_tracker_callback/{client.id}/",
+                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                "client": client,
+                "case_tracking": case_tracking,
+                "order": order,
+                "track_payment": track_payment,  
+            }
+        )
+
+    except Exception as e:
+        print(str(e))
+        return render(
+            request,
+            "payment_error.html",
+            {
+                "error_message": str(e),
+            }
+        )
 
 
+@csrf_exempt
+def case_tracker_callback(request, client_id):
+    if request.method == 'POST':
+        try:
+            razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            razorpay_signature = request.POST.get('razorpay_signature', '')
 
+            # Initialize Razorpay client
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+            # Verify the payment signature
+            is_signature_valid = client.utility.verify_payment_signature({
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_signature': razorpay_signature
+            })
+
+            if is_signature_valid:
+                try:
+                    tracker_payment = TrackerPayment.objects.get(order_id=razorpay_order_id)
+
+                    tracker_payment.razorpay_payment_id = razorpay_payment_id
+                    tracker_payment.razorpay_signature = razorpay_signature
+                    tracker_payment.status = PaymentStatus.SUCCESS
+                    tracker_payment.save()
+
+                    # Render payment confirmation template
+                    return render(request, 'payment_confirm.html', {'tracker_payment': tracker_payment})
+                except TrackerPayment.DoesNotExist:
+                    return JsonResponse({"error": "Tracker payment not found"}, status=404)
+            else:
+                return JsonResponse({"status": "failure"})
+
+        except Exception as e:
+            logger.error(f"Error in Razorpay callback: {str(e)}")
+            return JsonResponse({"error": "An error occurred during payment processing"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@login_required
+def transfer_student_to_work_assignment(request, work_assignment_id):
+    work_assignment = WorkAssignment.objects.get(pk=work_assignment_id)
+    current_student = work_assignment.student
+    
+    associated_students = Student.objects.filter(lawyer=current_student.lawyer).exclude(pk=current_student.pk)
+    
+    if request.method == 'POST':
+        new_student_id = request.POST.get('new_student')
+        new_student = Student.objects.get(pk=new_student_id)
+        
+        work_assignment.student = new_student
+        work_assignment.save()
+        
+        return redirect(reverse('list_cases'))
+    
+    return render(request, 'lawyer/transfer_student.html', {'current_student': current_student, 'associated_students': associated_students})

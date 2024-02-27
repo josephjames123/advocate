@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Case Update</title>
+</head>
+<body>
+    <h1>Add Case Update</h1>
+
+    <form method="post" action="{% url 'add_case_update' case_number=case.case_number %}">
+
+        {% csrf_token %}
+        
+        <label for="activity">Activity:</label>
+        <input type="text" id="activity" name="activity" required>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+        
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+        
+        <button type="submit" class="btn btn-primary">Add Case Update</button>
+    </form>
+</body>
+</html>

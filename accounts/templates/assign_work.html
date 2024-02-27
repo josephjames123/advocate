@@ -56,18 +56,15 @@
 
                                     <div class="col-md-12">
 										<label for="bsValidation9" class="form-label">Select Case</label>
-										<select id="bsValidation9" class="form-select" name = "case_id" id = "case_id" required>
+										<select id="bsValidation9" class="form-select" name="case_id" id="case_id" required>
 											<option value="1" selected disabled>Choose Case</option>
-                                            {% for case in lawyer_cases %}
-                                        <option value="{{ case.id }}">CS/{{ case.case_number }}</option>
-                                                {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                    {% if messages %}
-                                                {% for message in messages %}
-                                                <p class="text-danger m-0">{{ message }}</p>
-                                                {% endfor %}
-                                            {% endif %}
+											{% for case in lawyer_cases %}
+												<option value="{{ case.id }}">CS/{{ case.case_number }}</option>
+											{% endfor %}
+										</select>
+									</div>
+									
+									
 									<div class="col-md-12">
 										<div class="d-md-flex d-grid align-items-center gap-3">
 											<button type="submit" class="btn btn-primary px-4">Assign WOrk</button>

@@ -435,11 +435,12 @@ class Case(models.Model):
     
 class CaseTracking(models.Model):
     id = models.AutoField(primary_key=True)
-    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='case_tracking')  # Reference to the original case
-    posted_date = models.DateTimeField(auto_now_add=True)  # Automatically set the current date and time when an entry is created
-    activity = models.CharField(max_length=100)  # Activity related to the case
-    description = models.TextField()  # Description of the activity
-    date = models.DateField()  # Date of the activity
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='case_tracking')  
+    posted_date = models.DateTimeField(auto_now_add=True)
+    activity = models.CharField(max_length=100) 
+    description = models.TextField() 
+    date = models.DateField()
+    amount = models.IntegerField(default=10)
 
     def __str__(self):
         return f"Case Tracking - Case {self.case.case_number} ({self.posted_date})"
@@ -566,4 +567,15 @@ class FinePayment(models.Model):
     razorpay_signature = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f"Payment for {self.workassignment} by {self.student.user.first_name} {self.student.user.last_name}"            
+        return f"Payment for {self.workassignment} by {self.student.user.first_name} {self.student.user.last_name}"   
+    
+class TrackerPayment(models.Model):
+    client = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    casetracker = models.ForeignKey(CaseTracking, on_delete=models.CASCADE)  
+    order_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=20)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=200, blank=True, null=True) 
+    
+    def __str__(self):
+        return f"{self.client} {self.casetracker} {self.order_id}"        

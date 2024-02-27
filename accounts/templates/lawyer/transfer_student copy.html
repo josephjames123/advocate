@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Student</title>
+</head>
+<body>
+    <h1>Transfer Student</h1>
+    <p>Current Student: {{ current_student }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <label for="new_student">Select Student to Transfer To:</label>
+        <select name="new_student" id="new_student">
+            {% for student in associated_students %}
+                <option value="{{ student.id }}">{{ student.user.first_name }} {{ student.user.last_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Transfer</button>
+    </form>
+</body>
+</html>

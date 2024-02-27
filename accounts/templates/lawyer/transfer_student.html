@@ -1,0 +1,43 @@
+{% extends 'lawyer_base.html' %}
+
+{% block title %}Transfer work Assignment - Adv Assist{% endblock %}
+
+{% block content %}
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+        <!--breadcrumb-->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+            <div class="breadcrumb-title pe-3">Dashboard</div>
+            <div class="ps-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 p-0">
+                        <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="ms-auto"></div>
+        </div>
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <h1>Transfer Student</h1>
+                    <p>Current Student: {{ current_student }}</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <label for="new_student">Select Student to Transfer To:</label>
+                        <div class="col-md-6">
+                        <select name="new_student" id="new_student" class="form-control">
+                            {% for student in associated_students %}
+                                <option value="{{ student.id }}">{{ student.user.first_name }} {{ student.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                        <button type="submit" class="btn btn-primary mt-3">Transfer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
