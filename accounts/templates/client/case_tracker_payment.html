@@ -58,7 +58,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title text-center mb-0">Confirm Your Internship Payment</h1>
+                        <h1 class="card-title text-center mb-0">Confirm Your Payment</h1>
                     </div>
                     <div class="card-body d-flex flex-column align-items-center">
                         <div class="text-center">
@@ -66,7 +66,7 @@
                         </div>
                         <form class="p-4" id="payment-form">
                             {% csrf_token %}
-                            <p class="form-label text-center text-success">Confirm your payment to book the internship.</p>
+                            <p class="form-label text-center text-success">Confirm your payment .</p>
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name:</label>
                                 <input type="text" id="name" name="name" value="{{ user.get_full_name }}" disabled required class="form-control">
@@ -94,7 +94,7 @@
 
         function Payment() {
             var options = {
-                key: "rzp_test_cvGs8NAQTlqQrP",
+                key: "rzp_test_96hlAiMhObAOx3",
                 amount: {{ order.amount }},
                 currency: "INR",
                 name: "{{ user.get_full_name }}",

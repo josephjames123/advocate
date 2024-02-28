@@ -176,7 +176,6 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='rfzkspjabfuqofbh')
 STATIC_URL = 'static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 
-
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
@@ -191,15 +190,14 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
-
 MEDIA_URL = ''
 MEDIA_ROOT = os.path.join(BASE_DIR, '')
 
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 
-RAZORPAY_KEY_ID = "rzp_test_QtI3zIbpa2Kcyl"
-RAZORPAY_KEY_SECRET = "TGxT70N3Nw3Si5Ys3RF5MpY0"
+RAZORPAY_KEY_ID = "rzp_test_96hlAiMhObAOx3"
+RAZORPAY_KEY_SECRET = "CkP6XWrRUDFoK0Dr0eKqDLK5"
 
 
 TWILIO_PHONE_NUMBER = '+447462385460'
@@ -211,12 +209,12 @@ TWILIO_ACCOUNT_SID = 'AC555316373c97643675e0be3bca2a9431'
 
 # ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 
-
 CORS_ORIGIN_WHITELIST = [
     'https://api.razorpay.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://api.razorpay.com"]
+
 
 
 

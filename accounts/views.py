@@ -2516,7 +2516,7 @@ def internship_payment(request, student_id, internship_id):
             "internship_razorpay_payment.html",
             {
                 "callback_url": f"http://127.0.0.1:8000/internship_payment_callback/{student.id}/",
-                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                "razorpay_key": 'TGxT70N3Nw3Si5Ys3RF5MpY0',
                 "student": student,
                 "internship": internship,
                 "order": order,
@@ -2643,7 +2643,7 @@ def pay_fine(request, student_id, workassignment_id):
             "fine_razorpay_payment.html",
             {
                 "callback_url": f"http://127.0.0.1:8000/fine_payment_callback/{student.id}/",
-                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                "razorpay_key": 'TGxT70N3Nw3Si5Ys3RF5MpY0',
                 "student": student,
                 "workassignment": workassignment,
                 "order": order,
@@ -2780,7 +2780,7 @@ def case_fine(request, case_tracking_id):
             "client/case_tracker_payment.html",
             {
                 "callback_url": f"http://127.0.0.1:8000/case_tracker_callback/{client.id}/",
-                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                "razorpay_key": 'TGxT70N3Nw3Si5Ys3RF5MpY0',
                 "client": client,
                 "case_tracking": case_tracking,
                 "order": order,
@@ -2811,6 +2811,7 @@ def case_tracker_callback(request, client_id):
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
             # Verify the payment signature
+            print(razorpay_payment_id,razorpay_order_id,razorpay_signature)
             is_signature_valid = client.utility.verify_payment_signature({
                 'razorpay_payment_id': razorpay_payment_id,
                 'razorpay_order_id': razorpay_order_id,
@@ -2818,6 +2819,7 @@ def case_tracker_callback(request, client_id):
             })
 
             if is_signature_valid:
+                print(123)
                 try:
                     tracker_payment = TrackerPayment.objects.get(order_id=razorpay_order_id)
 
