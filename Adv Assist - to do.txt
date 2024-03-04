@@ -1,11 +1,9 @@
-case over - no more updations - case history
-client - search and card
-status - paid unpaid
+search
+caseover automatially
+amount case _tracker in paisa
+save analayser and scores
+homepage remove
+lawyer_details
 
 
 
-
-cases UI
-lawyer notification paid
-components , settings - remove
-other no amount

@@ -250,32 +250,35 @@
         <!-- Display case tracking information here -->
         <h4>Case Tracking</h4>
 
+        {% if case_tracking_data %}
         {% for tracking in case_tracking_data %}
             <div class="data-group" style="margin: 0;">
                 <p>🔔 {{ tracking.date }} - {{ tracking.activity }}</p>
             </div>
             <div class="data-group" style="margin: 0;">
-                <p>Description :{{ tracking.description }}</p>
+                <p>Description: {{ tracking.description }}</p>
             </div>
-
+    
             <!-- Display payment status for each case tracking entry -->
-           <!-- Display payment status for each case tracking entry -->
-{% for payment in tracker_payments %}
-{% if payment.casetracker == tracking %}
-    {% if payment.status == "confirmed" %}
-        <div class="data-group status-paid" style="margin: 0;">
-            <p>Status : Paid</p>
-        </div>
+            {% for payment in tracker_payments %}
+                {% if payment.casetracker == tracking %}
+                    {% if payment.status == "confirmed" %}
+                        <div class="data-group status-paid" style="margin: 0;">
+                            <p>Status: Paid</p>
+                        </div>
+                    {% else %}
+                        <div class="data-group status-not-paid" style="margin: 0;">
+                            <p>Status: Not paid</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            <hr>
+        {% endfor %}
     {% else %}
-        <div class="data-group status-not-paid" style="margin: 0;">
-            <p>Status : Not paid</p>
-        </div>
+        <p>No history available</p>
     {% endif %}
-{% endif %}
-{% endfor %}
-<hr>
-
-        {% endfor %}  
+    
         
 
     </div>

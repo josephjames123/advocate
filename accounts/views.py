@@ -403,6 +403,20 @@ def client_dashboard(request):
     has_unconfirmed_payments = TrackerPayment.objects.filter(client=user).exclude(status='confirmed').exists()
     case_tracker_details = None
     unconfirmed_payment = None
+    
+    lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
+
+    lawyer_info = []
+
+    for lawyer in lawyers:
+        lawyer_info.append({
+            'name': f"{lawyer.user.first_name} {lawyer.user.last_name}",
+            'specialization': lawyer.specialization,
+            'profile_picture': lawyer.profile_picture.url,
+            'id': lawyer.id,  
+        })
+
+    
 
     if has_unconfirmed_payments:
         unconfirmed_payment = TrackerPayment.objects.filter(client=user, status__in=['pending', 'failed','not_paid']).first()
@@ -421,6 +435,8 @@ def client_dashboard(request):
         'has_unconfirmed_payments': has_unconfirmed_payments,
         'case_tracker_details': case_tracker_details,
         'unconfirmed_payment': unconfirmed_payment,
+        'lawyer_info': lawyer_info,
+        'lawyers':lawyers
     }
     print(case_tracker_details)
     return render(request, 'client/dashboard.html', context)
@@ -611,10 +627,8 @@ def about(request):
     return render(request, 'about.html')
 
 def lawyer_list(request):
-    # Fetch the most recently added 3 lawyers from the database
     lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
 
-    # Create a list to store lawyer names and specializations
     lawyer_info = []
 
     for lawyer in lawyers:
@@ -622,12 +636,13 @@ def lawyer_list(request):
             'name': f"{lawyer.user.first_name} {lawyer.user.last_name}",
             'specialization': lawyer.specialization,
             'profile_picture': lawyer.profile_picture.url,
-            'id': lawyer.id,  # Add lawyer's ID
+            'id': lawyer.id,  
         })
 
     
 
-    return render(request, 'lawyer_list.html', {'lawyer_info': lawyer_info})
+    return render(request, 'lawyer_list.html', {'lawyer_info': lawyer_info}
+                  )
 
 
 def lawyer_details(request, lawyer_id):
@@ -1315,6 +1330,10 @@ def case_detail(request, case_id):
     case = get_object_or_404(Case, pk=case_id)
     case_tracking_data = CaseTracking.objects.filter(case=case)
     tracker_payments = TrackerPayment.objects.filter(casetracker__case=case)  
+    print(case)
+    print(case_tracking_data)
+    print(tracker_payments)
+    
     return render(request, 'lawyer/case_detail.html', {
         'case': case, 
         'case_tracking_data': case_tracking_data, 
@@ -2942,4 +2961,3 @@ def rank_lawyers():
     ranked_lawyers = sorted(sentiment_counts.items(), key=lambda x: x[1], reverse=True)
 
     return ranked_lawyers
-

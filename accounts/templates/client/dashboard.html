@@ -36,7 +36,9 @@
         text-decoration: underline;
     }
 </style>
-
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <!--start main wrapper-->
 <main class="main-wrapper">
     <div class="main-content">
@@ -87,9 +89,7 @@
 
                 <div class="container pt-5">
                     <h3>Welcome {{ user.first_name }},</h3>
-                    <h6 class="my-3">Your bookings,</h6>
                 </div>
-               
                 <div id="exTab1" class="">
                     <div class="tab-content clearfix">
                         <div class="tab-pane active">
@@ -110,7 +110,68 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="row g-3">
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <div class="customer-table">
+                                <div class="table-responsive white-space-nowrap">
+                                    <table class="table align-middle" id="myTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>lawyers</th>
+                                                <th>Specialization</th>
+                                                <th>License_no</th>
+                                                <th>Court</th>
+                                                <th>Profile</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% comment %} Row {% endcomment %}
+                                            {% for lawyer in lawyers %}
+                                            <tr>
+                                                <td>
+                                                    <a class="d-flex align-items-center gap-3"
+                                                        href="{% url 'lawyer_details' lawyer.id %}">
+                                                        <div class="customer-pic">
+                                                          {% if lawyer.profile_picture %}
+                                                          <img src="{{ lawyer.profile_picture.url }}" class="rounded-circle" width="40" height="40" alt="">
+                                                      {% else %}
+                                                          <img src="https://cdn3.iconfinder.com/data/icons/man-user-human-profile-business-person-avatar/100/05-1User-4-512.png" class="rounded-circle" width="40" height="40" alt="">
+                                                      {% endif %}
+                                                        </div>
+                                                        <p class="mb-0 customer-name fw-bold">
+                                                            {{ lawyer.user.get_full_name }}</p>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0 customer-name fw-bold">{{ lawyer.specialization }}</p>
+                                                </td>
+                                                <td>{{ lawyer.license_no }}</td>
+                                                <td>{{ lawyer.court }}</td>
+                                                <td><button type="button" class="btn btn-inverse-info px-5" onclick="window.location.href='{% url 'lawyer_details' lawyer.id %}'">View</button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% comment %} Row {% endcomment %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </main>
+        
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                var table = $('#myTable').DataTable({
+                    "paging": true,
+                    "ordering": true,
+                    "info": true,
+                    "searching": true  
+                });
+            });
+        </script>
             </div>
         </main>
 

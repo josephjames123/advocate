@@ -67,7 +67,9 @@ class CustomUser(AbstractUser):
     # state = models.CharField(max_length=10, choices=STATES, default='kerala')  # Added: State field
     phone = models.CharField(max_length=15,blank=True)  # Added: Phone number field
     
-    
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"  
 
 
 class TimeSlot(models.Model):
