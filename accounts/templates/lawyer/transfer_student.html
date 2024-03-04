@@ -26,13 +26,15 @@
                     <form method="post">
                         {% csrf_token %}
                         <label for="new_student">Select Student to Transfer To:</label>
-                        <div class="col-md-6">
-                        <select name="new_student" id="new_student" class="form-control">
-                            {% for student in associated_students %}
-                                <option value="{{ student.id }}">{{ student.user.first_name }} {{ student.user.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                        <div class="form-group row">
+                            <div class="col-md-6">
+                                <select name="new_student" id="new_student" class="form-control">
+                                    {% for student in associated_students %}
+                                        <option value="{{ student.id }}">{{ student.user.first_name }} {{ student.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-primary mt-3">Transfer</button>
                     </form>
                 </div>

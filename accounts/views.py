@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
-from .models import CustomUser, LawyerProfile , CurrentCase, Notification, StudentPayment  
+from .models import CustomUser, LawyerProfile , CurrentCase, Notification, StudentPayment  ,TrackerNotification  
 from django.http import HttpResponseForbidden , Http404,HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
@@ -62,7 +62,9 @@ from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
 from twilio.rest import Client
 import random
-from .models import FinePayment
+from .models import FinePayment,Feedback
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 
 
@@ -1302,15 +1304,23 @@ def case_saved(request):
     return render(request, 'case_saved.html')
 
 @login_required
+# def case_detail(request, case_id):
+#     case = get_object_or_404(Case, pk=case_id)
+
+#     case_tracking_data = CaseTracking.objects.filter(case=case)
+
+#     return render(request, 'lawyer/case_detail.html', {'case': case, 'case_tracking_data': case_tracking_data})
+
 def case_detail(request, case_id):
-    # Retrieve the case object by its ID or return a 404 error if not found
     case = get_object_or_404(Case, pk=case_id)
-
-    # Retrieve the case tracking data associated with this case
     case_tracking_data = CaseTracking.objects.filter(case=case)
+    tracker_payments = TrackerPayment.objects.filter(casetracker__case=case)  
+    return render(request, 'lawyer/case_detail.html', {
+        'case': case, 
+        'case_tracking_data': case_tracking_data, 
+        'tracker_payments': tracker_payments
+    })
 
-    # Render the 'case_detail.html' template with the case and case tracking data
-    return render(request, 'lawyer/case_detail.html', {'case': case, 'case_tracking_data': case_tracking_data})
 
 def generate_unique_case_number():
     # Generate a unique case number like 1001, 1002, ...
@@ -1398,11 +1408,12 @@ def list_cases(request):
 
         for case in cases:
             case.work_assignments = WorkAssignment.objects.filter(case=case)
+            previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
             for work_assignment in case.work_assignments:
                 work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
     elif user_type == 'client':
-        # Fetch cases for the client and related work assignments and tasks
         cases = Case.objects.filter(client=request.user)
+        previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
         for case in cases:
             case.work_assignments = WorkAssignment.objects.filter(case=case)
             for work_assignment in case.work_assignments:
@@ -1411,6 +1422,7 @@ def list_cases(request):
         
     elif user_type == 'admin':
         cases = Case.objects.all()
+        previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
         
         # Fetch work assignments and tasks for each case
         for case in cases:
@@ -1420,7 +1432,10 @@ def list_cases(request):
     else:
         cases = None
 
-    return render(request, 'case_list.html', {'cases': cases})
+    return render(request, 'case_list.html', {
+        'cases': cases,
+        'previous': previous_history
+        })
 
 
 def view_tasks_for_assignment(request, work_assignment_id):
@@ -1956,11 +1971,9 @@ def generate_appointment_pdf(request, appointment_id):
 
 
 def add_case_update(request, case_number):
-    # Retrieve the corresponding Case object based on the case_number
     case = get_object_or_404(Case, case_number=case_number)
 
     if request.method == 'POST':
-        # Extract form data from request.POST
         activity = request.POST.get('activity')
         description = request.POST.get('description')
         date = request.POST.get('date')
@@ -2516,7 +2529,7 @@ def internship_payment(request, student_id, internship_id):
             "internship_razorpay_payment.html",
             {
                 "callback_url": f"http://127.0.0.1:8000/internship_payment_callback/{student.id}/",
-                "razorpay_key": 'TGxT70N3Nw3Si5Ys3RF5MpY0',
+                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
                 "student": student,
                 "internship": internship,
                 "order": order,
@@ -2643,7 +2656,7 @@ def pay_fine(request, student_id, workassignment_id):
             "fine_razorpay_payment.html",
             {
                 "callback_url": f"http://127.0.0.1:8000/fine_payment_callback/{student.id}/",
-                "razorpay_key": 'TGxT70N3Nw3Si5Ys3RF5MpY0',
+                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
                 "student": student,
                 "workassignment": workassignment,
                 "order": order,
@@ -2727,22 +2740,31 @@ def notifications_view(request):
     lawyer_profile = None
     current_month = None
     time_update = None
+    tracker_notifications = None
 
     if request.user.is_authenticated:
-        notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
-        if request.user.user_type == 'lawyer':
+        user = request.user
+        notifications = Notification.objects.filter(recipient=user).order_by('-timestamp')
+        if user.user_type == 'lawyer':
             try:
-                lawyer_profile = LawyerProfile.objects.get(user=request.user)
+                lawyer_profile = LawyerProfile.objects.get(user=user)
                 current_month = timezone.now().month
-                time_update = lawyer_profile.time_update  
+                time_update = lawyer_profile.time_update
+                tracker_notifications = TrackerNotification.objects.filter(
+                    casetracking__case__lawyer=lawyer_profile
+                )
             except LawyerProfile.DoesNotExist:
                 pass
+            
+    print(notifications,lawyer_profile,current_month,time_update)
+    print(tracker_notifications)
 
     return render(request, 'lawyer/notifications.html', {
         'notifications': notifications,
         'lawyer_profile': lawyer_profile,
         'current_month': current_month,
         'time_update': time_update,
+        'tracker_notifications': tracker_notifications,
     })
     
     
@@ -2750,6 +2772,7 @@ def case_fine(request, case_tracking_id):
     user_id = request.user.id  
     client = CustomUser.objects.get(id=user_id) 
     case_tracking = CaseTracking.objects.get(id=case_tracking_id)
+    print(user_id, client, case_tracking)
 
     razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -2766,25 +2789,30 @@ def case_fine(request, case_tracking_id):
             'payment_capture': "1"
         }
         order = razorpay_client.order.create(data=order_payload)
+        print(case_tracking)
 
-        track_payment, created = TrackerPayment.objects.get_or_create(
-    Q(client=client) & Q(casetracker=case_tracking) & Q(status=PaymentStatus.PENDING),
-)
+        track_payments = TrackerPayment.objects.filter(
+            Q(client=client) & Q(casetracker=case_tracking),
+        )
+        
+        for track_payment in track_payments:
+            print(track_payment)
 
-        track_payment.order_id = order['id']
-        track_payment.save()
+            track_payment.order_id = order['id']
+            track_payment.save()
 
-        print(track_payment, created)
+            print(track_payment)
+
         return render(
             request,
             "client/case_tracker_payment.html",
             {
                 "callback_url": f"http://127.0.0.1:8000/case_tracker_callback/{client.id}/",
-                "razorpay_key": 'TGxT70N3Nw3Si5Ys3RF5MpY0',
+                "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
                 "client": client,
                 "case_tracking": case_tracking,
                 "order": order,
-                "track_payment": track_payment,  
+                "track_payments": track_payments,  
             }
         )
 
@@ -2799,6 +2827,7 @@ def case_fine(request, case_tracking_id):
         )
 
 
+
 @csrf_exempt
 def case_tracker_callback(request, client_id):
     if request.method == 'POST':
@@ -2811,7 +2840,6 @@ def case_tracker_callback(request, client_id):
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
             # Verify the payment signature
-            print(razorpay_payment_id,razorpay_order_id,razorpay_signature)
             is_signature_valid = client.utility.verify_payment_signature({
                 'razorpay_payment_id': razorpay_payment_id,
                 'razorpay_order_id': razorpay_order_id,
@@ -2819,7 +2847,6 @@ def case_tracker_callback(request, client_id):
             })
 
             if is_signature_valid:
-                print(123)
                 try:
                     tracker_payment = TrackerPayment.objects.get(order_id=razorpay_order_id)
 
@@ -2858,3 +2885,61 @@ def transfer_student_to_work_assignment(request, work_assignment_id):
         return redirect(reverse('list_cases'))
     
     return render(request, 'lawyer/transfer_student.html', {'current_student': current_student, 'associated_students': associated_students})
+
+
+nltk.download('vader_lexicon')
+
+def feedback_submit(request, case_id, lawyer_id):
+    case = get_object_or_404(Case, id=case_id)
+    lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+    
+    if request.method == 'POST':
+        feedback_text = request.POST.get('feedback_text')
+        
+        analyzer = SentimentIntensityAnalyzer()
+        sentiment_score = analyzer.polarity_scores(feedback_text)
+        compound_score = sentiment_score['compound']
+        
+        print(analyzer,sentiment_score,compound_score)
+
+        if compound_score >= 0.05:
+            sentiment = 'positive'
+        elif compound_score <= -0.05:
+            sentiment = 'negative'
+        else:
+            sentiment = 'neutral'
+
+        feedback = Feedback.objects.create(
+            lawyer=lawyer,
+            feedback_text=feedback_text,
+            sentiment=sentiment,
+            case=case,
+            user=request.user  
+        )
+        feedback.save()
+
+        return redirect('login')  
+    else:
+        return render(request, 'client/feedback_submit.html', {'case': case, 'lawyer': lawyer})
+    
+    
+def rank_lawyers():
+    lawyers = LawyerProfile.objects.all()
+
+    sentiment_counts = {}
+
+    for lawyer in lawyers:
+        positive_count = Feedback.objects.filter(lawyer=lawyer, sentiment='positive').count()
+
+        negative_count = Feedback.objects.filter(lawyer=lawyer, sentiment='negative').count()
+
+        neutral_count = Feedback.objects.filter(lawyer=lawyer, sentiment='neutral').count()
+
+        sentiment_score = positive_count - negative_count + (0.5 * neutral_count)
+
+        sentiment_counts[lawyer] = sentiment_score
+
+    ranked_lawyers = sorted(sentiment_counts.items(), key=lambda x: x[1], reverse=True)
+
+    return ranked_lawyers
+

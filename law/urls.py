@@ -79,6 +79,7 @@ urlpatterns = [
     path('case_fine/<int:case_tracking_id>/', views.case_fine, name='case_fine'),
     path('case_tracker_callback/<int:client_id>/', views.case_tracker_callback, name='case_tracker_callback'),
     path('work_assignment/<int:work_assignment_id>/transfer/', views.transfer_student_to_work_assignment, name='transfer_student_to_work_assignment'),
+    path('feedback/<int:case_id>/<int:lawyer_id>/', views.feedback_submit, name='feedback_submit'),
 ]
 
 if settings.DEBUG:

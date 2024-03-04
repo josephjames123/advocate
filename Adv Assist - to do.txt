@@ -1,28 +1,11 @@
-
-mark_casual leave  - validation
-assign document - validation - blank
-submit task - validation
-
+case over - no more updations - case history
+client - search and card
+status - paid unpaid
 
 
 
 
-
-transfer
-student - book now
-with payment
-
-
-
-duty leave - side status
-casual leave - popup
-notifiaction symbol
-add case update(case update)
-payment
-dashbord - client
-count
-cutom payment
-description - case track
-case dont come once work assigned
-advocate  - dropdown
-client see - student -case list - handled by student 
+cases UI
+lawyer notification paid
+components , settings - remove
+other no amount

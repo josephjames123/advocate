@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CurrentCase , HolidayRequest,Payment, Task
-from .models import CustomUser, LawyerProfile , ContactEntry , Booking , Student, Internship, Application ,TimeSlot , Day , LawyerDayOff , Case, Appointment, CaseTracking , WorkAssignment,TrackerPayment
-from .models import StudentPayment,Notification,FinePayment
+# from .models import CurrentCase , HolidayRequest,Payment, Task
+# from .models import CustomUser, LawyerProfile , ContactEntry , Booking , Student, Internship, Application ,TimeSlot , Day , LawyerDayOff , Case, Appointment, CaseTracking , WorkAssignment,TrackerPayment
+from .models import *
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -51,6 +51,8 @@ admin.site.register(StudentPayment)
 admin.site.register(Notification)
 admin.site.register(FinePayment)
 admin.site.register(TrackerPayment)
+admin.site.register(TrackerNotification)
+admin.site.register(Feedback)
 
 
 

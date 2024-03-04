@@ -88,76 +88,195 @@
 
 <main class="main-wrapper">
     <div class="main-content">
-        <div class="container py-5">
-            <h1 class="text-center">Case List</h1>
-            <div class="row">
-                <div class="col-12">
-                    <table id="example" class="table table-striped" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Case Number</th>
-                                <th class="text-center">
-                                    {% if user.user_type == 'client' %}
-                                        Lawyer
-                                    {% elif user.user_type == 'lawyer' %}
-                                        Client
-                                    {% endif %}
-                                </th>
-                                
-                                {% if user.user_type == 'lawyer' %}
-                                    <th class="text-center">Handled By</th>
-                                {% endif %}
-                                <th class="text-center">Status</th>
-                                <th class="text-center"></th>
-                                <th class="text-center">Report</th>
-                                {% if user.user_type == 'client' %}
-                                    <th class="text-center">Student</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
-                
-                        <tbody>
-                            {% for case in cases %}
-                                <tr>
-                                    <td class="text-center">CS/{{ case.case_number }}</td>
-                                    <td class="text-center">
-                                        {% if user.user_type == 'client' %}
-                                            {{ case.lawyer.user.get_full_name }}
-                                        {% elif user.user_type == 'lawyer' %}
-                                            {{ case.client_name }}
+        
+                <div class="container py-5">
+                    <h1 class="text-center">Case</h1>
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="history" class="table table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Case Number</th>
+                                        <th class="text-center">
+                                            {% if user.user_type == 'client' %}
+                                                Lawyer
+                                            {% elif user.user_type == 'lawyer' %}
+                                                Client
+                                            {% endif %}
+                                        </th>
+                                        {% if user.user_type == 'lawyer' %}
+                                            <th class="text-center">Handled By</th>
                                         {% endif %}
-                                    </td>
-                                    {% if user.user_type == 'lawyer' %}
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Details</th>
+                                        <th class="text-center">Report</th>
+                                        {% if user.user_type == 'client' %}
+                                            <th class="text-center">Student</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for case in cases %}
+        {% if not case.case_tracking.exists or not case.case_tracking.activity != "Final Appeal" %}
+                                    <tr>
+                                        <td class="text-center">CS/{{ case.case_number }}</td>
                                         <td class="text-center">
-                                            {% if case.work_assignments.all %}
+                                            {% if user.user_type == 'client' %}
+                                                {{ case.lawyer.user.get_full_name }}
+                                            {% elif user.user_type == 'lawyer' %}
+                                                {{ case.client_name }}
+                                            {% endif %}
+                                        </td>
+                                        {% if user.user_type == 'lawyer' %}
+                                            <td class="text-center">
                                                 {% for work_assignment in case.work_assignments.all %}
                                                     {% if work_assignment.student %}
                                                         {{ work_assignment.student.user.get_full_name }}
                                                     {% endif %}
                                                 {% endfor %}
-                                            {% else %}
-                                                {{ request.user.get_full_name }}
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                    <td class="text-center">{{ case.status }}</td>
-                                    <td class="text-center">
-                                        <a href="{% url 'case_detail' case.id %}">
-                                            <button class="btn btn-success" type="submit">Show More</button>
-                                        </a>
-                                    </td>
-                                    <td class="text-center">
-                                        {% comment %} {% for work_assignment in case.work_assignments %}
-                                            <a href="{% url 'view_tasks_for_assignment' work_assignment.id %}">
-                                                <button class="btn btn-success" type="submit">View Tasks</button>
+                                            </td>
+                                        {% endif %}
+                                        <td class="text-center">{{ case.status }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'case_detail' case.id %}">
+                                                <button class="btn btn-success" type="button">Show More</button>
                                             </a>
-                                        {% endfor %} {% endcomment %}
-                                        <div class="col">
-                                            <!-- Button trigger modal -->
-                                            {% for work_assignment in case.work_assignments %}
-                                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Report</button>
                                         </td>
-                                            <!-- Modal -->
+                                        <td class="text-center">
+                                            <div class="col">
+                                                <!-- Button trigger modal -->
+                                                {% for work_assignment in case.work_assignments %}
+                                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Report</button>
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Tasks for {{ work_assignment.description }}</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    {% if work_assignment.tasks %}
+                                                                        {% for task in work_assignment.tasks %}
+                                                                            <div class="modal-body">Note: {{ task.note }}</div>
+                                                                            <div class="col text-center">
+                                                                                <button type="button" class="btn btn-info px-4 raised viewButton">
+                                                                                    <i class="material-icons-outlined">cloud_download</i>View
+                                                                                </button>
+                                                                            </div>
+                                                                            <script>
+                                                                                document.addEventListener('DOMContentLoaded', function () {
+                                                                                    var viewButton = document.querySelector('.viewButton');
+                                                                                    viewButton.addEventListener('click', function () {
+                                                                                        window.open("{{ task.files.url }}", "_blank");
+                                                                                    });
+                                                                                });
+                                                                            </script>
+                                                                        {% endfor %}
+                                                                    {% else %}
+                                                                        <div class="modal-body">Not submitted</div>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    {% if user.user_type == 'lawyer' %}
+                                                                        <a href="{% url 'transfer_student_to_work_assignment' work_assignment.id %}" class="btn btn-secondary">Transfer</a>
+                                                                    {% endif %}
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        {% if user.user_type == 'client' %}
+                                            <td class="text-center">
+                                                {% if case.work_assignments.all %}
+                                                    {% for work_assignment in case.work_assignments.all %}
+                                                        {% if work_assignment.student %}
+                                                            {{ work_assignment.student.user.get_full_name }}
+                                                        {% else %}
+                                                            None
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    None
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endif %}
+                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+        
+        
+                    <div class="container py-5">
+                        <h1 class="text-center">Case history</h1>
+                        <div class="row">
+                            <div class="col-12">
+                                <table id="history" class="table table-striped" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Case Number</th>
+                                            <th class="text-center">
+                                                {% if user.user_type == 'client' %}
+                                                    Lawyer
+                                                {% elif user.user_type == 'lawyer' %}
+                                                    Client
+                                                {% endif %}
+                                            </th>
+                                            {% if user.user_type == 'lawyer' %}
+                                                <th class="text-center">Handled By</th>
+                                            {% endif %}
+                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Details</th>
+                                            <th class="text-center">Report</th>
+                                            {% if user.user_type == 'client' %}
+                                                <th class="text-center">Student</th>
+                                            {% endif %}
+                                            {% if user.user_type == 'client' %}
+                                                <th class="text-center">Feedback</th>
+                                            {% endif %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for case in cases %}
+    {% for tracking in case.case_tracking.all %}
+        {% if tracking.activity == "Final Appeal" %}
+            <tr>
+                <td class="text-center">CS/{{ case.case_number }}</td>
+                <td class="text-center">
+                    {% if user.user_type == 'client' %}
+                        {{ case.lawyer.user.get_full_name }}
+                    {% elif user.user_type == 'lawyer' %}
+                        {{ case.client_name }}
+                    {% endif %}
+                </td>
+                {% if user.user_type == 'lawyer' %}
+                    <td class="text-center">
+                        {% for work_assignment in case.work_assignments.all %}
+                            {% if work_assignment.student %}
+                                {{ work_assignment.student.user.get_full_name }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                {% endif %}
+                <td class="text-center">{{ case.status }}</td>
+                <td class="text-center">
+                    <a href="{% url 'case_detail' case.id %}">
+                        <button class="btn btn-success" type="button">Show More</button>
+                    </a>
+                </td>
+                <td class="text-center">
+                    <div class="col">
+                        <!-- Button trigger modal -->
+                        {% for work_assignment in case.work_assignments %}
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Report</button>
+                            <!-- Modal -->
                             <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -187,37 +306,50 @@
                                                 <div class="modal-body">Not submitted</div>
                                             {% endif %}
                                         </div>
-
                                         <div class="modal-footer">
-                                            <a href="{% url 'transfer_student_to_work_assignment' work_assignment.id %}" class="btn btn-secondary">Transfer</a>
+                                            {% if user.user_type == 'lawyer' %}
+                                                <a href="{% url 'transfer_student_to_work_assignment' work_assignment.id %}" class="btn btn-secondary">Transfer</a>
+                                            {% endif %}
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                                          {% endfor %}
-                                    {% if user.user_type == 'client' %}
-                                        <td class="text-center">
-                                            {% if case.work_assignments.all %}
-                                                {% for work_assignment in case.work_assignments.all %}
-                                                    {% if work_assignment.student %}
-                                                        {{ work_assignment.student.user.get_full_name }}
-                                                    {% else %}
-                                                        None
-                                                    {% endif %}
-                                                {% endfor %}
-                                            {% else %}
-                                                None
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                </tr>
+                        {% endfor %}
+                    </div>
+                </td>
+                {% if user.user_type == 'client' %}
+                    <td class="text-center">
+                        {% if case.work_assignments.all %}
+                            {% for work_assignment in case.work_assignments.all %}
+                                {% if work_assignment.student %}
+                                    {{ work_assignment.student.user.get_full_name }}
+                                {% else %}
+                                    None
+                                {% endif %}
                             {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                {% endif %}
+                {% if user.user_type == 'client' %}
+                    <td class="text-center">
+                        <a href="{% url 'feedback_submit' case.id case.lawyer.id %}" class="btn btn-primary">Provide Feedback</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                
     </div>
 </main>
 
@@ -231,6 +363,15 @@
             "searching": true
         });
     });
+    $(document).ready(function () {
+        var table = $('#history').DataTable({
+            "paging": true,
+            "ordering": true,
+            "info": true,
+            "searching": true
+        });
+    });
 </script>
+
 
 {% endblock %}

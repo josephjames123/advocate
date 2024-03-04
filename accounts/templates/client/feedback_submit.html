@@ -1,0 +1,43 @@
+{% extends 'client_base.html' %}
+
+{% block title %}Dashboard - Adv Assist{% endblock %}
+
+{% block content %}
+
+    <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      
+        <div class="row">
+					<div class="col-xl-6 mx-auto">
+						<div class="card">
+							<div class="card-header px-4 py-3">
+								<h5 class="mb-0">Feedback</h5>
+							</div>
+							<div class="card-body p-4">
+								<form class="row g-3 needs-validation" method = "post" novalidate>
+									{% csrf_token %}
+									<div class="col-md-12">
+										<label for="feedback_text" class="form-label">Feedback</label>
+										<textarea id="feedback_text" name="feedback_text" rows="4" cols="50" class="form-control"></textarea>
+										<div class="invalid-feedback">
+											Please enter some Feedback!
+										</div>
+									</div>
+									<div class="col-md-12">
+										<div class="d-md-flex d-grid align-items-center gap-3">
+											<button type="submit" class="btn btn-primary px-4">Submit</button>
+											<button type="reset" class="btn btn-light px-4">Reset</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end row-->
+            </div>
+        </main>
+{% endblock %}
+
+

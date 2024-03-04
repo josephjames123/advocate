@@ -52,6 +52,20 @@
                                             </div>
                                         </div>
                                     {% endfor %}
+
+                                    <!-- Include tracker notifications -->
+                                    {% for tracker_notification in tracker_notifications %}
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="">
+                                                </div>
+                                                <div class="">
+                                                    <p class="mb-0 notify-desc">{{ tracker_notification.casetracking }}</p>
+                                                    <p class="mb-0 notify-desc">{{ tracker_notification.message }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
             
                                     {% if lawyer_profile.time_update %}
                                         {% if time_update.month != current_month %}
@@ -76,4 +90,4 @@
                 </div>
             </div>
         </main>
-            {% endblock %}
+{% endblock %}

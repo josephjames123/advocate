@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -18,12 +18,23 @@
     <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
 
     <title>Case Details</title>
-</head>
+</head> {% endcomment %}
+{% load static %}
+{% if user.user_type == 'lawyer' %}
+    {% include 'lawyer_base.html' %}
+{% elif user.user_type == 'client' %}
+    {% include 'client_base.html' %}
+{% else %}
+    {% include 'admin_base.html' %}
+{% endif %}
 
+
+{% block title %}Booking - Adv Assist{% endblock %}
+
+{% block content %}
 <style>
     .nav.nav-pills li.active a {
         color: #000;
-        /* Black color */
     }
 
     figure img {
@@ -93,85 +104,68 @@
     .tab-content .tab-pane {
         width: 100%;
     }
+    /* Additional styles for the tracking section */
+.card h4 {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.data-group p {
+    margin-bottom: 5px;
+    font-size: 1em;
+}
+
+.data-group p:first-child {
+    font-weight: bold;
+}
+
+.tab-pane {
+    padding: 20px 0; 
+}
+
+
+.data-group.status-paid {
+    color: green;
+}
+
+.data-group.status-not-paid {
+    color: red;
+}
+
 </style>
 
 
 <body>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="{% url 'login' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt="" width="120">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
-                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
-                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
-                                            
-                                        </li> -->
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-
-                                                {% endif %}
-                                                {% if user.user_type == 'lawyer' %}
-                                                <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
-
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                    <nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'login' %}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'list_cases' %}">Cases</a></li>
-            <li class="breadcrumb-item active" aria-current="page">CS/{{ case.case_number}}</li>
-        </ol>
-    </nav>
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
 
     <div class="container" style="margin-top: 1em; margin-bottom: 1em;">
+        {% if user.user_type == 'lawyer' %}
         <a href="{% url 'add_case_update' case_number=case.case_number %}" class="btn btn-sm btn-primary">Add Case
             Update</a>
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'lawyer_dashboard' %}">Go To Dashboard</a>
+            {% endif %}
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'login' %}">Go To Dashboard</a>
     </div>
 
     <div id="exTab1" class="container mt-3">
-        <ul class="nav nav-pills justify-content-center"> <!-- Added justify-content-center -->
+        <ul class="nav nav-pills justify-content-center">
             <li class="active">
                 <a href="#1a" data-toggle="tab">Client Details</a>
             </li>
@@ -249,23 +243,45 @@
             </div>
             <!-- content of 2nd tab end -->
 
-            <!-- content of 3rd tab start -->
-            <div class="tab-pane" id="3a">
-                <div class="card">
-                    <!-- Display case tracking information here -->
-                    <h4>Case Tracking</h4>
+            <!-- case_detail.html -->
+<!-- content of 3rd tab start -->
+<div class="tab-pane" id="3a">
+    <div class="card">
+        <!-- Display case tracking information here -->
+        <h4>Case Tracking</h4>
 
-                    {% for tracking in case_tracking_data %}
-                    <div class="data-group" style="margin: 0;">
-                        <p>🔔 {{ tracking.date }} - {{ tracking.activity }}</p>
-                    </div>
-                    <div class="data-group" style="margin: 0;">
-                        <p>Description :{{ tracking.description }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
+        {% for tracking in case_tracking_data %}
+            <div class="data-group" style="margin: 0;">
+                <p>🔔 {{ tracking.date }} - {{ tracking.activity }}</p>
             </div>
-            <!-- content of 3rd tab end -->
+            <div class="data-group" style="margin: 0;">
+                <p>Description :{{ tracking.description }}</p>
+            </div>
+
+            <!-- Display payment status for each case tracking entry -->
+           <!-- Display payment status for each case tracking entry -->
+{% for payment in tracker_payments %}
+{% if payment.casetracker == tracking %}
+    {% if payment.status == "confirmed" %}
+        <div class="data-group status-paid" style="margin: 0;">
+            <p>Status : Paid</p>
+        </div>
+    {% else %}
+        <div class="data-group status-not-paid" style="margin: 0;">
+            <p>Status : Not paid</p>
+        </div>
+    {% endif %}
+{% endif %}
+{% endfor %}
+<hr>
+
+        {% endfor %}  
+        
+
+    </div>
+</div>
+<!-- content of 3rd tab end -->
+
 
         </div>
         <!-- <div style="text-align: center;">
@@ -273,9 +289,9 @@
             </p>
         </div> -->
     </div>
+</div>
+</main>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-</body>
-
-</html>
+    {% endblock %}

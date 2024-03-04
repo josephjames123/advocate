@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-*%jad^o4gud+9b)_&fkm&n)z4jd&$^758boq7nd6tw7yy+xlna
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -176,6 +176,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='rfzkspjabfuqofbh')
 STATIC_URL = 'static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
@@ -190,15 +191,16 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
+
 MEDIA_URL = ''
 MEDIA_ROOT = os.path.join(BASE_DIR, '')
 
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 
+
 RAZORPAY_KEY_ID = "rzp_test_96hlAiMhObAOx3"
 RAZORPAY_KEY_SECRET = "CkP6XWrRUDFoK0Dr0eKqDLK5"
-
 
 TWILIO_PHONE_NUMBER = '+447462385460'
 
@@ -207,14 +209,16 @@ TWILIO_AUTH_TOKEN = '47ac0126322deff068f624f07038a8d0'
 TWILIO_ACCOUNT_SID = 'AC555316373c97643675e0be3bca2a9431'
 
 
+
+
 # ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+
 
 CORS_ORIGIN_WHITELIST = [
     'https://api.razorpay.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://api.razorpay.com"]
-
 
 
 

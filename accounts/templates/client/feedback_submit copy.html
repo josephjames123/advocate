@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Submission</title>
+</head>
+<body>
+    <h1>Feedback Submission</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="feedback_text">Feedback:</label><br>
+        <textarea id="feedback_text" name="feedback_text" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Submit Feedback">
+    </form>
+</body>
+</html>
+
+

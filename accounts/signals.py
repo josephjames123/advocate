@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import Task, Notification ,  CaseTracking, TrackerPayment
+from .models import Task, Notification ,  CaseTracking, TrackerPayment ,TrackerNotification
 from .constants import PaymentStatus
 
 @receiver(post_save, sender=Task)
@@ -34,10 +34,29 @@ def create_tracker_payment(sender, instance, created, **kwargs):
     Signal receiver function to create a TrackerPayment object when a CaseTracking object is created.
     """
     if created:
-        TrackerPayment.objects.create(
+        
+        
+        tracker_payment = TrackerPayment.objects.create(
             client=instance.case.client,  
             casetracker=instance,
             status=PaymentStatus.PENDING  
             
         )
+        
+        if instance.amount == 0 or instance.amount == '0':
+            tracker_payment.status = PaymentStatus.SUCCESS
+            tracker_payment.save()
+        
+@receiver(post_save, sender=TrackerPayment)
+def create_notification(sender, instance, **kwargs):
+    if instance.status == "confirmed":
+        print("Status changed to confirmed")
 
+        notification = TrackerNotification.objects.create(
+            lawyer=instance.casetracker.case.lawyer,
+            recipient=instance.casetracker.case.lawyer,
+            casetracking=instance.casetracker,
+            payment=instance,
+            message = f"The payment for {instance.casetracker} has been Paid "
+        )
+        print("Notification created:", notification)

@@ -578,4 +578,27 @@ class TrackerPayment(models.Model):
     razorpay_signature = models.CharField(max_length=200, blank=True, null=True) 
     
     def __str__(self):
-        return f"{self.client} {self.casetracker} {self.order_id}"        
+        return f"{self.client} {self.casetracker} {self.order_id}"
+    
+class TrackerNotification(models.Model):
+    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
+    recipient = models.ForeignKey(LawyerProfile, related_name='notifications', on_delete=models.CASCADE)
+    casetracking = models.ForeignKey(CaseTracking, on_delete=models.CASCADE)
+    payment = models.ForeignKey(TrackerPayment, on_delete=models.CASCADE)   
+    message = models.TextField()
+
+
+    def __str__(self):
+        return f"Notification for {self.recipient} regarding case {self.casetracking}"   
+    
+    
+class Feedback(models.Model):
+    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
+    feedback_text = models.TextField()
+    sentiment = models.CharField(max_length=20)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback for {self.lawyer} - {self.created_at}"     
