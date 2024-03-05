@@ -1418,6 +1418,8 @@ def current_cases(request):
     
     return render(request, 'lawyer/current_cases.html', context)
 
+
+
 def list_cases(request):
     user_type = request.user.user_type  # Assuming you have 'user_type' set in your CustomUser model
     
@@ -1433,6 +1435,7 @@ def list_cases(request):
     elif user_type == 'client':
         cases = Case.objects.filter(client=request.user)
         previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
+        print(cases)
         for case in cases:
             case.work_assignments = WorkAssignment.objects.filter(case=case)
             for work_assignment in case.work_assignments:
@@ -1450,11 +1453,12 @@ def list_cases(request):
                 work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
     else:
         cases = None
-
+    print(cases)
     return render(request, 'case_list.html', {
         'cases': cases,
         'previous': previous_history
         })
+
 
 
 def view_tasks_for_assignment(request, work_assignment_id):
