@@ -1,3 +1,5 @@
+
+
 {% if user.user_type == 'lawyer' %}
     {% include 'lawyer_base.html' %}
 {% elif user.user_type == 'client' %}
@@ -90,10 +92,10 @@
     <div class="main-content">
         
                 <div class="container py-5">
-                    <h1 class="text-center">Case</h1>
+                    <h1 class="text-center">Case list</h1>
                     <div class="row">
                         <div class="col-12">
-                            <table id="history" class="table table-striped" style="width:100%">
+                            <table id="example" class="table table-striped" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th class="text-center">Case Number</th>
@@ -353,18 +355,16 @@
     </div>
 </main>
 
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
     $(document).ready(function () {
-        var table = $('#example').DataTable({
+        $('#example').DataTable({
             "paging": true,
             "ordering": true,
             "info": true,
             "searching": true
         });
-    });
-    $(document).ready(function () {
-        var table = $('#history').DataTable({
+
+        $('#history').DataTable({
             "paging": true,
             "ordering": true,
             "info": true,
@@ -375,3 +375,5 @@
 
 
 {% endblock %}
+
+
