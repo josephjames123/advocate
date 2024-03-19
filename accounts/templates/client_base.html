@@ -153,6 +153,13 @@
             <div class="menu-title">Cases</div>
           </a>
         </li>
+        <li class="{% if request.path == '/feedback/' %}active{% endif %}">
+          <a href="{% url 'feedback_view' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">feedback</i>
+            </div>
+            <div class="menu-title">Feedback</div>
+          </a>
+        </li>
       </div>
   
 </aside>

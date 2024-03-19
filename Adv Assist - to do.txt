@@ -1,9 +1,21 @@
-search
-caseover automatially
-amount case _tracker in paisa
-save analayser and scores
+lawyer_details - template
+
+
+case update - add case
+video
+templates old
+
+validation
+chatbot
+translate ( if possible)
+
+
+Done
+case tracker issue
+feedback view - all
 homepage remove
-lawyer_details
-
-
+amount case _tracker in paisa
+search
+save analayser and scores
+feedback limit 3
 

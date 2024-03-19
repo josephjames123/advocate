@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agora Video Call</title>
+</head>
+<body>
+    <script src="https://cdn.agora.io/sdk/release/AgoraRTCSDK-3.6.4.js"></script>
+    
+    <script>
+        const appID = '{{ app_id }}';
+        const channel = '{{ channel }}';
+        
+        const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+
+        client.join(appID, channel, null, (uid) => {
+            const localStream = AgoraRTC.createStream({ audio: true, video: true });
+            localStream.init(() => {
+                localStream.play('local-video');
+                client.publish(localStream);
+            });
+        });
+
+        client.on('stream-added', function (evt) {
+            const stream = evt.stream;
+            client.subscribe(stream, function (err) {
+                console.log('Subscribe stream failed', err);
+            });
+        });
+
+        client.on('stream-subscribed', function (evt) {
+            const stream = evt.stream;
+            const remoteId = `remote-video-${stream.getId()}`;
+            const remoteVideo = document.createElement('div');
+            remoteVideo.id = remoteId;
+            document.body.appendChild(remoteVideo);
+            stream.play(remoteId);
+        });
+    </script>
+    
+    <div id="local-video"></div>
+</body>
+</html>

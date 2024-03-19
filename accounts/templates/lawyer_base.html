@@ -138,7 +138,7 @@
           </div>
         </div>
       </li>
-      <li class="nav-item dropdown">
+      <li class="nav-item dropdown"id="logoutto">
         <a href="javascrpt:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
            <img src="https://kutt.it/profilepic" class="rounded-circle p-1 border" width="45" height="45">
         </a>
@@ -154,7 +154,7 @@
           </a>
           <hr class="dropdown-divider">
           <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'logout' %}"><i
-          class="material-icons-outlined">power_settings_new</i>Logout</a>
+          class="material-icons-outlined"id="logoutlawyer1">power_settings_new</i>Logout</a>
         </div>
       </li>
     </ul>
@@ -190,7 +190,7 @@
           <a href="{% url 'list_cases' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">cases</i>
             </div>
-            <div class="menu-title">Case</div>
+            <div class="menu-title"id = "casepage">Case</div>
           </a>
         </li>
         <li class="{% if request.path == '/assign-working-hours/' %}active{% endif %}">
@@ -207,11 +207,11 @@
             <div class="menu-title">Leave</div>
           </a>
           <ul>
-            <li><a href="{% url 'mark_holiday' %}"><i class="material-icons-outlined">arrow_right</i>Duty Leave</a>
+            <li><a href="{% url 'mark_holiday' %}"><i class="material-icons-outlined" id = "duty_leave">arrow_right</i>Duty Leave</a>
             </li>
             <li><a href="{% url 'mark_casual_leave' %}"><i class="material-icons-outlined">arrow_right</i>Casual Leave</a>
             </li>
-            <li><a href="{% url 'leave_reports' %}"><i class="material-icons-outlined">arrow_right</i>Leave Reports</a>
+            <li><a href="{% url 'leave_reports' %}"><i class="material-icons-outlined" id = "leaveReport">arrow_right</i>Leave Reports</a>
             </li>
           </ul>
         </li>
@@ -233,14 +233,14 @@
           <a href="{% url 'students' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title">Students</div>
+            <div class="menu-title" id="std">Students</div>
           </a>
         </li>
         <li class="{% if request.path == '/assign_work/' %}active{% endif %}">
           <a href="{% url 'assign_work' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title">Assign Work</div>
+            <div class="menu-title" id = "work">Assign Work</div>
           </a>
         </li>
         <li class="{% if '/bookings/lawyer/' in request.path %}active{% endif %}">
@@ -250,6 +250,14 @@
             <div class="menu-title">Booking</div>
           </a>
         </li>
+        <li class="{% if request.path == '/feedback/' %}active{% endif %}">
+          <a href="{% url 'feedback_view' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">feedback</i>
+            </div>
+            <div class="menu-title">Feedback</div>
+          </a>
+        </li>
+
         <li class="{% if '/accounts/update_lawyer_profile/' in request.path %}active{% endif %}">
           <a href="{% url 'update_lawyer_profile' user_id=user.pk %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
@@ -257,6 +265,7 @@
             <div class="menu-title">Update Profile</div>
           </a>
         </li>
+       
       </div>
   
 </aside>

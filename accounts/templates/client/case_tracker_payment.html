@@ -89,12 +89,12 @@
     </div>
     <script>
         function cancelPayment() {
-            window.location.href = "{% url 'home' %}";
+            window.location.href = "{% url 'login_view' %}";
         }
 
         function Payment() {
             var options = {
-                key: "rzp_test_96hlAiMhObAOx3",
+                key: "rzp_test_HvhhTnPiTU4aMn",
                 amount: {{ order.amount }},
                 currency: "INR",
                 name: "{{ user.get_full_name }}",

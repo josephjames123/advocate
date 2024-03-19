@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Booking Notification</title>
+</head>
+<body>
+    <h2>New Booking Notification</h2>
+    <p>Dear {{ client }},</p>
+    <p>You have a new booking for {{ booking_date }} at {{ booking_time }}.</p>
+    <p>The lawyer for this appointment is {{ lawyer }}.</p>
+    <p>You can join the meeting using the following link:</p>
+    <a href="{{ meeting_link }}">{{ meeting_link }}</a>
+    <p>Thank you.</p>
+</body>
+</html>

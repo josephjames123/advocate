@@ -1,5 +1,3 @@
-
-
 {% if user.user_type == 'lawyer' %}
     {% include 'lawyer_base.html' %}
 {% elif user.user_type == 'client' %}
@@ -92,7 +90,7 @@
     <div class="main-content">
         
                 <div class="container py-5">
-                    <h1 class="text-center">Case list</h1>
+                    <h1 class="text-center">Case</h1>
                     <div class="row">
                         <div class="col-12">
                             <table id="example" class="table table-striped" style="width:100%">
@@ -118,36 +116,35 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for case in cases %}
-        {% if not case.case_tracking.exists or not case.case_tracking.activity != "Final Appeal" %}
+                                    {% for c_case in current_cases %}
                                     <tr>
-                                        <td class="text-center">CS/{{ case.case_number }}</td>
+                                        <td class="text-center">CS/{{ c_case.case_number }}</td>
                                         <td class="text-center">
                                             {% if user.user_type == 'client' %}
-                                                {{ case.lawyer.user.get_full_name }}
+                                                {{ c_case.lawyer.user.get_full_name }}
                                             {% elif user.user_type == 'lawyer' %}
-                                                {{ case.client_name }}
+                                                {{ c_case.client_name }}
                                             {% endif %}
                                         </td>
                                         {% if user.user_type == 'lawyer' %}
                                             <td class="text-center">
-                                                {% for work_assignment in case.work_assignments.all %}
+                                                {% for work_assignment in c_case.work_assignments.all %}
                                                     {% if work_assignment.student %}
                                                         {{ work_assignment.student.user.get_full_name }}
                                                     {% endif %}
                                                 {% endfor %}
                                             </td>
                                         {% endif %}
-                                        <td class="text-center">{{ case.status }}</td>
+                                        <td class="text-center">{{ c_case.status }}</td>
                                         <td class="text-center">
-                                            <a href="{% url 'case_detail' case.id %}">
+                                            <a href="{% url 'case_detail' c_case.id %}">
                                                 <button class="btn btn-success" type="button">Show More</button>
                                             </a>
                                         </td>
                                         <td class="text-center">
                                             <div class="col">
                                                 <!-- Button trigger modal -->
-                                                {% for work_assignment in case.work_assignments %}
+                                                {% for work_assignment in c_case.work_assignments %}
                                                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Report</button>
                                                     <!-- Modal -->
                                                     <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
@@ -193,8 +190,8 @@
                                         </td>
                                         {% if user.user_type == 'client' %}
                                             <td class="text-center">
-                                                {% if case.work_assignments.all %}
-                                                    {% for work_assignment in case.work_assignments.all %}
+                                                {% if c_case.work_assignments.all %}
+                                                    {% for work_assignment in c_case.work_assignments.all %}
                                                         {% if work_assignment.student %}
                                                             {{ work_assignment.student.user.get_full_name }}
                                                         {% else %}
@@ -207,7 +204,6 @@
                                             </td>
                                         {% endif %}
                                     </tr>
-                                    {% endif %}
                 {% endfor %}
                                 </tbody>
                             </table>
@@ -246,37 +242,35 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for case in cases %}
-    {% for tracking in case.case_tracking.all %}
-        {% if tracking.activity == "Final Appeal" %}
+                                        {% for p_case in previous %}
             <tr>
-                <td class="text-center">CS/{{ case.case_number }}</td>
+                <td class="text-center">CS/{{ p_case.case_number }}</td>
                 <td class="text-center">
                     {% if user.user_type == 'client' %}
-                        {{ case.lawyer.user.get_full_name }}
+                        {{ p_case.lawyer.user.get_full_name }}
                     {% elif user.user_type == 'lawyer' %}
-                        {{ case.client_name }}
+                        {{ p_case.client_name }}
                     {% endif %}
                 </td>
                 {% if user.user_type == 'lawyer' %}
                     <td class="text-center">
-                        {% for work_assignment in case.work_assignments.all %}
+                        {% for work_assignment in p_case.work_assignments.all %}
                             {% if work_assignment.student %}
                                 {{ work_assignment.student.user.get_full_name }}
                             {% endif %}
                         {% endfor %}
                     </td>
                 {% endif %}
-                <td class="text-center">{{ case.status }}</td>
+                <td class="text-center">{{ p_case.status }}</td>
                 <td class="text-center">
-                    <a href="{% url 'case_detail' case.id %}">
+                    <a href="{% url 'case_detail' p_case.id %}">
                         <button class="btn btn-success" type="button">Show More</button>
                     </a>
                 </td>
                 <td class="text-center">
                     <div class="col">
                         <!-- Button trigger modal -->
-                        {% for work_assignment in case.work_assignments %}
+                        {% for work_assignment in p_case.work_assignments %}
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleVerticallycenteredModal">Report</button>
                             <!-- Modal -->
                             <div class="modal fade" id="exampleVerticallycenteredModal" tabindex="-1" aria-hidden="true">
@@ -320,10 +314,11 @@
                         {% endfor %}
                     </div>
                 </td>
+                
                 {% if user.user_type == 'client' %}
                     <td class="text-center">
-                        {% if case.work_assignments.all %}
-                            {% for work_assignment in case.work_assignments.all %}
+                        {% if p_case.work_assignments.all %}
+                            {% for work_assignment in p_case.work_assignments.all %}
                                 {% if work_assignment.student %}
                                     {{ work_assignment.student.user.get_full_name }}
                                 {% else %}
@@ -337,14 +332,15 @@
                 {% endif %}
                 {% if user.user_type == 'client' %}
                     <td class="text-center">
-                        <a href="{% url 'feedback_submit' case.id case.lawyer.id %}" class="btn btn-primary">Provide Feedback</a>
+                        {% if p_case.feedback_set.count < 3 %}
+                        <a href="{% url 'feedback_submit' p_case.id p_case.lawyer.id %}" class="btn btn-primary">Provide Feedback</a>
+                        {% else %}
+                        Feedback Disabled
+                    {% endif %}
                     </td>
                 {% endif %}
             </tr>
-        {% endif %}
-    {% endfor %}
 {% endfor %}
-
                                         </tr>
                                     </tbody>
                                 </table>
@@ -355,16 +351,18 @@
     </div>
 </main>
 
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#example').DataTable({
+        var table = $('#example').DataTable({
             "paging": true,
             "ordering": true,
             "info": true,
             "searching": true
         });
-
-        $('#history').DataTable({
+    });
+    $(document).ready(function () {
+        var table = $('#history').DataTable({
             "paging": true,
             "ordering": true,
             "info": true,
@@ -375,5 +373,3 @@
 
 
 {% endblock %}
-
-

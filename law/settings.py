@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-*%jad^o4gud+9b)_&fkm&n)z4jd&$^758boq7nd6tw7yy+xlna
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'taggit',
     'widget_tweaks',
+  
 
 ]
 
@@ -217,7 +218,9 @@ CORS_ORIGIN_WHITELIST = [
     'https://api.razorpay.com',
 ]
 
-CSRF_TRUSTED_ORIGINS = ["https://api.razorpay.com"]
+CSRF_TRUSTED_ORIGINS = ["https://api.razorpay.com","https://d4a9-136-232-57-110.ngrok-free.app"]
 
 
 
+
+ 

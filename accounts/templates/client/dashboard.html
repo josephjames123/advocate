@@ -133,11 +133,11 @@
                                                     <a class="d-flex align-items-center gap-3"
                                                         href="{% url 'lawyer_details' lawyer.id %}">
                                                         <div class="customer-pic">
-                                                          {% if lawyer.profile_picture %}
-                                                          <img src="{{ lawyer.profile_picture.url }}" class="rounded-circle" width="40" height="40" alt="">
-                                                      {% else %}
-                                                          <img src="https://cdn3.iconfinder.com/data/icons/man-user-human-profile-business-person-avatar/100/05-1User-4-512.png" class="rounded-circle" width="40" height="40" alt="">
-                                                      {% endif %}
+                                                            {% if lawyer.profile_picture %}
+                                                            <img src="{{ lawyer.profile_picture.url }}" class="rounded-circle" width="40" height="40" alt="">
+                                                            {% else %}
+                                                            <img src="https://cdn3.iconfinder.com/data/icons/man-user-human-profile-business-person-avatar/100/05-1User-4-512.png" class="rounded-circle" width="40" height="40" alt="">
+                                                            {% endif %}
                                                         </div>
                                                         <p class="mb-0 customer-name fw-bold">
                                                             {{ lawyer.user.get_full_name }}</p>
@@ -159,6 +159,8 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                
         </main>
         
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
@@ -166,12 +168,24 @@
             $(document).ready(function() {
                 var table = $('#myTable').DataTable({
                     "paging": true,
-                    "ordering": true,
+                    "ordering": false, 
                     "info": true,
-                    "searching": true  
+                    "searching": true,
+                    "pagingType": "simple_numbers", 
+                    "lengthMenu": [5, 10, 25, 50], 
+                    "pageLength": 10, 
+                    "language": {
+                        "search": "_INPUT_", 
+                        "searchPlaceholder": "Search...", 
+                        "paginate": {
+                            "next": "&raquo;", 
+                            "previous": "&laquo;" 
+                        }
+                    }
                 });
             });
         </script>
+        
             </div>
         </main>
 

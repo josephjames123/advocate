@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.login_view, name='login_view'),
     path('lawyerlist/', views.lawyer_list, name='lawyer_list'),
     path('about/', views.about, name='about'),
     path('practice/', views.practice, name='practice'),
@@ -80,6 +80,9 @@ urlpatterns = [
     path('case_tracker_callback/<int:client_id>/', views.case_tracker_callback, name='case_tracker_callback'),
     path('work_assignment/<int:work_assignment_id>/transfer/', views.transfer_student_to_work_assignment, name='transfer_student_to_work_assignment'),
     path('feedback/<int:case_id>/<int:lawyer_id>/', views.feedback_submit, name='feedback_submit'),
+    path('feedback/', views.feedback_view, name='feedback_view'),
+    path('meeting/<int:id>/', views.video_call, name='video_call'),
+
 ]
 
 if settings.DEBUG:

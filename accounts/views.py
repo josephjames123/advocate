@@ -1,5 +1,6 @@
 # accounts/views.py
 from calendar import monthrange
+import time
 from django.utils.http import urlsafe_base64_decode
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
@@ -65,6 +66,8 @@ import random
 from .models import FinePayment,Feedback
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import uuid
+
 
 
 
@@ -93,7 +96,7 @@ def login_view(request):
         if user.user_type == 'admin':
             return redirect(reverse('admin_dashboard'))
         elif user.user_type == 'client':
-            return redirect(reverse('home'))
+            return redirect(reverse('client_dashboard'))
         elif user.user_type == 'lawyer':
             # # Assuming you have a one-to-one relationship between CustomUser and LawyerProfile
             # lawyer_profile = LawyerProfile.objects.get(user=user)
@@ -394,6 +397,68 @@ def admin_dashboard(request):
     else:
         return render(request, '404.html')
 
+# @login_required
+# def client_dashboard(request):
+#     user = request.user
+
+#     all_bookings = Appointment.objects.filter(client=user)
+
+#     has_unconfirmed_payments = TrackerPayment.objects.filter(client=user).exclude(status='confirmed').exists()
+#     case_tracker_details = None
+#     unconfirmed_payment = None
+    
+#     lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
+
+#     lawyer_info = []
+
+#     for lawyer in lawyers:
+#         lawyer_info.append({
+#             'name': f"{lawyer.user.first_name} {lawyer.user.last_name}",
+#             'specialization': lawyer.specialization,
+#             'profile_picture': lawyer.profile_picture.url,
+#             'id': lawyer.id,  
+#         })
+
+#     if has_unconfirmed_payments:
+#         unconfirmed_payment = TrackerPayment.objects.filter(client=user, status__in=['pending', 'failed','not_paid']).first()
+#         casetracker = unconfirmed_payment.casetracker
+#         amount_in_paisa = casetracker.amount
+#         amount = amount_in_paisa / 100.0  
+#         case_tracker_details = {
+#             'case_number': casetracker.case.case_number,
+#             'posted_date': casetracker.posted_date,
+#             'activity': casetracker.activity,
+#             'description': casetracker.description,
+#             'date': casetracker.date,
+#             'amount': amount  
+#         }
+
+#     # Calculate sentiment score for each lawyer
+#     for lawyer in lawyers:
+#         feedbacks = Feedback.objects.filter(lawyer=lawyer)
+#         score = 0
+#         for feedback in feedbacks:
+#             if feedback.sentiment == 'positive':
+#                 score += 1
+#             elif feedback.sentiment == 'neutral':
+#                 score += 0.5
+#             else:
+#                 score -= 1
+#         print(f"Lawyer {lawyer.user.first_name} {lawyer.user.last_name} - Sentiment Score: {score}")
+        
+#     lawyers = sorted(lawyers, key=lambda x: x.sentiment_score, reverse=True)
+
+#     context = {
+#         'all_bookings': all_bookings,
+#         'has_unconfirmed_payments': has_unconfirmed_payments,
+#         'case_tracker_details': case_tracker_details,
+#         'unconfirmed_payment': unconfirmed_payment,
+#         'lawyer_info': lawyer_info,
+#         'lawyers': lawyers
+#     }
+#     print(lawyers)
+#     return render(request, 'client/dashboard.html', context)
+
 @login_required
 def client_dashboard(request):
     user = request.user
@@ -404,7 +469,7 @@ def client_dashboard(request):
     case_tracker_details = None
     unconfirmed_payment = None
     
-    lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
+    lawyers = LawyerProfile.objects.all()
 
     lawyer_info = []
 
@@ -416,19 +481,43 @@ def client_dashboard(request):
             'id': lawyer.id,  
         })
 
-    
-
     if has_unconfirmed_payments:
         unconfirmed_payment = TrackerPayment.objects.filter(client=user, status__in=['pending', 'failed','not_paid']).first()
         casetracker = unconfirmed_payment.casetracker
+        amount_in_paisa = casetracker.amount
+        amount = amount_in_paisa / 100.0  
         case_tracker_details = {
             'case_number': casetracker.case.case_number,
             'posted_date': casetracker.posted_date,
             'activity': casetracker.activity,
             'description': casetracker.description,
             'date': casetracker.date,
-            'amount': casetracker.amount
+            'amount': amount  
         }
+
+    # Calculate sentiment score for each lawyer and store it in a dictionary
+    lawyer_sentiment_scores = {}
+
+    for lawyer in lawyers:
+        feedbacks = Feedback.objects.filter(lawyer=lawyer)
+        score = 0
+        for feedback in feedbacks:
+            if feedback.sentiment == 'positive':
+                score += 1
+            elif feedback.sentiment == 'neutral':
+                score += 0.5
+            else:
+                score -= 1
+            print(f"Lawyer {lawyer.user.first_name} {lawyer.user.last_name} - Sentiment Score: {score}")
+            
+        lawyer_sentiment_scores[lawyer.id] = score
+
+    # Sort lawyers based on their sentiment scores
+    sorted_lawyer_ids = sorted(lawyer_sentiment_scores, key=lambda x: lawyer_sentiment_scores[x], reverse=True)
+    sorted_lawyers = [LawyerProfile.objects.get(id=lawyer_id) for lawyer_id in sorted_lawyer_ids]
+    
+    for lawyer in sorted_lawyers:
+        print(f"Lawyer: {lawyer.user.first_name} {lawyer.user.last_name} - Sentiment Score: {lawyer_sentiment_scores[lawyer.id]}")
 
     context = {
         'all_bookings': all_bookings,
@@ -436,10 +525,60 @@ def client_dashboard(request):
         'case_tracker_details': case_tracker_details,
         'unconfirmed_payment': unconfirmed_payment,
         'lawyer_info': lawyer_info,
-        'lawyers':lawyers
+        'lawyers': sorted_lawyers
     }
-    print(case_tracker_details)
     return render(request, 'client/dashboard.html', context)
+
+# def client_dashboard(request):
+#     user = request.user
+
+#     all_bookings = Appointment.objects.filter(client=user)
+
+#     has_unconfirmed_payments = TrackerPayment.objects.filter(client=user).exclude(status='confirmed').exists()
+#     case_tracker_details = None
+#     unconfirmed_payment = None
+    
+#     lawyers = LawyerProfile.objects.all().order_by('-user__date_joined')[:3]
+
+#     lawyer_info = []
+
+#     for lawyer in lawyers:
+#         lawyer_info.append({
+#             'name': f"{lawyer.user.first_name} {lawyer.user.last_name}",
+#             'specialization': lawyer.specialization,
+#             'profile_picture': lawyer.profile_picture.url,
+#             'id': lawyer.id,  
+#         })
+
+    
+
+#     if has_unconfirmed_payments:
+#         unconfirmed_payment = TrackerPayment.objects.filter(client=user, status__in=['pending', 'failed','not_paid']).first()
+#         casetracker = unconfirmed_payment.casetracker
+#         amount_in_paisa = casetracker.amount
+#         print(amount_in_paisa)
+#         amount = amount_in_paisa / 100.0  
+#         print(amount)
+#         case_tracker_details = {
+#             'case_number': casetracker.case.case_number,
+#             'posted_date': casetracker.posted_date,
+#             'activity': casetracker.activity,
+#             'description': casetracker.description,
+#             'date': casetracker.date,
+#             'amount': amount  
+#         }
+
+
+#     context = {
+#         'all_bookings': all_bookings,
+#         'has_unconfirmed_payments': has_unconfirmed_payments,
+#         'case_tracker_details': case_tracker_details,
+#         'unconfirmed_payment': unconfirmed_payment,
+#         'lawyer_info': lawyer_info,
+#         'lawyers':lawyers
+#     }
+#     print(case_tracker_details)
+#     return render(request, 'client/dashboard.html', context)
 
 
 
@@ -1015,7 +1154,7 @@ def mark_holiday(request):
 
     else:
         messages.error(request, 'Only lawyers can request holidays.')
-        return redirect('home')  
+        return redirect('login_view')  
 
     
 
@@ -1038,7 +1177,7 @@ def update_profile(request):
 def update_lawyer_profile(request, user_id):
     
     if request.user.id != user_id:
-        return redirect('home')
+        return redirect('login_view')
     
     print("Reached update_lawyer_profile view")
     user = get_object_or_404(CustomUser, id=user_id)
@@ -1068,7 +1207,7 @@ def update_lawyer_profile(request, user_id):
             
         user.save()
         lawyer_profile.save()
-        return redirect('home')  # Redirect to a success page
+        return redirect('login_view')  # Redirect to a success page
 
     # For GET request, retrieve and display the form
     context = {
@@ -1175,7 +1314,7 @@ def list_lawyers(request):
 def admin_view_holiday_requests(request):
     # Check if the user is an admin
     if not request.user.is_superuser:
-        return redirect('home')  # Redirect to the home page or any other appropriate page
+        return redirect('login_view')  # Redirect to the home page or any other appropriate page
 
     # Query all pending holiday requests
     pending_requests = HolidayRequest.objects.filter(status='pending')
@@ -1418,47 +1557,148 @@ def current_cases(request):
     
     return render(request, 'lawyer/current_cases.html', context)
 
+# def list_cases(request):
+#     user_type = request.user.user_type 
+#     case_tracking = CaseTracking.objects.all()
+    
+#     if user_type == 'lawyer':
+#         cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
+#         previous_history = CaseTracking.objects.filter(case__in=cases)
 
+#         for case in cases:
+#             case.work_assignments = WorkAssignment.objects.filter(case=case)
+#             # previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
+#             for work_assignment in case.work_assignments:
+#                 work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+#     elif user_type == 'client':
+#         cases = Case.objects.filter(client=request.user)
+#         previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
+#         # print(cases)
+
+#         for case in cases:
+#             case.work_assignments = WorkAssignment.objects.filter(case=case)
+#             for work_assignment in case.work_assignments:
+#                 work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+        
+        
+#     elif user_type == 'admin':
+#         cases = Case.objects.all()
+#         previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
+        
+#         for case in cases:
+#             case.work_assignments = WorkAssignment.objects.filter(case=case)
+#             for work_assignment in case.work_assignments:
+#                 work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+#     else:
+#         cases = None
+#     print(cases)
+#     print(previous_history)
+
+#     return render(request, 'case_list.html', {
+#         'cases': cases,
+#         'previous': previous_history
+#         })
+
+#def list_cases(request):
+#     user_type = request.user.user_type 
+
+#     if user_type == 'lawyer':
+#         current_cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
+#     elif user_type == 'client':
+#         current_cases = Case.objects.filter(client=request.user)
+#     elif user_type == 'admin':
+#         current_cases = Case.objects.all()
+#     else:
+#         current_cases = None
+    
+#     # Filter previous cases with casetracking.activity = Final Appeal
+#     previous_history = Case.objects.filter(case_tracking__activity="Final Appeal")
+
+#     for case in current_cases:
+#         # Load related work assignments and tasks for each case
+#         case.work_assignments = WorkAssignment.objects.filter(case=case)
+#         for work_assignment in case.work_assignments:
+#             work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+
+#     # Exclude previous cases from the current cases list
+#     current_cases = current_cases.exclude(pk__in=previous_history.values_list('pk', flat=True))
+    
+#     print(current_cases)
+#     print('Previous')
+#     print(previous_history)
+
+#     return render(request, 'case_list.html', {
+#         'cases': current_cases,
+#         'previous': previous_history
+#     })
+
+# from django.db.models import Q
 
 def list_cases(request):
-    user_type = request.user.user_type  # Assuming you have 'user_type' set in your CustomUser model
-    
-    if user_type == 'lawyer':
-        # Fetch cases for the lawyer
-        cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
+    user_type = request.user.user_type 
 
-        for case in cases:
-            case.work_assignments = WorkAssignment.objects.filter(case=case)
-            previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
-            for work_assignment in case.work_assignments:
-                work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+    if user_type == 'lawyer':
+        cases = Case.objects.filter(lawyer=request.user.lawyer_profile)
+        
+        previous_history = Case.objects.filter(
+    Q(lawyer=request.user.lawyer_profile) & 
+    Q(case_tracking__activity="Final Appeal")
+)
+        
+        current_cases = Case.objects.filter(
+    lawyer=request.user.lawyer_profile
+).exclude(
+    case_tracking__activity="Final Appeal"
+)
+        
+       
+        
     elif user_type == 'client':
         cases = Case.objects.filter(client=request.user)
-        previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
-        print(cases)
-        for case in cases:
-            case.work_assignments = WorkAssignment.objects.filter(case=case)
-            for work_assignment in case.work_assignments:
-                work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
         
+        previous_history = Case.objects.filter(
+    Q(client=request.user) & 
+    Q(case_tracking__activity="Final Appeal")
+)
+        
+        current_cases = Case.objects.filter(
+    client=request.user
+).exclude(
+    case_tracking__activity="Final Appeal"
+)
         
     elif user_type == 'admin':
         cases = Case.objects.all()
-        previous_history = cases.filter(case_tracking__activity="Final Appeal").distinct()
         
-        # Fetch work assignments and tasks for each case
-        for case in cases:
-            case.work_assignments = WorkAssignment.objects.filter(case=case)
-            for work_assignment in case.work_assignments:
-                work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+        previous_history = Case.objects.filter(
+            case_tracking__activity="Final Appeal"
+            )
+
+        
+        current_cases = Case.objects.all().exclude(
+    case_tracking__activity="Final Appeal"
+)
+        
     else:
         cases = None
+        previous_history = None
+        current_cases = None
+    
+    for case in cases:
+        case.work_assignments = WorkAssignment.objects.filter(case=case)
+        for work_assignment in case.work_assignments:
+            work_assignment.tasks = Task.objects.filter(work_assignment=work_assignment)
+    
+        
+    print(previous_history)
     print(cases)
+    print(current_cases)
+    
     return render(request, 'case_list.html', {
         'cases': cases,
-        'previous': previous_history
-        })
-
+        'previous': previous_history ,
+        'current_cases':current_cases
+    })
 
 
 def view_tasks_for_assignment(request, work_assignment_id):
@@ -1532,7 +1772,7 @@ def assign_working_hours(request):
         selected_time_slot_ids = []
 
     breadcrumbs = [
-        ("Home", reverse("home")),
+        ("Home", reverse("login_view")),
         ("lawyer_dashboard", reverse("lawyer_dashboard")),
         ("assign_working_hours", None),  # Current page (no link)
     ]
@@ -1613,6 +1853,90 @@ def parse_time(time_str):
 
 
 @login_required
+# def book_lawyer(request, lawyer_id, selected_date):
+#     try:
+#         selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+#         current_date = datetime.now().date()
+
+#         if selected_date < current_date:
+#             messages.error(request, 'Booking is not possible for past dates.')
+#             return redirect('login_view')
+
+#         lawyer = LawyerProfile.objects.get(id=lawyer_id)
+#         working_time_slots = TimeSlot.objects.filter(
+#             lawyers=lawyer,
+#             day=selected_date.strftime('%A')
+#         ).order_by('start_time')
+
+#         appointment_slots = []
+
+#         for time_slot in working_time_slots:
+#             start_time = datetime.combine(selected_date, time_slot.start_time)
+#             end_time = datetime.combine(selected_date, time_slot.end_time)
+
+#             current_time = start_time
+#             while current_time <= end_time:
+#                 appointment_slots.append(current_time.strftime('%I:%M %p'))
+#                 current_time += timedelta(minutes=15)
+
+#         if request.method == 'POST':
+#             selected_slot = request.POST.get('selected_slot')
+
+#             if not lawyer.is_within_7_days(selected_date):
+#                 return HttpResponseBadRequest("Selected date is not within 7 days from the last update.")
+
+#             if selected_slot and selected_slot in appointment_slots:
+#                 try:
+#                     selected_time = datetime.strptime(selected_slot, '%I:%M %p').time()
+#                 except ValueError:
+#                     messages.error(request, 'Invalid time format. Please choose a valid time from the list (e.g., 08:45 AM).')
+#                     return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
+
+#                 appointment = Appointment(
+#                     lawyer=lawyer,
+#                     client=request.user,
+#                     appointment_date=selected_date,
+#                     time_slot=selected_time
+#                 )
+#                 appointment.save()
+
+#                 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+#                 order_amount = 10000  # Amount in paise (Change as needed)
+#                 order_currency = 'INR'
+#                 order_payload = {
+#                     'amount': order_amount,
+#                     'currency': order_currency,
+#                     'notes': {
+#                         'appointment_id': appointment.id,
+#                     },
+#                     'payment_capture': "1"
+#                 }
+#                 order = client.order.create(data=order_payload)
+
+#                 appointment.order_id = order.get('id')
+#                 appointment.save()
+
+#                 return render(
+#                     request,
+#                     "razorpay_payment.html",
+#                     {
+#                         "callback_url": "http://" + "127.0.0.1:8000" + f"/callback/{appointment.id}/",
+#                         "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+#                         "order": order,
+#                         'appointment': appointment,
+#                         'lawyer_id': lawyer_id,
+#                         'selected_date': selected_date,
+#                     },
+#                 )
+#             else:
+#                 messages.error(request, 'Selected slot is not available. Please choose another slot.')
+#         return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
+#     except LawyerProfile.DoesNotExist:
+#         messages.error(request, 'Lawyer not found.')
+#         return redirect('login_view')
+
+
 def book_lawyer(request, lawyer_id, selected_date):
     try:
         selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
@@ -1620,7 +1944,7 @@ def book_lawyer(request, lawyer_id, selected_date):
 
         if selected_date < current_date:
             messages.error(request, 'Booking is not possible for past dates.')
-            return redirect('home')
+            return redirect('login_view')
 
         lawyer = LawyerProfile.objects.get(id=lawyer_id)
         working_time_slots = TimeSlot.objects.filter(
@@ -1652,11 +1976,15 @@ def book_lawyer(request, lawyer_id, selected_date):
                     messages.error(request, 'Invalid time format. Please choose a valid time from the list (e.g., 08:45 AM).')
                     return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
 
+                # Generate a UUID for the appointment
+                appointment_uuid = uuid.uuid4()
+
                 appointment = Appointment(
                     lawyer=lawyer,
                     client=request.user,
                     appointment_date=selected_date,
-                    time_slot=selected_time
+                    time_slot=selected_time,
+                    token=appointment_uuid  
                 )
                 appointment.save()
 
@@ -1682,7 +2010,7 @@ def book_lawyer(request, lawyer_id, selected_date):
                     "razorpay_payment.html",
                     {
                         "callback_url": "http://" + "127.0.0.1:8000" + f"/callback/{appointment.id}/",
-                        "razorpay_key": 'rzp_test_cvGs8NAQTlqQrP',
+                        "razorpay_key": 'rzp_test_96hlAiMhObAOx3',
                         "order": order,
                         'appointment': appointment,
                         'lawyer_id': lawyer_id,
@@ -1694,11 +2022,11 @@ def book_lawyer(request, lawyer_id, selected_date):
         return render(request, 'book_lawyer.html', {'selected_date': selected_date, 'appointment_slots': appointment_slots})
     except LawyerProfile.DoesNotExist:
         messages.error(request, 'Lawyer not found.')
-        return redirect('home')
+        return redirect('login_view')
 
 # Define the verify_signature function
 def verify_signature(response_data):
-    client = razorpay.Client(auth=("rzp_test_cvGs8NAQTlqQrP", "hNPvcoyR5F1mKYlgG60C2GW6"))
+    client = razorpay.Client(auth=("rzp_test_96hlAiMhObAOx3", "CkP6XWrRUDFoK0Dr0eKqDLK5"))
     return client.utility.verify_payment_signature(response_data)
 
 @csrf_exempt
@@ -1993,6 +2321,35 @@ def generate_appointment_pdf(request, appointment_id):
 #     return render(request, 'student_detail.html', context)
 
 
+# def add_case_update(request, case_number):
+#     case = get_object_or_404(Case, case_number=case_number)
+
+#     if request.method == 'POST':
+#         activity = request.POST.get('activity')
+#         description = request.POST.get('description')
+#         date = request.POST.get('date')
+#         amount = request.POST.get('amount')
+#         # amount_paisa = int(amount * 100)
+#         # print(amount_paisa)
+        
+#         case_update = CaseTracking.objects.create(
+#             case=case,
+#             activity=activity,
+#             description=description,
+#             date=date,
+#             amount = amount
+#         )
+        
+        
+#         # Save the case update
+#         case_update.save()
+        
+#         # Redirect to the case detail page
+#         return redirect('list_cases')
+    
+#     return render(request, 'add_case_update_form.html', {'case': case})
+
+
 def add_case_update(request, case_number):
     case = get_object_or_404(Case, case_number=case_number)
 
@@ -2002,19 +2359,21 @@ def add_case_update(request, case_number):
         date = request.POST.get('date')
         amount = request.POST.get('amount')
         
+        try:
+            amount_paisa = int(float(amount) * 100)
+        except ValueError:
+            amount_paisa = 0
+            print("error")
+
         case_update = CaseTracking.objects.create(
             case=case,
             activity=activity,
             description=description,
             date=date,
-            amount = amount
+            amount=amount_paisa  
         )
+    
         
-        
-        # Save the case update
-        case_update.save()
-        
-        # Redirect to the case detail page
         return redirect('list_cases')
     
     return render(request, 'add_case_update_form.html', {'case': case})
@@ -2321,7 +2680,7 @@ def mark_leave_request(request, leave_type):
 
     else:
         messages.error(request, 'Only lawyers can request leave.')
-        return redirect('home')
+        return redirect('login_view')
     
 @login_required    
 def leave_reports(request):
@@ -2357,7 +2716,7 @@ def leave_reports(request):
 
     else:
         messages.error(request, 'Only lawyers can view leave reports.')
-        return redirect('home')
+        return redirect('login_view')
     
     
 def generate_leave_report_pdf(leave_reports, lawyer_name):
@@ -2912,6 +3271,40 @@ def transfer_student_to_work_assignment(request, work_assignment_id):
 
 nltk.download('vader_lexicon')
 
+# def feedback_submit(request, case_id, lawyer_id):
+#     case = get_object_or_404(Case, id=case_id)
+#     lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
+    
+#     if request.method == 'POST':
+#         feedback_text = request.POST.get('feedback_text')
+        
+#         analyzer = SentimentIntensityAnalyzer()
+#         sentiment_score = analyzer.polarity_scores(feedback_text)
+#         compound_score = sentiment_score['compound']
+        
+#         print(analyzer,sentiment_score,compound_score)
+
+#         if compound_score >= 0.05:
+#             sentiment = 'positive'
+#         elif compound_score <= -0.05:
+#             sentiment = 'negative'
+#         else:
+#             sentiment = 'neutral'
+
+#         feedback = Feedback.objects.create(
+#             lawyer=lawyer,
+#             feedback_text=feedback_text,
+#             sentiment=sentiment,
+#             case=case,
+#             user=request.user  
+#         )
+#         feedback.save()
+
+#         return redirect('login')  
+#     else:
+#         return render(request, 'client/feedback_submit.html', {'case': case, 'lawyer': lawyer})
+
+
 def feedback_submit(request, case_id, lawyer_id):
     case = get_object_or_404(Case, id=case_id)
     lawyer = get_object_or_404(LawyerProfile, id=lawyer_id)
@@ -2922,8 +3315,6 @@ def feedback_submit(request, case_id, lawyer_id):
         analyzer = SentimentIntensityAnalyzer()
         sentiment_score = analyzer.polarity_scores(feedback_text)
         compound_score = sentiment_score['compound']
-        
-        print(analyzer,sentiment_score,compound_score)
 
         if compound_score >= 0.05:
             sentiment = 'positive'
@@ -2936,6 +3327,7 @@ def feedback_submit(request, case_id, lawyer_id):
             lawyer=lawyer,
             feedback_text=feedback_text,
             sentiment=sentiment,
+            threshold=compound_score, 
             case=case,
             user=request.user  
         )
@@ -2946,22 +3338,111 @@ def feedback_submit(request, case_id, lawyer_id):
         return render(request, 'client/feedback_submit.html', {'case': case, 'lawyer': lawyer})
     
     
-def rank_lawyers():
-    lawyers = LawyerProfile.objects.all()
+@login_required
+def feedback_view(request):
+    user = request.user
+    feedbacks = Feedback.objects.all()
+    
+    if user.user_type == 'client':
+        feedbacks = feedbacks.filter(user=user)
+    elif user.user_type == 'lawyer':
+        feedbacks = feedbacks.filter(lawyer=user.lawyer_profile)
+        
+    feedback_count = feedbacks.count()
 
-    sentiment_counts = {}
+    return render(request, 'feedback_list.html', {
+        'feedbacks': feedbacks,
+        'feedback_count': feedback_count
+        })
+    
+    
+# def video_call(request, id):
+#     try:
+#         appointment = Appointment.objects.get(id=id)
+#         token = appointment.token
+#         current_time = timezone.now()
 
-    for lawyer in lawyers:
-        positive_count = Feedback.objects.filter(lawyer=lawyer, sentiment='positive').count()
+#         user = request.user
 
-        negative_count = Feedback.objects.filter(lawyer=lawyer, sentiment='negative').count()
+#         if user != appointment.client and user != appointment.lawyer.user:
+#             return HttpResponse("You are not authorized to access this video call.")
 
-        neutral_count = Feedback.objects.filter(lawyer=lawyer, sentiment='neutral').count()
+#         appointment_time = datetime.strptime(appointment.time_slot, '%H:%M:%S').time()
+#         # appointment_datetime = datetime.combine(appointment.appointment_date, appointment_time)
 
-        sentiment_score = positive_count - negative_count + (0.5 * neutral_count)
+#         current_date = current_time.date()
+#         print(current_date)
+#         # appointment_date = appointment.appointment_date
+#         appointment_date = current_time.date()
+#         print(appointment_date)
 
-        sentiment_counts[lawyer] = sentiment_score
+#         if current_date < appointment_date:
+#             return HttpResponse("The meeting has not started yet.")
 
-    ranked_lawyers = sorted(sentiment_counts.items(), key=lambda x: x[1], reverse=True)
+#         elif current_date == appointment_date:
+#             current_datetime = datetime.combine(appointment.appointment_date, current_time.time())
+#             appointment_datetime = datetime.combine(appointment.appointment_date, current_time.time())
+#             print(current_datetime)
+#             print(appointment.appointment_date)
+            
 
-    return ranked_lawyers
+#             if current_datetime < appointment_datetime:
+#                 return HttpResponse("The meeting has not started yet.")
+
+#             elif current_datetime <= appointment_datetime + timedelta(minutes=15):
+#                 # function here
+#                 return render(request, 'WEB_UIKITS.html', {
+#                     'roomID': token,
+#                     'username': appointment.client.username,
+#                     })
+
+#         return HttpResponse("The meeting is over.")
+    
+#     except Appointment.DoesNotExist:
+#         return HttpResponse("Invalid token")
+
+
+def video_call(request, id):
+    try:
+        appointment = Appointment.objects.get(id=id)
+        token = appointment.token
+        current_time = timezone.now()
+
+        user = request.user
+
+        if user != appointment.client and user != appointment.lawyer.user:
+            return HttpResponse("You are not authorized to access this video call.")
+
+        appointment_time = datetime.strptime(appointment.time_slot, '%H:%M:%S').time()
+        appointment_datetime = datetime.combine(appointment.appointment_date, appointment_time)
+
+        current_date = current_time.date()
+        print(current_date)
+        appointment_date = appointment.appointment_date
+        print(appointment_date)
+
+        if current_date < appointment_date:
+            return HttpResponse("The meeting has not started yet.")
+
+        elif current_date == appointment_date:
+            current_datetime = datetime.combine(appointment.appointment_date, current_time.time())
+            appointment_datetime = datetime.combine(appointment.appointment_date, appointment_time)
+            print(current_datetime)
+            print(appointment.appointment_date)
+            
+
+            if current_datetime < appointment_datetime:
+                return HttpResponse("The meeting has not started yet.")
+
+            elif current_datetime <= appointment_datetime + timedelta(minutes=15):
+                # function here
+                return render(request, 'WEB_UIKITS.html', {
+                    'roomID': token,
+                    'username': appointment.client.username,
+                    })
+
+        return HttpResponse("The meeting is over.")
+    
+    except Appointment.DoesNotExist:
+        return HttpResponse("Invalid token")
+

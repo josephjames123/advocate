@@ -180,13 +180,27 @@
             <div class="menu-title">Add Internship</div>
           </a>
         </li>
+        <li class="{% if request.path == '/feedback/' %}active{% endif %}">
+          <a href="{% url 'feedback_view' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">feedback</i>
+            </div>
+            <div class="menu-title">Feedback</div>
+          </a>
+        </li>
+        <div id="google_translate_element"></div>
+
+<script type="text/javascript"> 
+  function googleTranslateElementInit() {
+new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+}
+</script>
       </div>
   
 </aside>
 <!--end sidebar-->
 
-{% block content %}{% endblock %}
 
+{% block content %}{% endblock %}
 
 
   </div>
@@ -205,8 +219,8 @@
 <script src="{% static 'new/plugins/simplebar/js/simplebar.min.js' %}"></script>
 <script src="{% static 'new/js/main.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 

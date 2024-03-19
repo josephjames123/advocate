@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -261,6 +262,7 @@ class Booking(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, default="pending")
     original_booking_date = models.DateField(null=True, blank=True)
+    # token = models.UUIDField(default=uuid.uuid4 ,unique=True)
 
     def is_confirmed(self):
         return self.status == "confirmed"
@@ -484,13 +486,14 @@ class CurrentCase(models.Model):
 
 class Appointment(models.Model):
     id = models.AutoField(primary_key=True)
-    lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE)
-    client = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    lawyer = models.ForeignKey('LawyerProfile', on_delete=models.CASCADE,related_name='lawyer')
+    client = models.ForeignKey('CustomUser', on_delete=models.CASCADE,related_name='user')
     appointment_date = models.DateField()
-    time_slot = models.CharField(max_length=20)  # Use TimeSlot model here
+    time_slot = models.CharField(max_length=20)
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
 
     def __str__(self):
-        return f'Appointment with {self.lawyer} on {self.appointment_date} at {self.time_slot}'
+        return f'Appointment with {self.lawyer} on {self.appointment_date} at {self.time_slot} - {self.id}'
     
     def clean(self):
         # Calculate the 7-day window start date based on the lawyer's most recent working hours assignment date.
@@ -601,6 +604,7 @@ class Feedback(models.Model):
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    threshold = models.FloatField()
 
     def __str__(self):
         return f"Feedback for {self.lawyer} - {self.created_at}"     
