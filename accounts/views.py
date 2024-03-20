@@ -6,6 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
+
+from chatbot import chatbot
 from .models import CustomUser, LawyerProfile , CurrentCase, Notification, StudentPayment  ,TrackerNotification  
 from django.http import HttpResponseForbidden , Http404,HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
@@ -2010,7 +2012,7 @@ def book_lawyer(request, lawyer_id, selected_date):
                     "razorpay_payment.html",
                     {
                         "callback_url": "http://" + "127.0.0.1:8000" + f"/callback/{appointment.id}/",
-                        "razorpay_key": 'rzp_test_96hlAiMhObAOx3',
+                        "razorpay_key": 'rzp_test_HvhhTnPiTU4aMn',
                         "order": order,
                         'appointment': appointment,
                         'lawyer_id': lawyer_id,
@@ -2026,7 +2028,7 @@ def book_lawyer(request, lawyer_id, selected_date):
 
 # Define the verify_signature function
 def verify_signature(response_data):
-    client = razorpay.Client(auth=("rzp_test_96hlAiMhObAOx3", "CkP6XWrRUDFoK0Dr0eKqDLK5"))
+    client = razorpay.Client(auth=("rzp_test_HvhhTnPiTU4aMn", "cTLjyyGZiJD5Ov7neabYmKZK"))
     return client.utility.verify_payment_signature(response_data)
 
 @csrf_exempt
@@ -3355,7 +3357,7 @@ def feedback_view(request):
         'feedback_count': feedback_count
         })
     
-    
+# @login_required   
 # def video_call(request, id):
 #     try:
 #         appointment = Appointment.objects.get(id=id)
@@ -3393,7 +3395,7 @@ def feedback_view(request):
 #                 # function here
 #                 return render(request, 'WEB_UIKITS.html', {
 #                     'roomID': token,
-#                     'username': appointment.client.username,
+#                     'username': request.user.username,
 #                     })
 
 #         return HttpResponse("The meeting is over.")
@@ -3401,7 +3403,7 @@ def feedback_view(request):
 #     except Appointment.DoesNotExist:
 #         return HttpResponse("Invalid token")
 
-
+@login_required
 def video_call(request, id):
     try:
         appointment = Appointment.objects.get(id=id)
@@ -3446,3 +3448,15 @@ def video_call(request, id):
     except Appointment.DoesNotExist:
         return HttpResponse("Invalid token")
 
+
+
+def get_response(request):
+    if request.method == 'GET':
+        message = request.GET.get('message')
+        if message:
+            response = chatbot(request, message)
+            return HttpResponse(response)
+        else:
+            return HttpResponse('Please provide a message')
+    else:
+        return HttpResponse('Invalid request method')

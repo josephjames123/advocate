@@ -121,12 +121,11 @@ class LawyerProfile(models.Model):
     start_date = models.DateField(null=True)  # Date profession started
     experience = models.IntegerField(blank=True)  # Experience in years
     
-    # Define a default profile picture path
     DEFAULT_PROFILE_PICTURE_PATH = 'uploads/default_profile_picture.png'
     
     profile_picture = models.ImageField(
         upload_to='uploads/',
-        default=DEFAULT_PROFILE_PICTURE_PATH,  # Set the default profile picture path
+        default=DEFAULT_PROFILE_PICTURE_PATH, 
         blank=True,
         null=True
     )

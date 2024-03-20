@@ -14,6 +14,8 @@
   <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/metismenu/metisMenu.min.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/metismenu/mm-vertical.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/simplebar/css/simplebar.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/chatbot.css' %}">
+
   <!--bootstrap css-->
   <link href="{% static 'new/css/bootstrap.min.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -88,7 +90,7 @@
             </div>
           </a>
           <hr class="dropdown-divider">
-          <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'logout' %}"><i
+          <a id="logoutBtn" class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'logout' %}"><i
           class="material-icons-outlined">power_settings_new</i>Logout</a>
         </div>
       </li>
@@ -128,7 +130,7 @@
           <a href="{% url 'student_work_assignments' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title"id="assigned_work">Assigned Works</div>
+            <div class="menu-title">Assigned Works</div>
           </a>
         </li>
         <li class="{% if request.path == '/internships/' %}active{% endif %}">
@@ -152,8 +154,47 @@
 </div>
 <!--start switcher-->
 
+<!-- Button to toggle the chatbot -->
+<button class="btn btn-primary position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2" type="button" id="toggleChat">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-chat-square-dots" viewBox="0 0 16 16">
+    <path d="M4 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6l-2 2V4zm7.5 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm5-5a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z"/>
+  </svg>
+  Chat 
+</button>
+
+<!-- Chatbot container -->
+<div class="offcanvas offcanvas-end chatbot" id="staticBackdrop">
+  <div class="offcanvas-header border-bottom h-70">
+    <div>
+      <h5 class="mb-0">Chatbot</h5>
+      <p class="mb-0">Ask me anything!</p>
+    </div>
+    <a href="javascript:;" class="primary-menu-close" data-bs-dismiss="offcanvas">
+      <i class="material-icons-outlined">close</i>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <div class="chat-messages" id="chatMessages">
+      <!-- Previous messages and responses -->
+    </div>
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
+      <button class="btn btn-primary" id="sendMessageBtn" type="button">Send</button>
+      <button class="btn btn-danger" id="clearMessagesBtn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+          <path d="M3.5 5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5V6h-9V5.5zm1-3a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1V1h2a1 1 0 0 1 1 1v1H3V3.5zm5 10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8h5v8zm4-6V3h2.5a.5.5 0 0 1 .5.5V4h-3z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!--bootstrap js-->
 <script src="{% static 'new/js/bootstrap.bundle.min.js' %}"></script>
+
+<!--chatbot js-->
+<script src="{% static 'new/js/chatbot.js' %}"></script>
+<!--chatbot js-->
 
 <!--plugins-->
 <script src="{% static 'new/js/jquery.min.js' %}"></script>

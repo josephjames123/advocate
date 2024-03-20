@@ -14,6 +14,8 @@
   <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/metismenu/metisMenu.min.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/metismenu/mm-vertical.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'new/plugins/simplebar/css/simplebar.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/chatbot.css' %}">
+
   <!--bootstrap css-->
   <link href="{% static 'new/css/bootstrap.min.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -138,7 +140,7 @@
           </div>
         </div>
       </li>
-      <li class="nav-item dropdown"id="logoutto">
+      <li class="nav-item dropdown">
         <a href="javascrpt:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
            <img src="https://kutt.it/profilepic" class="rounded-circle p-1 border" width="45" height="45">
         </a>
@@ -153,8 +155,8 @@
             </div>
           </a>
           <hr class="dropdown-divider">
-          <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'logout' %}"><i
-          class="material-icons-outlined"id="logoutlawyer1">power_settings_new</i>Logout</a>
+          <a id="logoutBtn" class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'logout' %}"><i
+          class="material-icons-outlined">power_settings_new</i>Logout</a>
         </div>
       </li>
     </ul>
@@ -190,7 +192,7 @@
           <a href="{% url 'list_cases' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">cases</i>
             </div>
-            <div class="menu-title"id = "casepage">Case</div>
+            <div class="menu-title"id="casepages">Case</div>
           </a>
         </li>
         <li class="{% if request.path == '/assign-working-hours/' %}active{% endif %}">
@@ -207,11 +209,11 @@
             <div class="menu-title">Leave</div>
           </a>
           <ul>
-            <li><a href="{% url 'mark_holiday' %}"><i class="material-icons-outlined" id = "duty_leave">arrow_right</i>Duty Leave</a>
+            <li><a href="{% url 'mark_holiday' %}"><i class="material-icons-outlined">arrow_right</i>Duty Leave</a>
             </li>
             <li><a href="{% url 'mark_casual_leave' %}"><i class="material-icons-outlined">arrow_right</i>Casual Leave</a>
             </li>
-            <li><a href="{% url 'leave_reports' %}"><i class="material-icons-outlined" id = "leaveReport">arrow_right</i>Leave Reports</a>
+            <li><a href="{% url 'leave_reports' %}"><i class="material-icons-outlined">arrow_right</i>Leave Reports</a>
             </li>
           </ul>
         </li>
@@ -219,7 +221,7 @@
           <a href="{% url 'enter_client_email' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title">Add case</div>
+            <div class="menu-title" id="add_case">Add case</div>
           </a>
         </li>
         <li class="{% if request.path == '/current_cases/' %}active{% endif %}">
@@ -233,14 +235,14 @@
           <a href="{% url 'students' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title" id="std">Students</div>
+            <div class="menu-title">Students</div>
           </a>
         </li>
         <li class="{% if request.path == '/assign_work/' %}active{% endif %}">
           <a href="{% url 'assign_work' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title" id = "work">Assign Work</div>
+            <div class="menu-title">Assign Work</div>
           </a>
         </li>
         <li class="{% if '/bookings/lawyer/' in request.path %}active{% endif %}">
@@ -250,14 +252,6 @@
             <div class="menu-title">Booking</div>
           </a>
         </li>
-        <li class="{% if request.path == '/feedback/' %}active{% endif %}">
-          <a href="{% url 'feedback_view' %}" class="has-arrow">
-            <div class="parent-icon"><i class="material-icons-outlined">feedback</i>
-            </div>
-            <div class="menu-title">Feedback</div>
-          </a>
-        </li>
-
         <li class="{% if '/accounts/update_lawyer_profile/' in request.path %}active{% endif %}">
           <a href="{% url 'update_lawyer_profile' user_id=user.pk %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
@@ -265,7 +259,13 @@
             <div class="menu-title">Update Profile</div>
           </a>
         </li>
-       
+        <li class="{% if request.path == '/feedback/' %}active{% endif %}">
+          <a href="{% url 'feedback_list' %}" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">cases</i>
+            </div>
+            <div class="menu-title">Feedback</div>
+          </a>
+        </li>
       </div>
   
 </aside>
@@ -281,8 +281,48 @@
 </div>
 <!--start switcher-->
 
+<!-- Button to toggle the chatbot -->
+<button class="btn btn-primary position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2" type="button" id="toggleChat">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-chat-square-dots" viewBox="0 0 16 16">
+    <path d="M4 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6l-2 2V4zm7.5 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm-2 1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm5-5a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z"/>
+  </svg>
+  Chat 
+</button>
+
+<!-- Chatbot container -->
+<div class="offcanvas offcanvas-end chatbot" id="staticBackdrop">
+  <div class="offcanvas-header border-bottom h-70">
+    <div>
+      <h5 class="mb-0">Chatbot</h5>
+      <p class="mb-0">Ask me anything!</p>
+    </div>
+    <a href="javascript:;" class="primary-menu-close" data-bs-dismiss="offcanvas">
+      <i class="material-icons-outlined">close</i>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <div class="chat-messages" id="chatMessages">
+      <!-- Previous messages and responses -->
+    </div>
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
+      <button class="btn btn-primary" id="sendMessageBtn" type="button">Send</button>
+      <button class="btn btn-danger" id="clearMessagesBtn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+          <path d="M3.5 5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5V6h-9V5.5zm1-3a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1V1h2a1 1 0 0 1 1 1v1H3V3.5zm5 10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8h5v8zm4-6V3h2.5a.5.5 0 0 1 .5.5V4h-3z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+
 <!--bootstrap js-->
 <script src="{% static 'new/js/bootstrap.bundle.min.js' %}"></script>
+
+<!--chatbot js-->
+<script src="{% static 'new/js/chatbot.js' %}"></script>
+<!--chatbot js-->
 
 <!--plugins-->
 <script src="{% static 'new/js/jquery.min.js' %}"></script>

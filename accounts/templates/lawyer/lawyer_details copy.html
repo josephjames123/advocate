@@ -8,21 +8,49 @@
     <title>Dashboard</title>
 
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/lawyer_profile.css' %}">
+  <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+  <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+  <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+  <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+  <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
+  <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/lawyer_profile.css' %}">
 
     <!-- icons -->
     <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
+<style>
+    .adv-img {
+    width: 100%;
+    height: 17em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.adv-img img {
+    width: 15em;
+    height: 15em;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+address p {
+    margin: 0;
+}
+
+.details-right {
+    height: 100%;
+    padding-left: 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+</style>
 </head>
 
 <body>
@@ -50,92 +78,138 @@
                 margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
             }
         </style>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="{% url 'home' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                </a>
-                            </div>
+<header>
+    <div class="header-area ">
+        <div id="sticky-header" class="main-header-area">
+            <div class="container-fluid p-0">
+                <div class="row align-items-center justify-content-between no-gutters">
+                    <div class="col-xl-2 col-lg-2">
+                        <div class="logo-img">
+                            <a href="{% url 'login' %}">
+                                <img src="{% static 'img\icon.ico' %}" alt=""width="120">
+                            </a>
                         </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'home' %}">home</a></li>
-                                        <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li> 
-                                        <li><a href="#">Services<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                <li><a href="{% url 'lawyer_dashboard' %}">Lawyer</a></li>
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
+                    </div>
+                    <div class="col-xl-7 col-lg-8">
+                        <div class="main-menu  d-none d-lg-block">
+                            <nav>
+                                <ul id="navigation">
+                                    <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
+                                    <!-- <li><a href="{% url 'about' %}">About</a></li>
+                                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                                    <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
+                                        <ul class="submenu">
                                             
-                                        </li>
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-                                                {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
+                                            
+                                            {% if user.user_type == 'admin' %}
+                                            <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
+                                            {% endif %}
+                                        </ul>
                                         
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                    <nav>
-                            </div>
+                                    </li> -->
+                                    {% if user.is_authenticated %}
+                                    <li>
+                                        <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
+                                        <ul class="submenu">
+                                            {% if user.user_type == 'admin' %}
+                                            
+                                            {% endif %}
+                                            {% if user.user_type == 'lawyer' %}
+                                                     <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
+                                                              {% endif %}
+                                            <li><a href="{% url 'logout' %}">Logout</a></li>
+                                        </ul>
+                                    </li>
+                                    {% else %}
+                                    
+                                    <li><a href="{% url 'signup' %}">Signup</a></li>
+                                    <li><a href="{% url 'login' %}">Login</a></li>
+                                    {% endif %}
+                                </ul>
+                                <nav>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
-    <!-- header end -->
-
-
-    <!-- main section start -->
-    <div class="container" style="min-height: 90vh;">
-        <div class="row pt-3">
-            <div class="col-md-12">
-
-                <!-- lawyer image -->
-                <figure class="lawyer-profile-pic">
-                    <img class="rounded"
-                        src="{{ lawyer.profile_picture.url }}"
-                        alt="" />
-                </figure>
-
-                <!-- lawyer name and contact button -->
-                <div class="lawyer-name-contact-btn d-flex justify-content-between">
-                    <h1 class="text-bold">{{ lawyer.user.get_full_name }}</h1>
-                    <a href="{% url 'book_lawyer' lawyer.id %}"><button class="contact-btn-profile">Book An Appointment</button></a>
-                </div>
-
-                <!-- details of lawyer -->
-                <div class="pt-4">
-                    <p>Specialization: <span style="font-weight: 600;">{{ lawyer.specialization }}</style="font-weight: 600;">
-                    </p>
-                    <p>Experience: <span style="font-weight: 600;">{{ lawyer.experience }} Years</span></p>
-                </div>
-               
-            </div>
-        </div>
     </div>
-    <!-- main section end -->
+</header>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">{{ lawyer.user.get_full_name}}</li>
+    </ol>
+</nav>
+    <div class="container py-5">
+        <div class="row">
+    
+          <!-- left side start -->
+          <div class="col-md-5">
+    
+            <figure class="adv-img">
+              <img src="{{ lawyer.profile_picture.url }}" alt="image">
+            </figure>
+    
+            <!-- adv details start -->
+            <div>
+              <h2 class="text-center">{{ lawyer.user.get_full_name }}</h2>
+              <!-- <p class="text-center">Practice Area: Kottayam, Ettumanoor, Ernakulam</p> -->
+            </div>
+            <!-- adv details end -->
+            
+          </div>
+          <!-- left side end -->
+    
+          <!-- right side start -->
+          <div class="col-md-7">
+            <div class="details-right">
+              <p>
+                Email : 
+                {{ lawyer.user.email }}
+              </p>
+              <p>
+                Phone : 
+                {{ lawyer.user.phone }}
+              </p>
+              <p>
+                DOB:
+                {{ lawyer.user.dob }}
+              </p>
+              <p>
+                Address:
+                {{ lawyer.user.address }}
+              </p>
+              <!-- <p>
+                <i class="fa-solid fa-gavel mr-2"></i>
+                {{ lawyer.license_no }}
+              </p> -->
+              <p>
+                Specialization :
+                {{ lawyer.specialization }}
+              </p>
+              <p>
+                Court:
+                {{ lawyer.court }}
+              </p>
+              
+            
+    
+              <!-- <p>
+                <i class="fa-solid fa-location-dot mr-2"></i>
+                <span>
+                  {{lawyer.location}}
+                </span>
+              </p> -->
+    
+              <div class="mt-5">
+                <a href="{% url 'select_date' lawyer_id=lawyer.id %}" class="btn btn-warning text-white">Book Now</a>
+              </div>
+            </div>
+          </div>
+          <!-- right side end -->
+    
+        </div>
+      </div>
 
     <!-- footer start -->
     <footer class="footer">

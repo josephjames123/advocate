@@ -8,10 +8,32 @@ from django.utils import timezone
 
 
 
+# class CustomPasswordResetForm(SetPasswordForm):
+#     new_password2 = forms.CharField(
+#         label="Confirm New Password",
+#         widget=forms.PasswordInput,
+#         help_text="Enter the same password as above, for verification."
+#     )
+
 class CustomPasswordResetForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget = forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Password',
+            'required': True,
+            'onkeyup': 'validatePassword()',
+        })
+        self.fields['new_password2'].widget = forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm Password',
+            'required': True,
+        })
+
+    # Optionally, you can add help text for the password confirmation field
     new_password2 = forms.CharField(
-        label="Confirm New Password",
-        widget=forms.PasswordInput,
+        label="",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm New Password', 'required': True}),
         help_text="Enter the same password as above, for verification."
     )
     

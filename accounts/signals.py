@@ -73,7 +73,7 @@ def create_notification(sender, instance, **kwargs):
 @receiver(post_save, sender=Appointment)
 def send_booking_confirmation(sender, instance, created, **kwargs):
     if created:
-        meeting_link = f"https://d4a9-136-232-57-110.ngrok-free.app/meeting/{instance.id}/?roomID={instance.token}"
+        meeting_link = f"http://127.0.0.1:8000/meeting/{instance.id}/?roomID={instance.token}"
         
         # Send confirmation email to client
         client_subject = 'Booking Confirmation'

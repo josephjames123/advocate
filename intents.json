@@ -1,0 +1,65 @@
+{
+    "intents": [
+      {
+        "tag": "greetings",
+        "patterns": ["hello", "hey", "hi", "good day", "greetings", "what's up?", "how is it going?"],
+        "responses": ["Hello!", "Hey!", "How can I assist you today?"]
+      },
+      {
+        "tag": "lawyer_info",
+        "patterns": ["tell me about yourself", "who are you", "what do you do"],
+        "responses": ["I am a lawyer specializing in [area of specialization]. I provide legal advice and assistance to clients."]
+      },
+      {
+        "tag": "services_offered",
+        "patterns": ["what services do you offer", "how can you help me"],
+        "responses": ["I offer legal services in areas such as [list of legal services]. I can help you with legal consultations, representation, and more."]
+      },
+      {
+        "tag": "consultation",
+        "patterns": ["how can I schedule a consultation", "book an appointment", "consultation"],
+        "responses": ["To schedule a consultation, you can visit our website and book an appointment online, or you can contact our office directly."]
+      },
+      {
+        "tag": "legal_advice",
+        "patterns": ["I need legal advice", "help with legal matter", "legal guidance"],
+        "responses": ["Feel free to ask me any legal questions you have. I'm here to help."]
+      },
+      {
+        "tag": "fees",
+        "patterns": ["what are your fees", "how much do you charge", "consultation fees"],
+        "responses": ["Our fees vary depending on the nature of the legal services required. Please contact us for a personalized quote."]
+      },
+      {
+        "tag": "contact",
+        "patterns": ["how can I contact you", "phone number", "email"],
+        "responses": ["You can reach us at [phone number] or email us at [email address]. We're available to assist you during office hours."]
+      },
+      {
+        "tag": "office_hours",
+        "patterns": ["when are you open", "office hours", "working hours"],
+        "responses": ["Our office hours are [specify office hours]. Feel free to drop by during these times."]
+      },
+      {
+        "tag": "location",
+        "patterns": ["where are you located", "address", "directions"],
+        "responses": ["Our office is located at [address]. If you need directions, feel free to ask."]
+      },
+      {
+        "tag": "thanks",
+        "patterns": ["thanks", "thank you", "appreciate it", "thanks a lot"],
+        "responses": ["You're welcome!", "Glad I could assist!", "Anytime!"]
+      },
+      {
+        "tag": "goodbye",
+        "patterns": ["goodbye", "bye", "see you later"],
+        "responses": ["Goodbye! If you need any further assistance, don't hesitate to reach out."]
+      },
+      {
+        "tag": "invalid",
+        "patterns": ["", "not sure", "can you repeat?", "I don't understand"],
+        "responses": ["Sorry, I didn't quite catch that. Could you please rephrase your question?", "I'm not sure I understand. Can you provide more details?"]
+      }
+    ]
+  }
+  

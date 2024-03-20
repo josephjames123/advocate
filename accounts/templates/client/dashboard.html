@@ -90,23 +90,44 @@
                 <div class="container pt-5">
                     <h3>Welcome {{ user.first_name }},</h3>
                 </div>
-                <div id="exTab1" class="">
-                    <div class="tab-content clearfix">
-                        <div class="tab-pane active">
-                            <div>
-                                <ul>
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="example" class="table table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        {% if user.user_type == 'admin' %}
+                                        <th>Date</th>
+                                        <th>Date</th>
+                                            {% elif user.user_type == 'lawyer' %}
+                                                <th>Date</th>
+                                            {% elif user.user_type == 'client' %}
+                                                <th>Date</th>
+                                            {% endif %}   
+                                        <th>Time Slot</th>
+                                        <th>Payment Status</th>
+                                        <th>Link</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     {% for booking in all_bookings %}
-                                    <li>
-                                        <p>{{ booking.appointment_date }} - {{ booking.time_slot }} - {{ booking.details }}</p>
-                                        <span class="show-more">
-                                        </span>
-                                    </li>
-                                    {% empty %}
-                                    <h3>No bookings available.</h3>
-                                    <p class="h4 text-dark"></p>
+                                    <tr>
+                                        {% if user.user_type == 'client' %}
+                                        <td>{{ booking.appointment_date }}</td>
+                                        <td>{{ booking.time_slot }} </td>
+                                            {% elif user.user_type == 'lawyer' %}
+                                                <td>{{ booking.appointment_date }}</td>
+                                            {% elif user.user_type == 'admin' %}
+                                                <td>{{ booking.appointment_date }}</td>
+                                            {% endif %}    
+                                        <td>{{ booking.lawyer }}</td>
+                                        <td>
+                                            <button class="btn btn-primary" onclick="window.location.href='http://127.0.0.1:8000/meeting/{{ booking.id }}/?roomID={{ booking.token }}'">Join Meeting</button>
+                                        </td>
+                                    </tr>
                                     {% endfor %}
-                                </ul>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

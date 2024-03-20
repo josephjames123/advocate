@@ -80,8 +80,9 @@ urlpatterns = [
     path('case_tracker_callback/<int:client_id>/', views.case_tracker_callback, name='case_tracker_callback'),
     path('work_assignment/<int:work_assignment_id>/transfer/', views.transfer_student_to_work_assignment, name='transfer_student_to_work_assignment'),
     path('feedback/<int:case_id>/<int:lawyer_id>/', views.feedback_submit, name='feedback_submit'),
-    path('feedback/', views.feedback_view, name='feedback_view'),
+    path('feedback/', views.feedback_view, name='feedback_list'),
     path('meeting/<int:id>/', views.video_call, name='video_call'),
+    path('get_response/', views.get_response, name='get_response'),
 
 ]
 

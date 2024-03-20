@@ -1,310 +1,92 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+{% extends 'client_base.html' %}
 
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-  <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-  <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-  <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-  <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-  <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-  <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'css/lawyer_profile.css' %}">
+{% block title %}Lawyer Details - Adv Assist{% endblock %}
 
-    <!-- icons -->
-    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
+{% block content %}
 <style>
-    .adv-img {
-    width: 100%;
-    height: 17em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.adv-img img {
-    width: 15em;
-    height: 15em;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-address p {
-    margin: 0;
-}
-
-.details-right {
-    height: 100%;
-    padding-left: 2em;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
+    .custom-mt-6 {
+        margin-top: 6rem;
+    }
 </style>
-</head>
-
-<body>
-    <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
-
-    <!-- header-start -->
-    <style>
-            
-            #navigation {
-                display: flex; /* Use flexbox to create a row layout */
-                align-items: center; /* Vertically center items */
-                list-style: none;
-                padding: 0;
-            }
-        
-            #navigation li {
-                margin: 0;
-                padding: 0;
-                margin-right: 0px; /* Add spacing between navigation items */
-            }
-        
-            #navigation li:last-child {
-                margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
-            }
-        </style>
-<header>
-    <div class="header-area ">
-        <div id="sticky-header" class="main-header-area">
-            <div class="container-fluid p-0">
-                <div class="row align-items-center justify-content-between no-gutters">
-                    <div class="col-xl-2 col-lg-2">
-                        <div class="logo-img">
-                            <a href="{% url 'login' %}">
-                                <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-xl-7 col-lg-8">
-                        <div class="main-menu  d-none d-lg-block">
-                            <nav>
-                                <ul id="navigation">
-                                    <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
-                                    <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                    <li><a href="{% url 'contact' %}">Contact</a></li>
-                                    <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                        <ul class="submenu">
-                                            
-                                            
-                                            {% if user.user_type == 'admin' %}
-                                            <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                            {% endif %}
-                                        </ul>
-                                        
-                                    </li> -->
-                                    {% if user.is_authenticated %}
-                                    <li>
-                                        <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                        <ul class="submenu">
-                                            {% if user.user_type == 'admin' %}
-                                            
-                                            {% endif %}
-                                            {% if user.user_type == 'lawyer' %}
-                                                     <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                              {% endif %}
-                                            <li><a href="{% url 'logout' %}">Logout</a></li>
-                                        </ul>
-                                    </li>
-                                    {% else %}
-                                    
-                                    <li><a href="{% url 'signup' %}">Signup</a></li>
-                                    <li><a href="{% url 'login' %}">Login</a></li>
-                                    {% endif %}
-                                </ul>
-                                <nav>
-                        </div>
-                    </div>
-                </div>
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-9">
+      <div class="card overflow-hidden">
+        <div class="card-body custom-mt-6">
+          <div class="position-relative">
+            <div class="position-absolute top-100 start-50 translate-middle mt-4">
+              <img src="{{ lawyer.profile_picture.url }}" width="200" height="200" class="rounded-circle raised p-1 bg-white" alt="{{ lawyer.profile_picture.url }}">
             </div>
-        </div>
-    </div>
-</header>
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">{{ lawyer.user.get_full_name}}</li>
-    </ol>
-</nav>
-    <div class="container py-5">
-        <div class="row">
-    
-          <!-- left side start -->
-          <div class="col-md-5">
-    
-            <figure class="adv-img">
-              <img src="{{ lawyer.profile_picture.url }}" alt="image">
-            </figure>
-    
-            <!-- adv details start -->
-            <div>
-              <h2 class="text-center">{{ lawyer.user.get_full_name }}</h2>
-              <!-- <p class="text-center">Practice Area: Kottayam, Ettumanoor, Ernakulam</p> -->
-            </div>
-            <!-- adv details end -->
-            
           </div>
-          <!-- left side end -->
-    
-          <!-- right side start -->
-          <div class="col-md-7">
-            <div class="details-right">
-              <p>
-                Email : 
-                {{ lawyer.user.email }}
-              </p>
-              <p>
-                Phone : 
-                {{ lawyer.user.phone }}
-              </p>
-              <p>
-                DOB:
-                {{ lawyer.user.dob }}
-              </p>
-              <p>
-                Address:
-                {{ lawyer.user.address }}
-              </p>
-              <!-- <p>
-                <i class="fa-solid fa-gavel mr-2"></i>
-                {{ lawyer.license_no }}
-              </p> -->
-              <p>
-                Specialization :
-                {{ lawyer.specialization }}
-              </p>
-              <p>
-                Court:
-                {{ lawyer.court }}
-              </p>
-              
-            
-    
-              <!-- <p>
-                <i class="fa-solid fa-location-dot mr-2"></i>
-                <span>
-                  {{lawyer.location}}
-                </span>
-              </p> -->
-    
-              <div class="mt-5">
-                <a href="{% url 'select_date' lawyer_id=lawyer.id %}" class="btn btn-warning text-white">Book Now</a>
+          <div class="custom-mt-6 d-flex align-items-start justify-content-between">
+            <div class="">
+              <h3 class="mb-2">{{ lawyer.user.get_full_name}}</h3>
+              <p class="mb-1">Email : {{ lawyer.user.email }}</p>
+              <p>Phone : {{ lawyer.user.phone }}</p>
+              <p>License Number : {{ lawyer.license_no}}</p>
+              <div class="">
+                <span class="badge rounded-pill bg-primary">{{ lawyer.specialization }} lawyer</span>
               </div>
             </div>
+            <div class="">
+               <a href="{% url 'select_date' lawyer_id=lawyer.id %}" class="btn btn-primary"><i class="bi bi-chat me-2"></i>Book Now</a>
+            </div>
           </div>
-          <!-- right side end -->
-    
+        </div>
+      </div>
+      <div class="card">
+        
+      </div>
+    </div>
+    <div class="col-12 col-lg-4 col-xl-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="mb-3">Location</h5>
+           <p class="mb-0"><i class="bi bi-geo-alt-fill me-2"></i>{{ lawyer.user.address }}</p>
         </div>
       </div>
 
-    <!-- footer start -->
-    <footer class="footer">
-        <div class="footer_top">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-4 col-md-6 col-lg-3">
-                        <div class="footer_widget">
-                            <div class="footer_logo">
-                                <a href="index.html">
-                                    <img src="{% static 'img/logo.png' %}" alt="">
-                                </a>
-                            </div>
-                            <p class="footer_text">200, A-block, Green road, USA <br>
-                                +10 367 267 2678 <br>
-                                <a class="domain" href="#">lawyer@contact.com</a>
-                            </p>
-                            <div class="socail_links">
-                                <ul>
-                                    <li>
-                                        <a href="#">
-                                            <i class="fa fa-facebook"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <i class="fa fa-twitter"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <i class="fa fa-instagram"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-2 col-md-6 col-lg-2">
-                        <div class="footer_widget">
-                            <h3 class="footer_title">
-                                Practice Area
-                            </h3>
-                            <ul>
-                                <li><a href="#">Business law
-                                    </a></li>
-                                <li><a href="#">Finance law</a></li>
-                                <li><a href="#">Education law</a></li>
-                                <li><a href="#">Family law</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xl-2 col-md-6 col-lg-2">
-                        <div class="footer_widget">
-                            <h3 class="footer_title">
-                                Useful Links
-                            </h3>
-                            <ul>
-                                <li><a href="#">About</a></li>
-                                <li><a href="#">Blog</a></li>
-                                <li><a href="#"> Contact</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-md-6 col-lg-4">
-                        <div class="footer_widget">
-                            <h3 class="footer_title">
-                                Subscribe
-                            </h3>
-                            <form action="#" class="newsletter_form">
-                                <input type="text" placeholder="Enter your mail">
-                                <button type="submit">Sign Up</button>
-                            </form>
-                            <p class="newsletter_text">Subscribe newsletter to get updates</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="mb-3">Connect</h5>
+           <p class=""><i class="bi bi-browser-edge me-2"></i>DOB {{ lawyer.user.dob }}</p>
+           <p class=""><i class="bi bi-facebook me-2"></i>Specialization :
+            {{ lawyer.specialization }}</p>
+           <p class=""><i class="bi bi-twitter me-2"></i>Court:
+            {{ lawyer.court }}</p>
         </div>
-        <div class="copy-right_text">
-            <div class="container">
-                <div class="footer_border"></div>
-                <div class="row">
-                    <div class="col-xl-12">
-                        <p class="copy_right text-center">
-                            Copyright &copy;
-                            <script>document.write(new Date().getFullYear());</script> All rights reserved | This
-                            website is made by JOseph
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!-- footer end -->
-</body>
+      </div>
 
-</html>
+      
+
+    </div>
+  </div>
+
+
+</div>
+</main>
+<!--end main wrapper-->
+
+
+<!--start overlay-->
+<div class="overlay btn-toggle"></div>
+<!--end overlay-->
+{% endblock %}

@@ -1,37 +1,9 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'lawyer_base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+{% block title %}Updated - Adv Assist{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/themify-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-    <link rel="stylesheet" href="{% static 'css/gijgo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-    <link rel="stylesheet" href="{% static 'css/add_user.css' %}">
-
-    <!-- icons -->
-    <script src="https://kit.fontawesome.com/bc4fa34d4c.js" crossorigin="anonymous"></script>
-
-</head>
-
-<body>
-    <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
-
-    <!-- header-start -->
+{% block content %}
+{% load static %}  
     <style>
             
             #navigation {
@@ -51,124 +23,84 @@
                 margin-right: 0; /* Remove margin from the last item to avoid extra spacing */
             }
         </style>
-    <header>
-        <div class="header-area ">
-            <div id="sticky-header" class="main-header-area">
-                <div class="container-fluid p-0">
-                    <div class="row align-items-center justify-content-between no-gutters">
-                        <div class="col-xl-2 col-lg-2">
-                            <div class="logo-img">
-                                <a href="{% url 'login' %}">
-                                    <img src="{% static 'img\icon.ico' %}" alt=""width="120">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="main-menu  d-none d-lg-block">
-                                <nav>
-                                    <ul id="navigation">
-                                        <li><a class="active" href="{% url 'login' %}">Dashboard</a></li>
-                                        <!-- <li><a href="{% url 'about' %}">About</a></li>
-                                        <li><a href="{% url 'contact' %}">Contact</a></li>
-                                        <li><a href="{% url 'home' %}">Practice Area</a></li>  -->
-                                        <!-- <li><a href="{% url 'lawyer_list' %}">Lawyers<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                
-                                                
-                                                {% if user.user_type == 'admin' %}
-                                                <li><a href="{% url 'add_lawyer' %}">Add Lawyer</a></li>
-                                                {% endif %}
-                                            </ul>
-                                            
-                                        </li> -->
-                                        {% if user.is_authenticated %}
-                                        <li>
-                                            <a href="#">Welcome {{ user.first_name }}<i class="ti-angle-down"></i></a>
-                                            <ul class="submenu">
-                                                {% if user.user_type == 'admin' %}
-                                                
-                                                {% endif %}
-                                                {% if user.user_type == 'lawyer' %}
-                                                         <!-- <li><a href="{% url 'lawyer_dashboard' %}">Dashboard</a></li>                                        -->
-                                                                  {% endif %}
-                                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                                            </ul>
-                                        </li>
-                                        {% else %}
-                                        
-                                        <li><a href="{% url 'signup' %}">Signup</a></li>
-                                        <li><a href="{% url 'login' %}">Login</a></li>
-                                        {% endif %}
-                                    </ul>
-                                    <nav>
-                            </div>
-                        </div>
-                    </div>
+
+        <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Dashboard</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+					</div>
+				</div>
+				<!--end breadcrumb-->
+ 
+    <div class="row">
+        <div class="col-xl-6 mx-auto">
+            <div class="card">
+                <div class="card-header px-4 py-3">
+                    <h5 class="mb-0">Enter Case Details for {{ client.client_name }}</h5>
                 </div>
-            </div>
-        </div>
-    </header>
-
-    
-
-    <div class="container py-5">
-        <h1 class="text-center">Enter Case Details for {{ client.client_name }}</h1>
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    
-        <div class="row">
-            <div class="col-12 add-user-col d-flex justify-content-center">
-                <form class="add-user-form" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}  
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+                <div class="card-body p-4">
+                    <form class="row g-3 needs-validation" novalidate method="post"  enctype="multipart/form-data">
+                        {% csrf_token %}
                     <input type="hidden" name="client_id" value="{{ client.id }}">
-                    <div class="input-group">
-                        <label for="place">Incident Place</label>
-                        <input type="text" name="incident_place" value="{{ incident_place }}" required />
+                    <div class="col-md-12">
+                        <label for="place" class="form-label">Incident Place</label>
+                        <input type="text" name="incident_place" class="form-control" value="{{ incident_place }}" required />
                     </div>
 
-                    <div class="input-group">
-                        <label for="date">Incident Date</label>
-                        <input type="date" name="incident_date" required />
+                    <div class="col-md-12">                        <label for="date" class="form-label">Incident Date</label>
+                        <input type="date" name="incident_date" class="form-control" required />
                     </div>
 
-                    <div class="input-group">
-                        <label for="time">Incident Time</label>
-                        <input type="time" name="incident_time" required />
+                    <div class="col-md-12">                        <label for="time" class="form-label">Incident Time</label>
+                        <input type="time" name="incident_time" class="form-control" required />
                     </div>
 
-                    <div class="input-group">
-                        <label for="witness_name">Witness Name</label>
-                        <input type="text" name="witness_name" required />
+                    <div class="col-md-12">
+                        <label for="witness_name" class="form-label">Witness Name</label>
+                        <input type="text" name="witness_name" class="form-control" required />
                     </div>
 
-                    <div class="input-group">
-                        <label for="witness_name">Witness Details</label>
-                        <textarea name="witness_details" cols="30" rows="10"></textarea>
+                    <div class="col-md-12">
+                        <label for="witness_name" class="form-label">Witness Details</label>
+                        <textarea name="witness_details" cols="30" rows="10" class="form-control"></textarea>
                     </div>
 
-                    <div class="input-group">
-                        <label for="incident_desc">Incident Desciption</label>
-                        <textarea name="incident_description" cols="30" rows="10"></textarea>
+                    <div class="col-md-12">
+                        <label for="incident_desc" class="form-label">Incident Desciption</label>
+                        <textarea name="incident_description" cols="30" rows="10" class="form-control"></textarea>
                     </div>
 
-                    <div class="input-group">
-                        <label for="aadhar_no">Client AAdhar Number</label>
-                        <input type="number" name="client_adhar" required />
+                    <div class="col-md-12">
+                        <label for="aadhar_no" class="form-label">Client AAdhar Number</label>
+                        <input type="number" name="client_adhar"  class="form-control" required />
                     </div>
 
-                    <div class="input-group">
-                        <label for="aadhar_img">Client Aadhar Photo</label>
+                    <div class="col-md-12">
+                        <label for="aadhar_img" class="form-label">Client Aadhar Photo</label>
                         <div class="profile-img-preview"></div>
-                        <input type="file" name="client_adhar_photo" id="client_adhar_photo" accept=".jpg, .jpeg, .png" required />
+                        <input type="file" name="client_adhar_photo"  class="form-control" id="client_adhar_photo" accept=".jpg, .jpeg, .png" required />
                     </div>
 
                     <div class="input-group">
-                        <button class="btn btn-warning" type="submit">Save Case</button>
+                        <button class="btn btn-primary" type="submit" id ="save_case">Save Case</button>
                     </div>
                 </form>
             </div>
@@ -209,7 +141,7 @@
             }
         }
     </script>
+</div>
+</main>
 
-</body>
-
-</html>
+    {% endblock %}

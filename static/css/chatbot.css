@@ -1,0 +1,35 @@
+
+.chatbot {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+
+.chat-messages {
+  max-height: calc(100vh - 180px); 
+  overflow-y: auto;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  max-width: 80%;
+  clear: both; 
+}
+
+.received {
+  background-color: #f2f2f2;
+  color: #333;
+  float: left;
+  clear: both; 
+}
+
+.sent {
+  background-color: #4caf50;
+  color: white;
+  float: right;
+  clear: both; 
+}
+
+  
