@@ -62,7 +62,7 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=30, default='')  # Added: Last name field
     # adharno = models.CharField(max_length=12,  blank=True,unique=True)  # Added: Adhar number field
     address = models.TextField(default='',blank=True,)  # Added: Address field
-    dob = models.DateField(default='2000-01-01',blank=True,)  # Added: Date of birth field
+    dob = models.DateField(default='2000-01-01',blank=True,)  # Added: Date of birth fiweld
     pin = models.CharField(max_length=6, default='',blank=True,)  # Added: PIN code field
     state = models.CharField(max_length=50, choices=STATES, blank=True, null=False)
     # state = models.CharField(max_length=10, choices=STATES, default='kerala')  # Added: State field
@@ -238,36 +238,36 @@ class Day(models.Model):
     
         
         
-class ContactEntry(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    subject = models.CharField(max_length=100)
-    message = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+# class ContactEntry(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     name = models.CharField(max_length=100)
+#     email = models.EmailField()
+#     subject = models.CharField(max_length=100)
+#     message = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
     
 
     
     
-class Booking(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
-    details = models.TextField()
-    booking_date = models.DateField()
-    time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, default="pending")
-    original_booking_date = models.DateField(null=True, blank=True)
-    # token = models.UUIDField(default=uuid.uuid4 ,unique=True)
+# class Booking(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+#     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE)
+#     details = models.TextField()
+#     booking_date = models.DateField()
+#     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
+#     status = models.CharField(max_length=20, default="pending")
+#     original_booking_date = models.DateField(null=True, blank=True)
+#     # token = models.UUIDField(default=uuid.uuid4 ,unique=True)
 
-    def is_confirmed(self):
-        return self.status == "confirmed"
+#     def is_confirmed(self):
+#         return self.status == "confirmed"
 
-    def __str__(self):
-        return self.user.email
+#     def __str__(self):
+#         return self.user.email
     
 
 class Student(models.Model):

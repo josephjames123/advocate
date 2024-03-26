@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm
-from .models import Booking, HolidayRequest ,Internship ,LawyerProfile, Task, TimeSlot ,CustomUser
+from .models import *
 from datetime import timedelta ,datetime, timezone
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -48,27 +48,27 @@ class ContactForm(forms.Form):
     subject = forms.CharField(max_length=100)
     message = forms.CharField(widget=forms.Textarea)
     
-class BookingForm(forms.ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['details', 'booking_date', 'time_slot']
+# class BookingForm(forms.ModelForm):
+#     class Meta:
+#         model = Booking
+#         fields = ['details', 'booking_date', 'time_slot']
 
-    booking_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    time_slot = forms.ModelChoiceField(queryset=TimeSlot.objects.none())  # Use ModelChoiceField
+#     booking_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+#     time_slot = forms.ModelChoiceField(queryset=TimeSlot.objects.none())  # Use ModelChoiceField
 
-    def __init__(self, *args, **kwargs):
-        lawyer = kwargs.pop('lawyer', None)
-        super().__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         lawyer = kwargs.pop('lawyer', None)
+#         super().__init__(*args, **kwargs)
         
-        if lawyer:
-            # Convert lawyer's working end time to datetime.datetime and subtract 1 hour
-            end_time = datetime.combine(datetime.today(), lawyer.working_time_end.start_time) - timedelta(hours=1)
+#         if lawyer:
+#             # Convert lawyer's working end time to datetime.datetime and subtract 1 hour
+#             end_time = datetime.combine(datetime.today(), lawyer.working_time_end.start_time) - timedelta(hours=1)
             
-            available_time_slots = TimeSlot.objects.filter(
-                start_time__gte=lawyer.working_time_start.start_time,
-                start_time__lt=end_time.time(),  # Convert back to datetime.time
-            )
-            self.fields['time_slot'].queryset = available_time_slots
+#             available_time_slots = TimeSlot.objects.filter(
+#                 start_time__gte=lawyer.working_time_start.start_time,
+#                 start_time__lt=end_time.time(),  # Convert back to datetime.time
+#             )
+#             self.fields['time_slot'].queryset = available_time_slots
           
         
 class InternshipForm(forms.ModelForm):
@@ -89,21 +89,21 @@ class InternshipForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
         
-class BookingStatusForm(forms.ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['status']
+# class BookingStatusForm(forms.ModelForm):
+#     class Meta:
+#         model = Booking
+#         fields = ['status']
         
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('confirmed', 'Confirmed'),
-        ('canceled', 'Canceled'),
-        ('reschedule', 'Reschedule'),
-        ('notpaid', 'NotPaid'),
-        # Add more status options as needed
-    ]
+#     STATUS_CHOICES = [
+#         ('pending', 'Pending'),
+#         ('confirmed', 'Confirmed'),
+#         ('canceled', 'Canceled'),
+#         ('reschedule', 'Reschedule'),
+#         ('notpaid', 'NotPaid'),
+#         # Add more status options as needed
+#     ]
 
-    status = forms.ChoiceField(choices=STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+#     status = forms.ChoiceField(choices=STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     
     
 class UserProfileUpdateForm(forms.ModelForm):

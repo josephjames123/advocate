@@ -21,8 +21,8 @@ from django.utils.http import urlsafe_base64_decode
 from .forms import CustomPasswordResetForm, LeaveReportsFilterForm, LeaveRequestForm, TaskForm  
 from django.core.exceptions import ValidationError
 from datetime import datetime
-from .models import LawyerProfile , ContactEntry , Internship , Task , Student , Application , Booking , Day ,TimeSlot , LawyerDayOff , HolidayRequest , Case ,Appointment , CaseTracking , WorkAssignment , Payment,TrackerPayment
-from .forms import ContactForm , BookingForm , InternshipForm , BookingStatusForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
+from .models import *
+from .forms import ContactForm, InternshipForm ,CustomUserUpdateForm, LawyerProfileUpdateForm
 import markdown
 from django.db.models import Count
 from django.contrib import messages
@@ -608,7 +608,7 @@ def lawyer_dashboard(request):
         student_count = students.count()
 
         # Count the number of bookings for this lawyer
-        booking_count = Booking.objects.filter(lawyer=lawyer_profile).count()
+        booking_count = Appointment.objects.filter(lawyer=lawyer_profile).count()
         case_count = Case.objects.filter(lawyer=lawyer_profile).count()
         # current_month = timezone.now().month
         # # current_month = '03'
@@ -2593,6 +2593,8 @@ def work_assignment_tasks(request, work_assignment_id):
     return render(request, '404.html')  
 
 
+
+
 @login_required
 def create_task(request, work_assignment_id):
     work_assignment = get_object_or_404(WorkAssignment, pk=work_assignment_id)
@@ -2610,16 +2612,20 @@ def create_task(request, work_assignment_id):
                 student=work_assignment.student
             )
             task.save()
+            return render(request, 'error/submitted.html')
 
             # You can add a success message if needed
             # messages.success(request, 'Task submitted successfully.')
 
             # Redirect to the same page with a GET request
-            return redirect('create_task', work_assignment_id=work_assignment.id)
+            # return redirect('create_task', work_assignment_id=work_assignment.id)
     else:
         form = TaskForm()
 
     return render(request, 'task_create.html', {'form': form, 'work_assignment': work_assignment})
+
+
+
 
 @login_required
 def mark_leave_request(request, leave_type):

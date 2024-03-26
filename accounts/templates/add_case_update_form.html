@@ -29,7 +29,7 @@
 								<h5 class="mb-0">Add Case Update</h5>
 							</div>
 							<div class="card-body p-4">
-								<form class="row g-3 needs-validation" method="post" action="{% url 'add_case_update' case_number=case.case_number %}" novalidate>
+								<form class="row g-3 needs-validation" method="post" action="{% url 'add_case_update' case_number=case.case_number %}" >
 								   {% csrf_token %}
 								   <div class="col-md-12">
 									<label for="bsValidation1" class="form-label">Activity:</label>
@@ -60,7 +60,7 @@
 									</div>
 									<div class="col-md-12">
 										<div class="d-md-flex d-grid align-items-center gap-3">
-											<button type="submit" class="btn btn-primary px-4">Add Case Update</button>
+											<button type="submit" class="btn btn-primary px-4"id = "adu">Add Case Update</button>
 											<button type="reset" class="btn btn-light px-4">Reset</button>
 										</div>
 									</div>

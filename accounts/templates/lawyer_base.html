@@ -209,11 +209,11 @@
             <div class="menu-title">Leave</div>
           </a>
           <ul>
-            <li><a href="{% url 'mark_holiday' %}"><i class="material-icons-outlined">arrow_right</i>Duty Leave</a>
+            <li><a href="{% url 'mark_holiday' %}"><i class="material-icons-outlined"id="duty_leave">arrow_right</i>Duty Leave</a>
             </li>
             <li><a href="{% url 'mark_casual_leave' %}"><i class="material-icons-outlined">arrow_right</i>Casual Leave</a>
             </li>
-            <li><a href="{% url 'leave_reports' %}"><i class="material-icons-outlined">arrow_right</i>Leave Reports</a>
+            <li><a href="{% url 'leave_reports' %}"><i class="material-icons-outlined"id="leaveReport">arrow_right</i>Leave Reports</a>
             </li>
           </ul>
         </li>
@@ -242,7 +242,7 @@
           <a href="{% url 'assign_work' %}" class="has-arrow">
             <div class="parent-icon"><i class="material-icons-outlined">person_add</i>
             </div>
-            <div class="menu-title">Assign Work</div>
+            <div class="menu-title"id = "work">Assign Work</div>
           </a>
         </li>
         <li class="{% if '/bookings/lawyer/' in request.path %}active{% endif %}">
