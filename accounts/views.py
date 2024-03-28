@@ -372,15 +372,15 @@ def admin_dashboard(request):
     if request.user.user_type == 'admin':
         # Calculate the number of lawyers
         lawyer_count = LawyerProfile.objects.count()
-        booking_count = Booking.objects.count()
+        booking_count = Appointment.objects.count()
         internship_count = Internship.objects.count()
         students_count = Student.objects.count()
         cases_count = Case.objects.count()
         
         
         # Retrieve the recent 5 bookings, ordered by pk in descending order (greatest to smallest)
-        recent_bookings = Booking.objects.order_by('-pk')[:5]
-        recent_queries = ContactEntry.objects.order_by('-pk')[:5]
+        # recent_bookings = Appointment.objects.order_by('-pk')[:5]
+        # recent_queries = ContactEntry.objects.order_by('-pk')[:5]
         
         context = {
             'user': request.user,
@@ -389,8 +389,8 @@ def admin_dashboard(request):
             'internship_count': internship_count,
             'students_count': students_count,
             'cases_count': cases_count,
-            'recent_bookings': recent_bookings,
-            'recent_queries': recent_queries,
+            # 'recent_bookings': recent_bookings,
+            # 'recent_queries': recent_queries,
 }
 
             
