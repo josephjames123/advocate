@@ -73,5 +73,3 @@ def chatbot(request, message):
     return res
 
 
-
-# hfhcjvjbhnj,
