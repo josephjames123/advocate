@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 # from decouple import Config, Csv
 from decouple import config
+import dj_database_url
 
 
 
@@ -88,24 +89,16 @@ WSGI_APPLICATION = 'law.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-
-import dj_database_url
-import os        
-
-DATABASE_URL = os.getenv('postgres://advocateassist_user:fl8ejh9cTY8skwMcQBifgPMNKHuZZzLg@dpg-co2kehkf7o1s73ckg95g-a.oregon-postgres.render.com/advocateassist')
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+        
+#     }
+# }
 DATABASES = {
-    'default': dj_database_url.config(),
-
+    'default': dj_database_url.parse("postgres://advocate_assist_user:XAyzXnMDxGZ4P6bKHiktJmngrKwezAgg@dpg-co3r3kcf7o1s738kqbkg-a.singapore-postgres.render.com/advocate_assist")
 }
-
-
-# Assuming DATABASE_URL is properly set in your environment variables
-
-DATABASE_URL = os.getenv('postgres://advocateassist_user:fl8ejh9cTY8skwMcQBifgPMNKHuZZzLg@dpg-co2kehkf7o1s73ckg95g-a.oregon-postgres.render.com/advocateassist')
-DATABASES = {
-    'default': dj_database_url.config(),
-}
-
 
 
 # Password validation
