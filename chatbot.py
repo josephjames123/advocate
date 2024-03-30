@@ -71,3 +71,7 @@ def chatbot(request, message):
     ints = predict_class(message)
     res = get_response(ints, intents)
     return res
+
+
+
+# hfhcjvjbhnj,
