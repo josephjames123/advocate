@@ -3277,7 +3277,7 @@ def transfer_student_to_work_assignment(request, work_assignment_id):
     return render(request, 'lawyer/transfer_student.html', {'current_student': current_student, 'associated_students': associated_students})
 
 
-nltk.download('vader_lexicon')
+# nltk.download('vader_lexicon') ## database
 
 # def feedback_submit(request, case_id, lawyer_id):
 #     case = get_object_or_404(Case, id=case_id)
