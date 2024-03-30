@@ -3456,13 +3456,13 @@ def video_call(request, id):
 
 
 
-def get_response(request):
-    if request.method == 'GET':
-        message = request.GET.get('message')
-        if message:
-            response = chatbot(request, message)
-            return HttpResponse(response)
-        else:
-            return HttpResponse('Please provide a message')
-    else:
-        return HttpResponse('Invalid request method')
+# def get_response(request):
+#     if request.method == 'GET':
+#         message = request.GET.get('message')
+#         if message:
+#             response = chatbot(request, message)
+#             return HttpResponse(response)
+#         else:
+#             return HttpResponse('Please provide a message')
+#     else:
+#         return HttpResponse('Invalid request method')
