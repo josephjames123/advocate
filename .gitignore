@@ -1,3 +1,4 @@
 .env
 env/
-.train_chatbot.py
+train_chatbot.py
+chatbot.py
