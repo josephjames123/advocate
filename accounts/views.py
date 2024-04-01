@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect ,get_object_or_404 ,HttpResponseRedirect
 from django.urls import reverse
 
-from chatbot import chatbot
+# from chatbot import chatbot
 from .models import CustomUser, LawyerProfile , CurrentCase, Notification, StudentPayment  ,TrackerNotification  
 from django.http import HttpResponseForbidden , Http404,HttpResponseNotFound , HttpResponse ,HttpResponseBadRequest
 from django.core.mail import send_mail
