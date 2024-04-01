@@ -82,7 +82,7 @@ urlpatterns = [
     path('feedback/<int:case_id>/<int:lawyer_id>/', views.feedback_submit, name='feedback_submit'),
     path('feedback/', views.feedback_view, name='feedback_list'),
     path('meeting/<int:id>/', views.video_call, name='video_call'),
-    # path('get_response/', views.get_response, name='get_response'),
+    path('get_response/', views.get_response, name='get_response'),
 
 ]
 
